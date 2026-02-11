@@ -1,0 +1,18 @@
+{
+  "Branch": {
+    "Created": "Branch created successfully.",
+    "Updated": "Branch updated successfully.",
+    "Deleted": "Branch deleted successfully.",
+    "Exists": "Branch code already exists."
+  },
+  "Auth": {
+    "InvalidCredentials": "Invalid credentials.",
+    "Unauthorized": "You are not authorized to perform this action."
+  },
+  "Common": {
+    "NotFound": "Not found."
+  },
+  "Server": {
+    "Error": "An unexpected error occurred. Please try again later."
+  }
+}
