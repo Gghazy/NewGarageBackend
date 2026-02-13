@@ -2,7 +2,7 @@ using Azure.Core;
 using Garage.Application.Abstractions;
 using Garage.Application.Common.Extensions;
 using Garage.Contracts.Common;
-using Garage.Domain.Common;
+using Garage.Domain.Common.Lookup;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

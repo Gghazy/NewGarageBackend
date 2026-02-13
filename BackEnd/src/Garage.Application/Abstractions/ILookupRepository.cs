@@ -1,10 +1,6 @@
 using Garage.Contracts.Common;
-using Garage.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Garage.Domain.Common.Lookup;
+
 
 namespace Garage.Application.Abstractions
 {

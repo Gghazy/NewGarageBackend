@@ -1,4 +1,4 @@
-using Garage.Domain.Common;
+using Garage.Domain.Common.Lookup;
 using System;
 using System.Collections.Generic;
 using System.Linq;

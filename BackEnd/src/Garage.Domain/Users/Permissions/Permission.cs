@@ -63,6 +63,43 @@ public static class Permission
     public const string InsideAndDecorPart_Delete = "insideAndDecorPart.delete";
 
 
+    public const string CarMark_Read   = "carMark.read";
+    public const string CarMark_Create = "carMark.create";
+    public const string CarMark_Update = "carMark.update";
+    public const string CarMark_Delete = "carMark.delete";
+
+
+    public const string Manufacturer_Read   = "manufacturer.read";
+    public const string Manufacturer_Create = "manufacturer.create";
+    public const string Manufacturer_Update = "manufacturer.update";
+    public const string Manufacturer_Delete = "manufacturer.delete";
+
+    public const string ServiceType_Read   = "serviceType.read";
+    public const string ServiceType_Create = "serviceType.create";
+    public const string ServiceType_Update = "serviceType.update";
+    public const string ServiceType_Delete = "serviceType.delete";
+
+    public const string Service_Read   = "service.read";
+    public const string Service_Create = "service.create";
+    public const string Service_Update = "service.update";
+    public const string Service_Delete = "service.delete";
+
+    public const string Crane_Read   = "crane.read";
+    public const string Crane_Create = "crane.create";
+    public const string Crane_Update = "crane.update";
+    public const string Crane_Delete = "crane.delete";
+
+    public const string Term_Read   = "term.read";
+    public const string Term_Create = "term.create";
+    public const string Term_Update = "term.update";
+    public const string Term_Delete = "term.delete";
+
+    public const string ServicePrice_Read   = "servicePrice.read";
+    public const string ServicePrice_Create = "servicePrice.create";
+    public const string ServicePrice_Update = "servicePrice.update";
+    public const string ServicePrice_Delete = "servicePrice.delete";
+
+
     public const string Employees_Read = "employees.read";
     public const string Employees_Create = "employees.create";
     public const string Employees_Update = "employees.update";
@@ -85,6 +122,14 @@ public static class Permission
         ExteriorBodyIssue_Read, ExteriorBodyIssue_Create,ExteriorBodyIssue_Update, ExteriorBodyIssue_Delete,
         AccessoryIssue_Read, AccessoryIssue_Create,AccessoryIssue_Update, AccessoryIssue_Delete,
         RoadTestIssue_Read, RoadTestIssue_Create,RoadTestIssue_Update, RoadTestIssue_Delete,
+        InsideAndDecorPart_Read, InsideAndDecorPart_Create,InsideAndDecorPart_Update, InsideAndDecorPart_Delete,
+        CarMark_Read, CarMark_Create,CarMark_Update, CarMark_Delete,
+        Manufacturer_Read, Manufacturer_Create,Manufacturer_Update, Manufacturer_Delete,
+        ServiceType_Read, ServiceType_Create,ServiceType_Update, ServiceType_Delete,
+        Service_Read, Service_Create,Service_Update, Service_Delete,
+        ServicePrice_Create, ServicePrice_Read, ServicePrice_Update, ServicePrice_Delete,
+        Crane_Read, Crane_Create,Crane_Update, Crane_Delete,
+        Term_Read, Term_Create,Term_Update, Term_Delete,
         Dashbord_View
     ];
 }

@@ -1,4 +1,4 @@
-using Garage.Domain.Common;
+using Garage.Domain.Common.Primitives;
 namespace Garage.Domain.Branches.Entities;
 public class Branch : AggregateRoot
 {

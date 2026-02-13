@@ -1,10 +1,11 @@
+using Garage.Domain.Common.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage.Domain.Common
+namespace Garage.Domain.Common.Lookup
 {
     public class LookupBase:AggregateRoot
     {

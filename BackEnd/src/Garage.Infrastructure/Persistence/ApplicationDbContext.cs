@@ -1,16 +1,21 @@
 using Garage.Application.Abstractions;
 using Garage.Domain.AccessoryIssues.Entity;
 using Garage.Domain.Branches.Entities;
+using Garage.Domain.CarMark.Entity;
+using Garage.Domain.Common.Primitives;
+using Garage.Domain.Cranes.Entity;
 using Garage.Domain.ExteriorBodyIssues.Entity;
 using Garage.Domain.InsideAndDecorParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
+using Garage.Domain.Manufacturers.Entity;
 using Garage.Domain.MechIssues.Entities;
 using Garage.Domain.MechIssueTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
 using Garage.Domain.SensorIssues.Entities;
+using Garage.Domain.Services.Entities;
+using Garage.Domain.Terms.Entity;
 using Garage.Infrastructure.Auth.Entities;
-using Garage.Infrastructure.Persistence.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +40,12 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     public DbSet<AccessoryIssue> AccessoryIssues=> Set<AccessoryIssue>();
     public DbSet<RoadTestIssue> RoadTestIssues=> Set<RoadTestIssue>();
     public DbSet<InsideAndDecorPart> InsideAndDecorParts => Set<InsideAndDecorPart>();
+    public DbSet<CarMark> CarMarkes => Set<CarMark>();
+    public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
+    public DbSet<ServicesStage> ServicesStages => Set<ServicesStage>();
+    public DbSet<Service> Services => Set<Service>();
+    public DbSet<Crane> Cranes => Set<Crane>();
+    public DbSet<Term> Terms => Set<Term>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -49,11 +60,14 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid>
         builder.ApplyConfiguration(new Configurations.AccessoryIssueConfiguration());
         builder.ApplyConfiguration(new Configurations.RoadTestIssueConfiguration());
         builder.ApplyConfiguration(new Configurations.InsideAndDecorPartConfiguration());
+        builder.ApplyConfiguration(new Configurations.CarMarkConfiguration());
+        builder.ApplyConfiguration(new Configurations.ManufacturerConfiguration());
+        builder.ApplyConfiguration(new Configurations.ServiceConfiguration());
+        builder.ApplyConfiguration(new Configurations.ServicePriceConfiguration());
+        builder.ApplyConfiguration(new Configurations.ServiceStageConfiguration());
+        builder.ApplyConfiguration(new Configurations.CraneConfiguration());
+        builder.ApplyConfiguration(new Configurations.TermsConfiguration());
 
-        builder.Entity<Branch>().HasData(
-         new  { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Code = "CEN", NameAr = "الفرع الرئيسي", NameEn = "Central Branch", IsActive = true },
-         new  { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Code = "ALX", NameAr = "فرع الإسكندرية", NameEn = "Alexandria Branch", IsActive = true }
-     );
     }
 
 

@@ -1,4 +1,4 @@
-using Garage.Domain.Common;
+using Garage.Domain.Common.Primitives;
 
 
 namespace Garage.Domain.SensorIssues.Entities

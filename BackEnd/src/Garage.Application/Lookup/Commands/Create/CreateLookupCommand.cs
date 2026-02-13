@@ -1,5 +1,5 @@
 using Garage.Contracts.Lookup;
-using Garage.Domain.Common;
+using Garage.Domain.Common.Lookup;
 using MediatR;
 using System;
 using System.Collections.Generic;
