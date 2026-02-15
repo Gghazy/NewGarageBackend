@@ -24,10 +24,10 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
              .HasForeignKey(x => x.ServiceId)
              .OnDelete(DeleteBehavior.Cascade);
 
-            b.HasMany(x => x.Prices)
-             .WithOne()
-             .HasForeignKey(x => x.ServiceId)
-             .OnDelete(DeleteBehavior.Cascade);
+        b.HasMany(x => x.Prices)
+           .WithOne()
+           .HasForeignKey(x => x.ServiceId)
+           .OnDelete(DeleteBehavior.Restrict);
 
 
     }

@@ -1,4 +1,5 @@
 using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Lookup.Queries.GetAllPagination;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Garage.Infrastructure;
 
@@ -22,7 +24,15 @@ public static class DependencyInjection
         var conn = config.GetConnectionString("Default");
         services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(conn));
 
-        services.AddIdentityCore<AppUser>(o => { o.User.RequireUniqueEmail = true; })
+        services.AddIdentityCore<AppUser>(o => {
+            o.User.RequireUniqueEmail = true;
+            o.Password.RequireDigit = false;
+            o.Password.RequireLowercase = false;
+            o.Password.RequireUppercase = false;
+            o.Password.RequireNonAlphanumeric = false;
+            o.Password.RequiredLength = 6;
+            o.Password.RequiredUniqueChars = 0;
+        })
             .AddRoles<AppRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager();
@@ -46,6 +56,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped(typeof(ILookupRepository<>), typeof(LookupRepository<>));
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
         return services;
     }

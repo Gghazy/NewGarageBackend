@@ -6,5 +6,6 @@ public interface IReadRepository<T> where T : class
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
     Task<IReadOnlyList<T>> ListAsync(CancellationToken ct = default);
     IQueryable<T> Query();
+    IQueryable<T> QueryTracking();
 }
 

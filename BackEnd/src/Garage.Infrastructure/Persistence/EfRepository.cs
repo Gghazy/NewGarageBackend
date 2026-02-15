@@ -20,6 +20,8 @@ public class EfRepository<T> : IRepository<T> where T : class
 
     public IQueryable<T> Query() => _db.Set<T>().AsNoTracking().AsQueryable();
 
+    public IQueryable<T> QueryTracking() => _db.Set<T>().AsQueryable();
+
     public async Task<T> AddAsync(T entity, CancellationToken ct = default)
     {
         await _db.Set<T>().AddAsync(entity, ct);

@@ -99,6 +99,11 @@ public static class Permission
     public const string ServicePrice_Update = "servicePrice.update";
     public const string ServicePrice_Delete = "servicePrice.delete";
 
+    public const string Role_Read   = "role.read";
+    public const string Role_Create = "role.create";
+    public const string Role_Update = "role.update";
+    public const string Role_Delete = "role.delete";
+
 
     public const string Employees_Read = "employees.read";
     public const string Employees_Create = "employees.create";
@@ -130,6 +135,7 @@ public static class Permission
         ServicePrice_Create, ServicePrice_Read, ServicePrice_Update, ServicePrice_Delete,
         Crane_Read, Crane_Create,Crane_Update, Crane_Delete,
         Term_Read, Term_Create,Term_Update, Term_Delete,
+        Role_Read, Role_Create,Role_Update, Role_Delete,
         Dashbord_View
     ];
 }

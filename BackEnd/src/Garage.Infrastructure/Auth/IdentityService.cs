@@ -11,7 +11,7 @@ public class IdentityService(UserManager<AppUser> userManager, RoleManager<AppRo
 {
     public async Task<(bool Succeeded, string? Error, Guid? UserId)> CreateUserAsync(RegisterUserRequest request, CancellationToken ct = default)
     {
-        var user = new AppUser { UserName = request.Email, Email = request.Email, PhoneNumber = request.Phone, NameAr = request.NameAr, NameEn = request.NameEn };
+        var user = new AppUser { UserName = request.Email, Email = request.Email, PhoneNumber = request.Phone};
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded) return (false, string.Join(";", result.Errors.Select(e => e.Description)), null);
         return (true, null, user.Id);
@@ -32,7 +32,7 @@ public class IdentityService(UserManager<AppUser> userManager, RoleManager<AppRo
 
     public Task<IReadOnlyList<UserDto>> ListUsersAsync(CancellationToken ct = default)
     {
-        var data = userManager.Users.Select(u => new UserDto(u.Id, u.NameAr, u.NameEn, u.Email!, u.PhoneNumber)).ToList();
+        var data = userManager.Users.Select(u => new UserDto(u.Id, u.Email!, u.PhoneNumber)).ToList();
         return Task.FromResult<IReadOnlyList<UserDto>>(data);
     }
 }

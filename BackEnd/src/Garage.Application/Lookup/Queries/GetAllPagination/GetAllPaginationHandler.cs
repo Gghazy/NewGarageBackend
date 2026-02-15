@@ -1,4 +1,4 @@
-using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;

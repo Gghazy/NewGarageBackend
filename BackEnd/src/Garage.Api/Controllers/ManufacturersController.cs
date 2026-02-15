@@ -4,8 +4,6 @@ using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Application.Lookup.Queries.GetAllPagination;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;
-using Garage.Domain.CarMark.Entity;
-using Garage.Domain.InsideAndDecorParts.Entity;
 using Garage.Domain.Manufacturers.Entity;
 using Garage.Domain.Users.Permissions;
 using Garage.Infrastructure.Authorization;

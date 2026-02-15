@@ -1,18 +1,14 @@
-﻿using Garage.Application.Abstractions;
-using Garage.Application.Common;
-using Garage.Application.Services.Commands.UpsertServicePrice;
-using Garage.Application.Terms.Commands.Create;
-using Garage.Application.Terms.Commands.Update;
+﻿using Garage.Application.ServicePrices.Commands.Create;
+using Garage.Application.ServicePrices.Commands.Update;
+using Garage.Application.ServicePrices.Queries.GetAllServicePriceBySearch;
 using Garage.Application.Terms.Queries.GetById;
+using Garage.Contracts.Common;
+using Garage.Contracts.ServicePrices;
 using Garage.Contracts.Services;
-using Garage.Contracts.Terms;
-using Garage.Domain.Services.Entities;
 using Garage.Domain.Users.Permissions;
 using Garage.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -23,18 +19,29 @@ namespace Garage.Api.Controllers;
 [Authorize]
 public class ServicePricesController(IMediator _mediator, IStringLocalizer T) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<ServiceDto>> GetById(CancellationToken ct)
+
+    [HttpPost]
+    [HasPermission(Permission.ServicePrice_Update)]
+    public async Task<IActionResult> Create([FromBody] ServicePriceRequest request,  CancellationToken ct)
     {
-        var res = await _mediator.Send(new GetTermsByIdQuery(), ct);
-        return Ok(res);
+        await _mediator.Send(new CreateServicePriceCommand(request), ct);
+        return NoContent();
+    }
+    [HttpPut("{id:Guid}")]
+    [HasPermission(Permission.ServicePrice_Update)]
+    public async Task<IActionResult> Update(Guid id, ServicePriceRequest request)
+    {
+        var res = await _mediator.Send(new UpdateServicePriceCommand(id, request));
+        return Ok(new ApiMessage(T["SensorIssue.Updated"]!));
     }
 
-    [HttpPut]
-    [HasPermission(Permission.ServicePrice_Update)]
-    public async Task<IActionResult> Upsert( Guid serviceId, [FromBody] ServicePriceRequest request,  CancellationToken ct)
+    [HttpPost("pagination")]
+    [HasPermission(Permission.ServicePrice_Read)]
+    public async Task<ActionResult<QueryResult<ServicePriceDto>>> GetAll(
+     [FromBody] ServicePriceFilterDto search,
+     CancellationToken ct)
     {
-        await _mediator.Send(new UpsertServicePriceCommand(serviceId, request), ct);
-        return NoContent();
+        var res = await _mediator.Send(new GetAllServicePriceBySearchQuery(search), ct);
+        return Ok(res);
     }
 }

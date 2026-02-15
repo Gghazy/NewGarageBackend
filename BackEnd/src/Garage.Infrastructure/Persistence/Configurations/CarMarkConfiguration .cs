@@ -1,4 +1,4 @@
-using Garage.Domain.CarMark.Entity;
+using Garage.Domain.CarMarkes.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -56,7 +56,7 @@ public sealed class ServicesController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] CreateServiceRequest request, CancellationToken ct)
     {
         await mediator.Send(new UpdateServiceCommand(id, request), ct);
-        return NoContent();
+        return Ok();
     }
 
     [HttpGet("stages")]

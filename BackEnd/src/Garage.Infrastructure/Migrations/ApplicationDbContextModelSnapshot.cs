@@ -93,7 +93,7 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("Branches", (string)null);
                 });
 
-            modelBuilder.Entity("Garage.Domain.CarMark.Entity.CarMark", b =>
+            modelBuilder.Entity("Garage.Domain.CarMarkes.Entity.CarMark", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -125,6 +125,51 @@ namespace Garage.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CarMarkes", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.Client", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Clients", (string)null);
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("Garage.Domain.Cranes.Entity.Crane", b =>
@@ -159,6 +204,46 @@ namespace Garage.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cranes", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.Employees.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("Garage.Domain.ExteriorBodyIssues.Entity.ExteriorBodyIssue", b =>
@@ -471,7 +556,63 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("SensorIssues", (string)null);
                 });
 
-            modelBuilder.Entity("Garage.Domain.Services.Entity.Service", b =>
+            modelBuilder.Entity("Garage.Domain.ServicePrices.Entities.ServicePrice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("FromYear")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("MarkId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServiceId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ToYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MarkId");
+
+                    b.HasIndex("ServiceId1");
+
+                    b.HasIndex("ServiceId", "MarkId");
+
+                    b.HasIndex("ServiceId", "MarkId", "FromYear", "ToYear")
+                        .IsUnique();
+
+                    b.ToTable("ServicePrices", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServicePrice_Price", "[Price] > 0");
+
+                            t.HasCheckConstraint("CK_ServicePrice_YearRange", "[FromYear] <= [ToYear]");
+                        });
+                });
+
+            modelBuilder.Entity("Garage.Domain.Services.Entities.Service", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -505,7 +646,7 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("Services", (string)null);
                 });
 
-            modelBuilder.Entity("Garage.Domain.Services.Entity.ServicesStage", b =>
+            modelBuilder.Entity("Garage.Domain.Services.Entities.ServicesStage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -630,12 +771,6 @@ namespace Garage.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NameAr")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameEn")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -780,6 +915,50 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.CompanyClient", b =>
+                {
+                    b.HasBaseType("Garage.Domain.Clients.Entities.Client");
+
+                    b.Property<string>("CommercialRegister")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContactPerson")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TaxNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasIndex("CommercialRegister")
+                        .IsUnique()
+                        .HasFilter("[CommercialRegister] IS NOT NULL");
+
+                    b.ToTable("CompanyClients", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.IndividualClient", b =>
+                {
+                    b.HasBaseType("Garage.Domain.Clients.Entities.Client");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("NationalId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasIndex("NationalId")
+                        .IsUnique()
+                        .HasFilter("[NationalId] IS NOT NULL");
+
+                    b.ToTable("IndividualClients", (string)null);
+                });
+
             modelBuilder.Entity("Garage.Domain.MechIssues.Entities.MechIssue", b =>
                 {
                     b.HasOne("Garage.Domain.MechIssueTypes.Entity.MechIssueType", "MechIssueType")
@@ -791,9 +970,32 @@ namespace Garage.Infrastructure.Migrations
                     b.Navigation("MechIssueType");
                 });
 
-            modelBuilder.Entity("Garage.Domain.Services.Entity.ServicesStage", b =>
+            modelBuilder.Entity("Garage.Domain.ServicePrices.Entities.ServicePrice", b =>
                 {
-                    b.HasOne("Garage.Domain.Services.Entity.Service", "Service")
+                    b.HasOne("Garage.Domain.CarMarkes.Entity.CarMark", "CarMark")
+                        .WithMany()
+                        .HasForeignKey("MarkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Garage.Domain.Services.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Garage.Domain.Services.Entities.Service", null)
+                        .WithMany("Prices")
+                        .HasForeignKey("ServiceId1");
+
+                    b.Navigation("CarMark");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("Garage.Domain.Services.Entities.ServicesStage", b =>
+                {
+                    b.HasOne("Garage.Domain.Services.Entities.Service", "Service")
                         .WithMany("Stages")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -853,13 +1055,33 @@ namespace Garage.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.CompanyClient", b =>
+                {
+                    b.HasOne("Garage.Domain.Clients.Entities.Client", null)
+                        .WithOne()
+                        .HasForeignKey("Garage.Domain.Clients.Entities.CompanyClient", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.IndividualClient", b =>
+                {
+                    b.HasOne("Garage.Domain.Clients.Entities.Client", null)
+                        .WithOne()
+                        .HasForeignKey("Garage.Domain.Clients.Entities.IndividualClient", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Garage.Domain.MechIssueTypes.Entity.MechIssueType", b =>
                 {
                     b.Navigation("MechIssues");
                 });
 
-            modelBuilder.Entity("Garage.Domain.Services.Entity.Service", b =>
+            modelBuilder.Entity("Garage.Domain.Services.Entities.Service", b =>
                 {
+                    b.Navigation("Prices");
+
                     b.Navigation("Stages");
                 });
 #pragma warning restore 612, 618

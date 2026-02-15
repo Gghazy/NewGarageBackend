@@ -3,6 +3,7 @@ using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Services.Entities;
 using Garage.Domain.Services.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Garage.Application.Services.Commands.Update
@@ -11,7 +12,7 @@ namespace Garage.Application.Services.Commands.Update
     {
         public async Task<Guid> Handle(UpdateServiceCommand request, CancellationToken ct)
         {
-            var service = await repo.GetByIdAsync(request.Id, ct);
+            var service = await repo.QueryTracking().Include(x=>x.Stages).FirstOrDefaultAsync(x=>x.Id==request.Id);
             if (service is null)
                 throw new KeyNotFoundException("Service not found");
 
@@ -29,6 +30,7 @@ namespace Garage.Application.Services.Commands.Update
 
 
             service.SetStages(request.Request.Stages);
+
 
             await uow.SaveChangesAsync(ct);
             return service.Id;

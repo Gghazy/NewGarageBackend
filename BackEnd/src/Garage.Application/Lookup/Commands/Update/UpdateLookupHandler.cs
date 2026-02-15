@@ -1,4 +1,5 @@
 using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Domain.Common.Lookup;
 using MediatR;
 using System;

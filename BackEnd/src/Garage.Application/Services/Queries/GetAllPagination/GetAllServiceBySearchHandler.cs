@@ -1,9 +1,8 @@
 ﻿using Garage.Application.Abstractions;
-using Garage.Application.Branches.Queries.GetAll;
 using Garage.Application.Common.Extensions;
 using Garage.Contracts.Common;
 using Garage.Contracts.Services;
-using Garage.Domain.Services.Entity;
+using Garage.Domain.Services.Entities;
 using MediatR;
 
 

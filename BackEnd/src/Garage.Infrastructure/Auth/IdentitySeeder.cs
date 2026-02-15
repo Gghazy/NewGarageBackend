@@ -19,7 +19,7 @@ public static class IdentitySeeder
         var admin = await userMgr.FindByEmailAsync("admin@Garage.local");
         if (admin is null)
         {
-            admin = new AppUser { UserName = "admin@Garage.local", Email = "admin@Garage.local", NameEn = "Super Admin" };
+            admin = new AppUser { UserName = "admin@Garage.local", Email = "admin@Garage.local" };
             await userMgr.CreateAsync(admin, "Admin#12345");
             await userMgr.AddToRoleAsync(admin, adminRole.Name!);
         }

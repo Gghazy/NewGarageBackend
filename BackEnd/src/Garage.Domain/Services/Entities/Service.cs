@@ -1,5 +1,6 @@
 ﻿using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
+using Garage.Domain.ServicePrices.Entities;
 using Garage.Domain.Services.Enums;
 using System;
 using System.Collections.Generic;
@@ -34,70 +35,28 @@ namespace Garage.Domain.Services.Entities
         }
         public void SetStages(IEnumerable<int> stages)
         {
-            _stages.Clear();
-            _stages.AddRange(stages.Select(x => new ServicesStage(Id, x)));
-        }
+            if (stages is null)
+                throw new DomainException("Stages are required");
 
-        public void UpsertPrice(Guid markId, int fromYear, int toYear, decimal price)
-        {
-            ValidatePriceRow(markId, fromYear, toYear, price);
-            var existing = _prices.FirstOrDefault(x =>
-                x.MarkId == markId &&
-                x.FromYear == fromYear &&
-                x.ToYear == toYear);
+            var desired = stages.Distinct().ToList();
+            if (desired.Count == 0)
+                throw new DomainException("Stages are required");
 
-            EnsureNoOverlappingRanges(markId, fromYear, toYear, ignore: existing);
+            // remove stages that are not desired
+            var toRemove = _stages.Where(x => !desired.Contains(x.Stage.Value)).ToList();
+            foreach (var r in toRemove)
+                _stages.Remove(r);
 
-            if (existing is null)
+            // add missing stages
+            var existing = _stages.Select(x => x.Stage.Value).ToHashSet();
+            foreach (var s in desired)
             {
-                _prices.Add(new ServicePrice(Id, markId, fromYear, toYear, price));
-                return;
+                // لو عندك validation Stage.FromValue(s) اعمله قبلها في handler زي ما بتعمل
+                if (!existing.Contains(s))
+                    _stages.Add(new ServicesStage(Id, s));
             }
-
-            existing.UpdatePrice(price);
         }
 
-        public void RemovePrice(Guid markId, int fromYear, int toYear)
-        {
-            var existing = _prices.FirstOrDefault(x =>
-                x.MarkId == markId &&
-                x.FromYear == fromYear &&
-                x.ToYear == toYear);
-
-            if (existing is null) return;
-
-            _prices.Remove(existing);
-        }
-
-        public void ClearPrices() => _prices.Clear();
-
-
-        private static void ValidatePriceRow(Guid brandId, int fromYear, int toYear, decimal price)
-        {
-            if (brandId == Guid.Empty)
-                throw new DomainException("BrandId is required");
-
-            if (fromYear < 1950 || fromYear > 2100)
-                throw new DomainException("Invalid FromYear");
-
-            if (toYear < 1950 || toYear > 2100)
-                throw new DomainException("Invalid ToYear");
-
-            if (fromYear > toYear)
-                throw new DomainException("FromYear cannot be greater than ToYear");
-
-            if (price < 0)
-                throw new DomainException("Price must be >= 0");
-        }
-        private void EnsureNoOverlappingRanges(Guid markId, int fromYear, int toYear, ServicePrice? ignore)
-        {
-            var hasOverlap = _prices
-                .Where(x => x.MarkId == markId && x != ignore)
-                .Any(x => fromYear <= x.ToYear && toYear >= x.FromYear);
-
-            if (hasOverlap)
-                throw new DomainException("لا يمكن إضافة سعر لنفس الماركة لأن نطاق السنين يتداخل مع نطاق موجود.");
-        }
 
     }
 }

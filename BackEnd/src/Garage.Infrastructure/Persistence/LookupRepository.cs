@@ -1,5 +1,5 @@
 using Azure.Core;
-using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Common.Extensions;
 using Garage.Contracts.Common;
 using Garage.Domain.Common.Lookup;
