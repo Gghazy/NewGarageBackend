@@ -127,7 +127,7 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("CarMarkes", (string)null);
                 });
 
-            modelBuilder.Entity("Garage.Domain.Clients.Entities.Client", b =>
+            modelBuilder.Entity("Garage.Domain.ClientResources.Entities.ClientResource", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -150,7 +150,51 @@ namespace Garage.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClientResources", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.Clients.Entities.Client", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ClientType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ResourceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
+                        .HasMaxLength(30)
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
@@ -164,12 +208,20 @@ namespace Garage.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NameAr");
+
+                    b.HasIndex("NameEn");
+
+                    b.HasIndex("Type");
+
                     b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("Clients", (string)null);
 
-                    b.UseTptMappingStrategy();
+                    b.HasDiscriminator<int>("ClientType");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Garage.Domain.Cranes.Entity.Crane", b =>
@@ -211,6 +263,9 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -239,6 +294,8 @@ namespace Garage.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -581,9 +638,6 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ServiceId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("ToYear")
                         .HasColumnType("int");
 
@@ -594,10 +648,6 @@ namespace Garage.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MarkId");
-
-                    b.HasIndex("ServiceId1");
 
                     b.HasIndex("ServiceId", "MarkId");
 
@@ -919,44 +969,23 @@ namespace Garage.Infrastructure.Migrations
                 {
                     b.HasBaseType("Garage.Domain.Clients.Entities.Client");
 
-                    b.Property<string>("CommercialRegister")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ContactPerson")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("TaxNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasIndex("CommercialRegister")
-                        .IsUnique()
-                        .HasFilter("[CommercialRegister] IS NOT NULL");
-
-                    b.ToTable("CompanyClients", (string)null);
+                    b.HasDiscriminator().HasValue(20);
                 });
 
             modelBuilder.Entity("Garage.Domain.Clients.Entities.IndividualClient", b =>
                 {
                     b.HasBaseType("Garage.Domain.Clients.Entities.Client");
 
-                    b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
+                    b.HasDiscriminator().HasValue(10);
+                });
 
-                    b.Property<string>("NationalId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasIndex("NationalId")
-                        .IsUnique()
-                        .HasFilter("[NationalId] IS NOT NULL");
-
-                    b.ToTable("IndividualClients", (string)null);
+            modelBuilder.Entity("Garage.Domain.Employees.Entities.Employee", b =>
+                {
+                    b.HasOne("Garage.Domain.Branches.Entities.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Garage.Domain.MechIssues.Entities.MechIssue", b =>
@@ -972,25 +1001,11 @@ namespace Garage.Infrastructure.Migrations
 
             modelBuilder.Entity("Garage.Domain.ServicePrices.Entities.ServicePrice", b =>
                 {
-                    b.HasOne("Garage.Domain.CarMarkes.Entity.CarMark", "CarMark")
-                        .WithMany()
-                        .HasForeignKey("MarkId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Garage.Domain.Services.Entities.Service", "Service")
-                        .WithMany()
+                    b.HasOne("Garage.Domain.Services.Entities.Service", null)
+                        .WithMany("Prices")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Garage.Domain.Services.Entities.Service", null)
-                        .WithMany("Prices")
-                        .HasForeignKey("ServiceId1");
-
-                    b.Navigation("CarMark");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Garage.Domain.Services.Entities.ServicesStage", b =>
@@ -1057,19 +1072,176 @@ namespace Garage.Infrastructure.Migrations
 
             modelBuilder.Entity("Garage.Domain.Clients.Entities.CompanyClient", b =>
                 {
-                    b.HasOne("Garage.Domain.Clients.Entities.Client", null)
-                        .WithOne()
-                        .HasForeignKey("Garage.Domain.Clients.Entities.CompanyClient", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.OwnsOne("Garage.Domain.Shared.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyClientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AdditionalStreetName")
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("AdditionalStreetName");
+
+                            b1.Property<string>("BuildingNumber")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("BuildingNumber");
+
+                            b1.Property<string>("CityName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CityName");
+
+                            b1.Property<string>("CitySubdivisionName")
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CitySubdivisionName");
+
+                            b1.Property<string>("CountryCode")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("CountryCode");
+
+                            b1.Property<string>("CountrySubentity")
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CountrySubentity");
+
+                            b1.Property<string>("PostalZone")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("PostalZone");
+
+                            b1.Property<string>("StreetName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("StreetName");
+
+                            b1.HasKey("CompanyClientId");
+
+                            b1.ToTable("Clients");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyClientId");
+                        });
+
+                    b.OwnsOne("Garage.Domain.Clients.ValueObjects.CompanyIdentity", "Identity", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyClientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("CommercialRegister")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("CommercialRegister");
+
+                            b1.Property<string>("TaxNumber")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("nvarchar(30)")
+                                .HasColumnName("TaxNumber");
+
+                            b1.HasKey("CompanyClientId");
+
+                            b1.ToTable("Clients");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyClientId");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("Identity")
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Garage.Domain.Clients.Entities.IndividualClient", b =>
                 {
-                    b.HasOne("Garage.Domain.Clients.Entities.Client", null)
-                        .WithOne()
-                        .HasForeignKey("Garage.Domain.Clients.Entities.IndividualClient", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.OwnsOne("Garage.Domain.Shared.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("IndividualClientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AdditionalStreetName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("AdditionalStreetName");
+
+                            b1.Property<string>("BuildingNumber")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("BuildingNumber");
+
+                            b1.Property<string>("CityName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CityName");
+
+                            b1.Property<string>("CitySubdivisionName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CitySubdivisionName");
+
+                            b1.Property<string>("CountryCode")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("CountryCode");
+
+                            b1.Property<string>("CountrySubentity")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("CountrySubentity");
+
+                            b1.Property<string>("PostalZone")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("PostalZone");
+
+                            b1.Property<string>("StreetName")
+                                .IsRequired()
+                                .ValueGeneratedOnUpdateSometimes()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("StreetName");
+
+                            b1.HasKey("IndividualClientId");
+
+                            b1.ToTable("Clients");
+
+                            b1.WithOwner()
+                                .HasForeignKey("IndividualClientId");
+                        });
+
+                    b.Navigation("Address")
                         .IsRequired();
                 });
 

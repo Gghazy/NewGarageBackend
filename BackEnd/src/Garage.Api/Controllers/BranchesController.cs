@@ -2,6 +2,7 @@ using Garage.Application.Branches.Commands.Create;
 using Garage.Application.Branches.Commands.Delete;
 using Garage.Application.Branches.Commands.Update;
 using Garage.Application.Branches.Queries.GetAll;
+using Garage.Application.Branches.Queries.GetAllBranchesBySearch;
 using Garage.Contracts.Branches;
 using Garage.Contracts.Common;
 using Garage.Domain.Users.Permissions;
@@ -18,9 +19,15 @@ namespace Garage.Api.Controllers;
 [Authorize]
 public class BranchesController(IMediator mediator, IStringLocalizer T) : ControllerBase
 {
+
+    [HttpGet]
+    [HasPermission(Permission.Branches_Read)]
+    public async Task<IActionResult> GetAll() => Ok(await mediator.Send(new GetAllBranchesQuery()));
+
+
     [HttpPost("pagination")]
     [HasPermission(Permission.Branches_Read)]
-    public async Task<IActionResult> GetAll(SearchCriteria search) => Ok(await mediator.Send(new GetBranchQuery(search)));
+    public async Task<IActionResult> GetAll(SearchCriteria search) => Ok(await mediator.Send(new GetAllBranchesBySearchQuery(search)));
 
     [HttpPost]
     [HasPermission(Permission.Branches_Create)]

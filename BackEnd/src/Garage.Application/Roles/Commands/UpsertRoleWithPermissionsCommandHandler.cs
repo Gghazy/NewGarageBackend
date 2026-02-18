@@ -51,15 +51,35 @@ public sealed class UpsertRoleWithPermissionsCommandHandler
 
         var existingClaims = await _roleManager.GetClaimsAsync(role);
 
+        var existingPermissions = existingClaims
+            .Where(c => c.Type == Permission.ClaimType)
+            .Select(c => c.Value)
+            .ToList();
+
+
+
+        foreach (var claim in existingClaims.Where(c => c.Type == Permission.ClaimType))
+        {
+            var stillExists = incoming.Any(p =>
+                string.Equals(p, claim.Value, StringComparison.OrdinalIgnoreCase));
+
+            if (!stillExists)
+            {
+                var remove = await _roleManager.RemoveClaimAsync(role, claim);
+                if (!remove.Succeeded)
+                    throw new Exception(string.Join(", ", remove.Errors.Select(e => e.Description)));
+            }
+        }
+
+
+ 
         foreach (var p in incoming)
         {
-
             if (!Permission.All.Contains(p, StringComparer.OrdinalIgnoreCase))
                 throw new Exception($"Invalid permission: {p}");
 
-            var exists = existingClaims.Any(c =>
-                c.Type == Permission.ClaimType &&
-                string.Equals(c.Value, p, StringComparison.OrdinalIgnoreCase));
+            var exists = existingPermissions.Any(ep =>
+                string.Equals(ep, p, StringComparison.OrdinalIgnoreCase));
 
             if (!exists)
             {
@@ -68,6 +88,7 @@ public sealed class UpsertRoleWithPermissionsCommandHandler
                     throw new Exception(string.Join(", ", add.Errors.Select(e => e.Description)));
             }
         }
+
 
         return role.Id;
     }

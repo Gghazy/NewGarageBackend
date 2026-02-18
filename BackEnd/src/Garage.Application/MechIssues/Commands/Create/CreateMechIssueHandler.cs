@@ -1,14 +1,8 @@
 using Garage.Application.Abstractions;
-using Garage.Application.Branches.Commands.Create;
 using Garage.Application.Common;
-using Garage.Domain.Branches.Entities;
 using Garage.Domain.MechIssues.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Garage.Application.MechIssues.Commands.Create
 {

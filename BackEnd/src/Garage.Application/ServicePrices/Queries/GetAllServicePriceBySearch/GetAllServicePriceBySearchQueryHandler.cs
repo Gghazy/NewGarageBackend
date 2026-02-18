@@ -20,7 +20,7 @@ public class GetAllServicePriceBySearchQueryHandler(IApplicationDbContext _dbCon
                     join s in _dbContext.Services.AsNoTracking()
                         on sp.ServiceId equals s.Id
 
-                    join m in _dbContext.CarMarkes.AsNoTracking()
+                    join m in _dbContext.CarMarks.AsNoTracking()
                         on sp.MarkId equals m.Id
 
                     select new ServicePriceDto

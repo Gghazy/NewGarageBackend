@@ -6,8 +6,11 @@ public static class Permission
     public const string Users_Create = "users.create";
     public const string Users_Update = "users.update";
     public const string Users_Delete = "users.delete";
+
     public const string Roles_Read   = "roles.read";
-    public const string Roles_Assign = "roles.assign";
+    public const string Roles_Create = "roles.create";
+    public const string Roles_Update = "roles.update";
+
     public const string Permissions_Read = "permissions.read";
 
     public const string Branches_Read   = "branches.read";
@@ -99,10 +102,21 @@ public static class Permission
     public const string ServicePrice_Update = "servicePrice.update";
     public const string ServicePrice_Delete = "servicePrice.delete";
 
-    public const string Role_Read   = "role.read";
-    public const string Role_Create = "role.create";
-    public const string Role_Update = "role.update";
-    public const string Role_Delete = "role.delete";
+
+
+    public const string Client_Read   = "clients.read";
+    public const string Client_Create = "clients.create";
+    public const string Client_Update = "clients.update";
+    public const string Client_Delete = "clients.delete";
+
+
+
+    public const string ClientResource_Read   = "clientResource.read";
+    public const string ClientResource_Create = "clientResource.create";
+    public const string ClientResource_Update = "clientResource.update";
+    public const string ClientResource_Delete = "clientResource.delete";
+
+
 
 
     public const string Employees_Read = "employees.read";
@@ -110,13 +124,14 @@ public static class Permission
     public const string Employees_Update = "employees.update";
     public const string Employees_Delete = "employees.delete";
 
-    public const string Dashbord_View = "dashboard.view";
+    public const string Dashbord_Read = "dashboard.read";
 
 
     public static readonly string[] All =
     [
         Users_Read, Users_Create, Users_Update, Users_Delete,
-        Roles_Read, Roles_Assign, Permissions_Read,
+        Roles_Read, Roles_Create, Roles_Update,
+        Permissions_Read,
         Branches_Read, Branches_Create, Branches_Update, Branches_Delete,
         Employees_Create, Employees_Read, Employees_Update, Employees_Delete,
         SensorIssue_Create, SensorIssue_Update, SensorIssue_Delete,SensorIssue_Read,
@@ -135,8 +150,9 @@ public static class Permission
         ServicePrice_Create, ServicePrice_Read, ServicePrice_Update, ServicePrice_Delete,
         Crane_Read, Crane_Create,Crane_Update, Crane_Delete,
         Term_Read, Term_Create,Term_Update, Term_Delete,
-        Role_Read, Role_Create,Role_Update, Role_Delete,
-        Dashbord_View
+        Client_Read, Client_Create,Client_Update, Client_Delete,
+        ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
+        Dashbord_Read
     ];
 }
 

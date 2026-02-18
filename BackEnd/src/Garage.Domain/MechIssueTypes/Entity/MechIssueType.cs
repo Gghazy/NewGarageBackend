@@ -1,4 +1,4 @@
-using Garage.Domain.Common.Lookup;
+using Garage.Domain.Common.Primitives;
 using Garage.Domain.MechIssues.Entities;
 using System;
 using System.Collections.Generic;

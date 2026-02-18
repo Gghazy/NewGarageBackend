@@ -2,7 +2,7 @@ using Garage.Api;
 using Garage.Api.Localization;
 using Garage.Api.Middleware;
 using Garage.Application.Auth.Commands.RegisterUser;
-using Garage.Domain.Common.Lookup;
+using Garage.Domain.Common.Primitives;
 using Garage.Infrastructure;
 using Garage.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

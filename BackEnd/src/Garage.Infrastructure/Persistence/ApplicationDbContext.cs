@@ -20,29 +20,51 @@ using Garage.Domain.Services.Entities;
 using Garage.Domain.Terms.Entity;
 using Garage.Domain.Users.Permissions;
 using Garage.Infrastructure.Auth.Entities;
+using Garage.Infrastructure.Persistence.Configurations.Accessories;
+using Garage.Infrastructure.Persistence.Configurations.Branches;
+using Garage.Infrastructure.Persistence.Configurations.CarMarks;
+using Garage.Infrastructure.Persistence.Configurations.Clients;
+using Garage.Infrastructure.Persistence.Configurations.Crans;
+using Garage.Infrastructure.Persistence.Configurations.Employees;
+using Garage.Infrastructure.Persistence.Configurations.ExteriorBodyIssues;
+using Garage.Infrastructure.Persistence.Configurations.InsideAndDecorParts;
+using Garage.Infrastructure.Persistence.Configurations.InteriorBodyIssues;
+using Garage.Infrastructure.Persistence.Configurations.InteriorIssues;
+using Garage.Infrastructure.Persistence.Configurations.Manufacturers;
+using Garage.Infrastructure.Persistence.Configurations.MechIssues;
+using Garage.Infrastructure.Persistence.Configurations.RoadTestIssues;
+using Garage.Infrastructure.Persistence.Configurations.SensorIssues;
+using Garage.Infrastructure.Persistence.Configurations.Services;
+using Garage.Infrastructure.Persistence.Configurations.Terms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Infrastructure.Persistence;
 
-public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid> , IApplicationDbContext
+using Garage.Domain.ClientResources.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
+public sealed class ApplicationDbContext
+    : IdentityDbContext<AppUser, AppRole, Guid>, IApplicationDbContext
 {
     private readonly ICurrentUserService _currentUser;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ICurrentUserService currentUser) : base(options)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ICurrentUserService currentUser) : base(options)
     {
-        _currentUser = currentUser;
+        _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
-    #region Identity
-    public DbSet<AppUser> Users => Set<AppUser>();
-    public DbSet<AppRole> Roles => Set<AppRole>();
-    public DbSet<IdentityUserRole<Guid>> UserRoles => Set<IdentityUserRole<Guid>>();
+        DbSet<AppUser> IApplicationDbContext.Users => Users;
+    DbSet<AppRole> IApplicationDbContext.Roles => Roles;
+    DbSet<IdentityUserRole<Guid>> IApplicationDbContext.UserRoles => UserRoles;
 
-    #endregion
-
-    #region Look Up Tables
+    #region Lookups
     public DbSet<Branch> Branches => Set<Branch>();
     public DbSet<SensorIssue> SensorIssues => Set<SensorIssue>();
     public DbSet<MechIssue> MechIssues => Set<MechIssue>();
@@ -50,13 +72,17 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid> , 
     public DbSet<InteriorIssue> InteriorIssues => Set<InteriorIssue>();
     public DbSet<InteriorBodyIssue> InteriorBodyIssues => Set<InteriorBodyIssue>();
     public DbSet<ExteriorBodyIssue> ExteriorBodyIssues => Set<ExteriorBodyIssue>();
-    public DbSet<AccessoryIssue> AccessoryIssues=> Set<AccessoryIssue>();
-    public DbSet<RoadTestIssue> RoadTestIssues=> Set<RoadTestIssue>();
+    public DbSet<AccessoryIssue> AccessoryIssues => Set<AccessoryIssue>();
+    public DbSet<RoadTestIssue> RoadTestIssues => Set<RoadTestIssue>();
     public DbSet<InsideAndDecorPart> InsideAndDecorParts => Set<InsideAndDecorPart>();
-    public DbSet<CarMark> CarMarkes => Set<CarMark>();
+
+    // Tip: fix typo CarMarkes -> CarMarks (rename if you can)
+    public DbSet<CarMark> CarMarks => Set<CarMark>();
+
     public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
     public DbSet<Crane> Cranes => Set<Crane>();
     public DbSet<Term> Terms => Set<Term>();
+    public DbSet<ClientResource> ClientResources => Set<ClientResource>();
     #endregion
 
     #region Services
@@ -78,44 +104,31 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid> , 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.ApplyConfiguration(new Configurations.BranchConfiguration());
-        builder.ApplyConfiguration(new Configurations.SensorIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.MechIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.MechIssueTypeConfiguration());
-        builder.ApplyConfiguration(new Configurations.InteriorIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.InteriorBodyIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.ExteriorBodyIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.AccessoryIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.RoadTestIssueConfiguration());
-        builder.ApplyConfiguration(new Configurations.InsideAndDecorPartConfiguration());
-        builder.ApplyConfiguration(new Configurations.CarMarkConfiguration());
-        builder.ApplyConfiguration(new Configurations.ManufacturerConfiguration());
-        builder.ApplyConfiguration(new Configurations.ServiceConfiguration());
-        builder.ApplyConfiguration(new Configurations.ServicePriceConfiguration());
-        builder.ApplyConfiguration(new Configurations.ServiceStageConfiguration());
-        builder.ApplyConfiguration(new Configurations.CraneConfiguration());
-        builder.ApplyConfiguration(new Configurations.TermsConfiguration());
 
-        builder.ApplyConfiguration(new Configurations.ClientConfiguration());
-        builder.ApplyConfiguration(new Configurations.CompanyClientConfiguration());
-        builder.ApplyConfiguration(new Configurations.IndividualClientConfiguration());
-        builder.ApplyConfiguration(new Configurations.EmployeeConfiguration());
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
     }
 
-
-    public override Task<int> SaveChangesAsync( CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        ApplyAuditInfo();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void ApplyAuditInfo()
+    {
+        var userId = _currentUser.UserId; // Guid? or Guid (based on your service)
+
+
         foreach (var entry in ChangeTracker.Entries<Entity>())
         {
             if (entry.State == EntityState.Added)
-                entry.Entity.SetCreatedBy(_currentUser.UserId);
+                entry.Entity.SetCreatedBy(userId);
 
             if (entry.State == EntityState.Modified)
-                entry.Entity.SetUpdatedBy(_currentUser.UserId);
+                entry.Entity.SetUpdatedBy(userId);
         }
-
-        return base.SaveChangesAsync(cancellationToken);
     }
 }
+
 

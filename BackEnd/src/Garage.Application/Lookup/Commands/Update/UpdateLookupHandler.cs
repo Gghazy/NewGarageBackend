@@ -1,6 +1,6 @@
 using Garage.Application.Abstractions;
 using Garage.Application.Abstractions.Repositories;
-using Garage.Domain.Common.Lookup;
+using Garage.Domain.Common.Primitives;
 using MediatR;
 using System;
 using System.Collections.Generic;

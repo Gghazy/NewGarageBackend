@@ -1,6 +1,7 @@
 ﻿using Garage.Domain.AccessoryIssues.Entity;
 using Garage.Domain.Branches.Entities;
 using Garage.Domain.CarMarkes.Entity;
+using Garage.Domain.ClientResources.Entities;
 using Garage.Domain.Clients.Entities;
 using Garage.Domain.Cranes.Entity;
 using Garage.Domain.Employees.Entities;
@@ -26,9 +27,9 @@ namespace Garage.Application.Abstractions
     public interface IApplicationDbContext
     {
 
-        public DbSet<AppUser> Users { get; }
-        public DbSet<AppRole> Roles { get; }
-        public DbSet<IdentityUserRole<Guid>> UserRoles { get; }
+        DbSet<AppUser> Users { get; }
+        DbSet<AppRole> Roles { get; }
+        DbSet<IdentityUserRole<Guid>> UserRoles { get; }
 
         #region Look Up Tables
         DbSet<Branch> Branches { get; }
@@ -41,10 +42,11 @@ namespace Garage.Application.Abstractions
         DbSet<AccessoryIssue> AccessoryIssues { get; }
         DbSet<RoadTestIssue> RoadTestIssues { get; }
         DbSet<InsideAndDecorPart> InsideAndDecorParts { get; }
-        DbSet<CarMark> CarMarkes { get; }
+        DbSet<CarMark> CarMarks { get; }
         DbSet<Manufacturer> Manufacturers { get; }
         DbSet<Crane> Cranes { get; }
         DbSet<Term> Terms { get; }
+        DbSet<ClientResource> ClientResources { get; }
         #endregion
 
         #region Services

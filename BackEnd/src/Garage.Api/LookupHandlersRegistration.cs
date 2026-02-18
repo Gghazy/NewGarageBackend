@@ -4,7 +4,7 @@ using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Application.Lookup.Queries.GetAllPagination;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;
-using Garage.Domain.Common.Lookup;
+using Garage.Domain.Common.Primitives;
 using MediatR;
 using System.Reflection;
 

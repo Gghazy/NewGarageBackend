@@ -1,5 +1,5 @@
 using Garage.Contracts.Common;
-using Garage.Domain.Common.Lookup;
+using Garage.Domain.Common.Primitives;
 
 
 namespace Garage.Application.Abstractions.Repositories

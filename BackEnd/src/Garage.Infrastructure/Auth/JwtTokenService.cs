@@ -1,4 +1,5 @@
 using Garage.Application.Abstractions;
+using Garage.Domain.Employees.Entities;
 using Garage.Infrastructure.Auth.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,7 +23,7 @@ public class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
 {
     private readonly JwtOptions _opt = options.Value;
 
-    public (string token, DateTime expiresAt) CreateToken(Guid? userId, string email, IList<Claim>? claims)
+    public (string token, DateTime expiresAt) CreateToken(Guid? userId,string employeeNameAr,string employeeNameEn, string email, IList<Claim>? claims)
     {
         var now = DateTime.UtcNow;
 
@@ -35,6 +36,10 @@ public class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
         };
 
       identityClaims.AddRange(claims ?? Enumerable.Empty<Claim>());
+
+        identityClaims.Add(new Claim("employee_name_ar", employeeNameAr));
+        identityClaims.Add(new Claim("employee_name_en", employeeNameEn));
+        identityClaims.Add(new Claim(ClaimTypes.Name, employeeNameEn));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
