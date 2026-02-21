@@ -35,18 +35,15 @@ using Garage.Infrastructure.Persistence.Configurations.MechIssues;
 using Garage.Infrastructure.Persistence.Configurations.RoadTestIssues;
 using Garage.Infrastructure.Persistence.Configurations.SensorIssues;
 using Garage.Infrastructure.Persistence.Configurations.Services;
+using Garage.Domain.ClientResources.Entities;
 using Garage.Infrastructure.Persistence.Configurations.Terms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Garage.Infrastructure.Persistence;
-
-using Garage.Domain.ClientResources.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 public sealed class ApplicationDbContext
     : IdentityDbContext<AppUser, AppRole, Guid>, IApplicationDbContext
@@ -107,6 +104,17 @@ public sealed class ApplicationDbContext
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
+        // Global soft-delete filter: automatically excludes IsDeleted = true from ALL queries
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(Entity).IsAssignableFrom(entityType.ClrType) && !entityType.IsAbstract())
+            {
+                var param = Expression.Parameter(entityType.ClrType, "e");
+                var prop = Expression.Property(param, nameof(Entity.IsDeleted));
+                var filter = Expression.Lambda(Expression.Not(prop), param);
+                entityType.SetQueryFilter(filter);
+            }
+        }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

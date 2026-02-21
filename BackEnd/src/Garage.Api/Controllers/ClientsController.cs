@@ -1,5 +1,6 @@
-
+using Garage.Api.Controllers.Common;
 using Garage.Application.Clients.Commands.Create;
+using Garage.Application.Clients.Commands.Delete;
 using Garage.Application.Clients.Commands.Update;
 using Garage.Application.Clients.Queries.GetAllClients;
 using Garage.Application.Clients.Queries.GetAllClientsBySearch;
@@ -17,31 +18,52 @@ namespace Garage.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ClientsController(IMediator mediator, IStringLocalizer T) : ControllerBase
+public class ClientsController : ApiControllerBase
 {
+    private readonly IMediator _mediator;
+
+    public ClientsController(IMediator mediator, IStringLocalizer localizer)
+        : base(localizer)
+    {
+        _mediator = mediator;
+    }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await mediator.Send(new GetAllClientsQuery()));
-
+    public async Task<IActionResult> GetAll()
+    {
+        var clients = await _mediator.Send(new GetAllClientsQuery());
+        return Success(clients);
+    }
 
     [HttpPost("pagination")]
     [HasPermission(Permission.Client_Read)]
-    public async Task<IActionResult> GetAll(SearchCriteria search) => Ok(await mediator.Send(new GetAllClientsBySearchQuery(search)));
+    public async Task<IActionResult> Search(SearchCriteria search)
+    {
+        var result = await _mediator.Send(new GetAllClientsBySearchQuery(search));
+        return Success(result);
+    }
 
     [HttpPost]
     [HasPermission(Permission.Client_Create)]
     public async Task<IActionResult> Create(CreateClientRequest request)
     {
-        var res = await mediator.Send(new CreateClientCommand(request));
-        return Ok(res);
+        var result = await _mediator.Send(new CreateClientCommand(request));
+        return HandleResult(result, "Client.Created");
     }
 
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.Client_Update)]
     public async Task<IActionResult> Update(Guid id, CreateClientRequest request)
     {
-        var res = await mediator.Send(new UpdateClientCommand(id, request));
-        return Ok(res);
+        var result = await _mediator.Send(new UpdateClientCommand(id, request));
+        return HandleResult(result, "Client.Updated");
+    }
+
+    [HttpDelete("{id:Guid}")]
+    [HasPermission(Permission.Client_Delete)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteClientCommand(id));
+        return HandleResult(result, "Client.Deleted");
     }
 }
-

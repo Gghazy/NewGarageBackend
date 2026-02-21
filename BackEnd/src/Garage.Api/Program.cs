@@ -2,9 +2,11 @@ using Garage.Api;
 using Garage.Api.Localization;
 using Garage.Api.Middleware;
 using Garage.Application.Auth.Commands.RegisterUser;
+using Garage.Application.Common.Behaviors;
 using Garage.Domain.Common.Primitives;
 using Garage.Infrastructure;
 using Garage.Infrastructure.Auth;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
@@ -26,7 +28,12 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(ConfigureSwagger);
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommand).Assembly));
+builder.Services.AddMediatR(cfg => 
+{
+    cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommand).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(RegisterUserCommand));
 builder.Services.AddLookupHandlersForAllEntities(typeof(LookupBase).Assembly);
 
 builder.Services.AddInfrastructure(builder.Configuration);

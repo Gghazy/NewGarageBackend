@@ -1,39 +1,46 @@
 ﻿using Garage.Application.Abstractions;
-using Garage.Domain.Common.Exceptions;
+using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
 using Garage.Domain.Services.Entities;
 using Garage.Domain.Services.Enums;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+namespace Garage.Application.Services.Commands.Update;
 
-namespace Garage.Application.Services.Commands.Update
+public sealed class UpdateServiceHandler : BaseCommandHandler<UpdateServiceCommand, bool>
 {
-    public sealed class UpdateServiceHandler( IRepository<Service> repo, IUnitOfWork uow) : IRequestHandler<UpdateServiceCommand, Guid>
+    private readonly IRepository<Service> _repository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateServiceHandler(IRepository<Service> repository, IUnitOfWork unitOfWork)
     {
-        public async Task<Guid> Handle(UpdateServiceCommand request, CancellationToken ct)
-        {
-            var service = await repo.QueryTracking().Include(x=>x.Stages).FirstOrDefaultAsync(x=>x.Id==request.Id);
-            if (service is null)
-                throw new KeyNotFoundException("Service not found");
+        _repository = repository;
+        _unitOfWork = unitOfWork;
+    }
 
-            // 1) Update names
-            service.SetNames(request.Request.NameAr, request.Request.NameEn);
+    public override async Task<Result<bool>> Handle(UpdateServiceCommand request, CancellationToken ct)
+    {
+        var service = await _repository.QueryTracking()
+            .Include(x => x.Stages)
+            .FirstOrDefaultAsync(x => x.Id == request.Id, ct);
+        
+        if (service is null)
+            return Fail(NotFoundError);
 
-            if (request.Request.Stages is null || request.Request.Stages.Count == 0)
-                throw new DomainException("Stages are required");
+        service.SetNames(request.Request.NameAr, request.Request.NameEn);
 
-            foreach (var s in request.Request.Stages)
-                _ = Stage.FromValue(s); 
+        if (request.Request.Stages is null || request.Request.Stages.Count == 0)
+            return Fail("Stages are required");
 
-            if (request.Request.Stages.GroupBy(x => x).Any(g => g.Count() > 1))
-                throw new DomainException("Duplicated stage is not allowed");
+        foreach (var s in request.Request.Stages)
+            _ = Stage.FromValue(s);
 
+        if (request.Request.Stages.GroupBy(x => x).Any(g => g.Count() > 1))
+            return Fail("Duplicate stages are not allowed");
 
-            service.SetStages(request.Request.Stages);
+        service.SetStages(request.Request.Stages);
+        await _unitOfWork.SaveChangesAsync(ct);
 
-
-            await uow.SaveChangesAsync(ct);
-            return service.Id;
-        }
+        return Ok(true);
     }
 }

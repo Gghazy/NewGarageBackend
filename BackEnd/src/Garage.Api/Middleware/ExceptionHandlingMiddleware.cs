@@ -1,15 +1,17 @@
 using Microsoft.Extensions.Localization;
 using System.Net;
 using System.Text.Json;
+using Garage.Application.Common.Exceptions;
 
 namespace Garage.Api.Middleware
 {
     public sealed record ApiError(
-    string Code,
-    string Message,
-    string? TraceId = null,
-    object? Details = null
+        string Code,
+        string Message,
+        string? TraceId = null,
+        object? Details = null
     );
+
     public sealed class ExceptionHandlingMiddleware : IMiddleware
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
@@ -34,47 +36,95 @@ namespace Garage.Api.Middleware
             }
             catch (Exception ex)
             {
-                var traceId = context.TraceIdentifier;
-
-                _logger.LogError(ex, "Unhandled exception. TraceId={TraceId}", traceId);
-
-                var (status, code, messageKey, details) = MapException(ex);
-
-                var payload = new ApiError(
-                    Code: code,
-                    Message: _T[messageKey],
-                    TraceId: traceId,
-                    Details: _env.IsDevelopment() ? details : null
-                );
-
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)status;
-
-                var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
-
-                await context.Response.WriteAsync(json);
+                await HandleExceptionAsync(context, ex);
             }
         }
 
-        private static (HttpStatusCode Status, string Code, string MessageKey, object? Details) MapException(Exception ex)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            var traceId = context.TraceIdentifier;
+            var (status, code, messageKey, details) = MapException(exception);
+
+            if (status == HttpStatusCode.InternalServerError)
+            {
+                _logger.LogError(exception, "Unhandled server error. TraceId={TraceId}", traceId);
+            }
+            else
+            {
+                _logger.LogWarning(exception, "Client error occurred. Code={Code}, TraceId={TraceId}", code, traceId);
+            }
+
+            // Translate validation field errors always; other details only in development
+            object? translatedDetails;
+            if (details is Dictionary<string, string[]> errorsDict)
+            {
+                translatedDetails = errorsDict.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Select(key => _T[key].Value).ToArray()
+                );
+            }
+            else
+            {
+                translatedDetails = _env.IsDevelopment() ? details : null;
+            }
+
+            var payload = new ApiError(
+                Code: code,
+                Message: _T[messageKey],
+                TraceId: traceId,
+                Details: translatedDetails
+            );
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)status;
+
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            await context.Response.WriteAsync(json);
+        }
+
+        private (HttpStatusCode Status, string Code, string MessageKey, object? Details) MapException(Exception ex)
+        {
+            if (ex is DomainException domainEx)
+            {
+                var status = GetStatusCodeForDomainException(domainEx);
+                return (status, domainEx.Code, domainEx.MessageKey, domainEx.Details);
+            }
 
             if (ex is UnauthorizedAccessException)
-                return (HttpStatusCode.Unauthorized, "Auth.Unauthorized", "Auth.InvalidCredentials", null);
+                return (HttpStatusCode.Unauthorized, "Auth.Unauthorized", "Auth.Unauthorized", null);
 
             if (ex is KeyNotFoundException)
-                return (HttpStatusCode.NotFound, "NotFound", "NotFound", null);
+                return (HttpStatusCode.NotFound, "NotFound", "Common.NotFound", null);
+
+            if (ex is ArgumentException)
+                return (HttpStatusCode.BadRequest, "Validation.Error", "Validation.BadArgument", null);
+
+            if (ex is InvalidOperationException)
+                return (HttpStatusCode.BadRequest, "Operation.Invalid", "Operation.InvalidOperation", null);
 
             return (HttpStatusCode.InternalServerError, "Server.Error", "Server.Error", new
             {
                 exception = ex.GetType().Name,
-                ex.Message,
-                ex.StackTrace
+                message = ex.Message,
+                stackTrace = ex.StackTrace
             });
+        }
+
+        private HttpStatusCode GetStatusCodeForDomainException(DomainException ex)
+        {
+            return ex switch
+            {
+                NotFoundException => HttpStatusCode.NotFound,
+                ConflictException => HttpStatusCode.Conflict,
+                ValidationException => HttpStatusCode.BadRequest,
+                UnauthorizedException => HttpStatusCode.Unauthorized,
+                ForbiddenException => HttpStatusCode.Forbidden,
+                _ => HttpStatusCode.BadRequest
+            };
         }
     }
 }
-

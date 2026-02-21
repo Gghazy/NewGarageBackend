@@ -14,7 +14,7 @@ public sealed class GetTermsByIdHandler(IReadRepository<Term> repo)
     {
         var term =
             await repo.Query()
-            .Select(t => new TermsDto(t.Id, t.TermsAndCondtionsAr, t.TermsAndCondtionsEn, t.CancelWarrantyDocumentAr, t.CancelWarrantyDocumentEn))
+            .Select(t => new TermsDto(t.Id, t.TermsAndConditionsAr, t.TermsAndConditionsEn, t.CancelWarrantyDocumentAr, t.CancelWarrantyDocumentEn))
                       .FirstOrDefaultAsync(ct)
                      ?? new TermsDto(null, "", "", "", "");
 

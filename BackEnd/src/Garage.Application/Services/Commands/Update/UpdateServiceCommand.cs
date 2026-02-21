@@ -1,9 +1,7 @@
-﻿using Garage.Contracts.Services;
+﻿using Garage.Application.Common;
+using Garage.Contracts.Services;
 using MediatR;
 
+namespace Garage.Application.Services.Commands.Update;
 
-namespace Garage.Application.Services.Commands.Update
-{
-    public sealed record UpdateServiceCommand(Guid Id,CreateServiceRequest Request) : IRequest<Guid>;
-
-}
+public sealed record UpdateServiceCommand(Guid Id, CreateServiceRequest Request) : IRequest<Result<bool>>;

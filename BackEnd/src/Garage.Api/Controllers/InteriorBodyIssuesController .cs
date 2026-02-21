@@ -1,16 +1,12 @@
+using Garage.Api.Controllers.Common;
 using Garage.Application.Lookup.Commands.Create;
+using Garage.Application.Lookup.Commands.Delete;
 using Garage.Application.Lookup.Commands.Update;
 using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Application.Lookup.Queries.GetAllPagination;
-using Garage.Application.SensorIssues.Commands.Create;
-using Garage.Application.SensorIssues.Commands.Delete;
-using Garage.Application.SensorIssues.Commands.Update;
-using Garage.Application.SensorIssues.Queries.GetAll;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;
-using Garage.Contracts.SensorIssues;
 using Garage.Domain.InteriorBodyIssues.Entity;
-using Garage.Domain.MechIssues.Entities;
 using Garage.Domain.Users.Permissions;
 using Garage.Infrastructure.Authorization;
 using MediatR;
@@ -23,26 +19,45 @@ namespace Garage.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class InteriorBodyIssuesController(IMediator _mediator, IStringLocalizer T) : ControllerBase
+public class InteriorBodyIssuesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
     [HasPermission(Permission.InteriorBodyIssue_Read)]
-    public async Task<QueryResult<LookupDto>> GetAll(SearchCriteria search) => await _mediator.Send(new GetAllPaginationQuery<InteriorBodyIssue>(search));
+    public async Task<IActionResult> GetAll(SearchCriteria search)
+    {
+        var result = await mediator.Send(new GetAllPaginationQuery<InteriorBodyIssue>(search));
+        return Success(result);
+    }
 
     [HttpGet]
-    public async Task<List<LookupDto>> GetAll()
-          => await _mediator.Send(new GetAllLookupQuery<InteriorBodyIssue>());
+    [HasPermission(Permission.InteriorBodyIssue_Read)]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await mediator.Send(new GetAllLookupQuery<InteriorBodyIssue>());
+        return Success(result);
+    }
 
     [HttpPost]
     [HasPermission(Permission.InteriorBodyIssue_Create)]
-    public async Task<Guid> Create(LookupRequest req)
-        =>await _mediator.Send(new CreateLookupCommand<InteriorBodyIssue>(req));
+    public async Task<IActionResult> Create(LookupRequest req)
+    {
+        var result = await mediator.Send(new CreateLookupCommand<InteriorBodyIssue>(req));
+        return Success(result);
+    }
 
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.InteriorBodyIssue_Update)]
     public async Task<IActionResult> Update(Guid id, LookupRequest req)
-        => await _mediator.Send(new UpdateLookupCommand<InteriorBodyIssue>(id, req)) ? NoContent() : NotFound();
+    {
+        var updated = await mediator.Send(new UpdateLookupCommand<InteriorBodyIssue>(id, req));
+        return updated ? NoContent() : NotFound();
+    }
 
-
+    [HttpDelete("{id:Guid}")]
+    [HasPermission(Permission.InteriorBodyIssue_Delete)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await mediator.Send(new DeleteLookupCommand<InteriorBodyIssue>(id));
+        return HandleResult(result, "Lookup.Deleted");
+    }
 }
-

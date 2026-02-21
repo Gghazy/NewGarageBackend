@@ -1,13 +1,24 @@
-using Garage.Application.Common;
 using Garage.Application.Abstractions;
-using MediatR;
+using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
+
 namespace Garage.Application.Auth.Commands.RegisterUser;
-public class RegisterUserHandler(IIdentityService identity) : IRequestHandler<RegisterUserCommand, Result<Guid?>>
+
+public class RegisterUserHandler : BaseCommandHandler<RegisterUserCommand, Guid?>
 {
-    public async Task<Result<Guid?>> Handle(RegisterUserCommand request, CancellationToken ct)
+    private readonly IIdentityService _identityService;
+
+    public RegisterUserHandler(IIdentityService identityService)
     {
-        var (ok, err, userId) = await identity.CreateUserAsync(request.Request, ct);
-        return ok ? Result<Guid?>.Ok(userId) : Result<Guid?>.Fail(err!);
+        _identityService = identityService;
+    }
+
+    public override async Task<Result<Guid?>> Handle(RegisterUserCommand request, CancellationToken ct)
+    {
+        var (succeeded, error, userId) = await _identityService.CreateUserAsync(request.Request, ct);
+        return succeeded
+            ? Ok(userId)
+            : Fail(error ?? "Failed to create user");
     }
 }
 

@@ -1,4 +1,6 @@
-﻿using Garage.Application.Services.Commands.Create;
+﻿using Garage.Api.Controllers.Common;
+using Garage.Application.Services.Commands.Create;
+using Garage.Application.Services.Commands.Delete;
 using Garage.Application.Services.Commands.Update;
 using Garage.Application.Services.Queries.GetAll;
 using Garage.Application.Services.Queries.GetAllPagination;
@@ -11,54 +13,94 @@ using Garage.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace Garage.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public sealed class ServicesController(IMediator mediator) : ControllerBase
+public sealed class ServicesController : ApiControllerBase
 {
+    private readonly IMediator _mediator;
+
+    public ServicesController(IMediator mediator, IStringLocalizer localizer) 
+        : base(localizer)
+    {
+        _mediator = mediator;
+    }
+
+    /// <summary>
+    /// Gets a service by ID
+    /// </summary>
     [HttpGet("{id:guid}")]
     [HasPermission(Permission.Service_Read)]
-    public async Task<ActionResult<ServiceDto>> GetById(Guid id, CancellationToken ct)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var res = await mediator.Send(new GetServiceByIdQuery(id), ct);
-        return Ok(res);
+        var service = await _mediator.Send(new GetServiceByIdQuery(id), ct);
+        if (service is null)
+            return NotFoundMessage("Service.NotFound");
+
+        return Success(service);
     }
 
+    /// <summary>
+    /// Gets all services
+    /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<ServiceDto>>> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var res = await mediator.Send(new GetAllServiceQuery(), ct);
-        return Ok(res);
+        var services = await _mediator.Send(new GetAllServiceQuery(), ct);
+        return Success(services);
     }
 
+    /// <summary>
+    /// Gets all services with pagination
+    /// </summary>
     [HttpPost("pagination")]
     [HasPermission(Permission.Service_Read)]
-    public async Task<ActionResult<QueryResult<ServiceDto>>> GetAll([FromBody] SearchCriteria search, CancellationToken ct)
+    public async Task<IActionResult> GetAllPaginated([FromBody] SearchCriteria search, CancellationToken ct)
     {
-        var res = await mediator.Send(new GetAllServiceBySearchQuery(search), ct);
-        return Ok(res);
+        var result = await _mediator.Send(new GetAllServiceBySearchQuery(search), ct);
+        return Success(result);
     }
 
+    /// <summary>
+    /// Creates a new service
+    /// </summary>
     [HttpPost]
-    [HasPermission(Permission.Service_Read)]
-    public async Task<ActionResult<Guid>> Create([FromBody] CreateServiceRequest request, CancellationToken ct)
+    [HasPermission(Permission.Service_Create)]
+    public async Task<IActionResult> Create([FromBody] CreateServiceRequest request, CancellationToken ct)
     {
-        var id = await mediator.Send(new CreateServiceCommand(request), ct);
-
-        return CreatedAtAction(nameof(GetById), new { id }, id);
+        var result = await _mediator.Send(new CreateServiceCommand(request), ct);
+        return HandleResult(result, "Service.Created");
     }
 
+    /// <summary>
+    /// Updates a service
+    /// </summary>
     [HttpPut("{id:guid}")]
-    [HasPermission(Permission.Service_Read)]
+    [HasPermission(Permission.Service_Update)]
     public async Task<IActionResult> Update(Guid id, [FromBody] CreateServiceRequest request, CancellationToken ct)
     {
-        await mediator.Send(new UpdateServiceCommand(id, request), ct);
-        return Ok();
+        var result = await _mediator.Send(new UpdateServiceCommand(id, request), ct);
+        return HandleResult(result, "Service.Updated");
     }
 
+    /// <summary>
+    /// Deletes a service
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [HasPermission(Permission.Service_Delete)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new DeleteServiceCommand(id), ct);
+        return HandleResult(result, "Service.Deleted");
+    }
+
+    /// <summary>
+    /// Gets all available service stages
+    /// </summary>
     [HttpGet("stages")]
     public IActionResult GetStages()
     {
@@ -69,7 +111,6 @@ public sealed class ServicesController(IMediator mediator) : ControllerBase
                 nameAr = s.NameAr
             });
 
-        return Ok(stages);
+        return Success(stages);
     }
-
 }

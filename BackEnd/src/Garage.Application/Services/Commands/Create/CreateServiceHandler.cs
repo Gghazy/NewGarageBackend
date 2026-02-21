@@ -1,23 +1,29 @@
 ﻿using Garage.Application.Abstractions;
+using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
 using Garage.Domain.Services.Entities;
-using MediatR;
 
+namespace Garage.Application.Services.Commands.Create;
 
-namespace Garage.Application.Services.Commands.Create
+public sealed class CreateServiceHandler : BaseCommandHandler<CreateServiceCommand, Guid>
 {
-    public sealed class CreateServiceHandler(IRepository<Service> repo, IUnitOfWork uow)  : IRequestHandler<CreateServiceCommand, Guid>
+    private readonly IRepository<Service> _repository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateServiceHandler(IRepository<Service> repository, IUnitOfWork unitOfWork)
     {
+        _repository = repository;
+        _unitOfWork = unitOfWork;
+    }
 
-        public async Task<Guid> Handle(CreateServiceCommand request, CancellationToken ct)
-        {
-            var service = new Service(request.Request.NameAr, request.Request.NameEn);
+    public override async Task<Result<Guid>> Handle(CreateServiceCommand request, CancellationToken ct)
+    {
+        var service = new Service(request.Request.NameAr, request.Request.NameEn);
+        service.SetStages(request.Request.Stages);
 
-            service.SetStages(request.Request.Stages);
+        await _repository.AddAsync(service, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
 
-            await repo.AddAsync(service, ct);
-            await uow.SaveChangesAsync(ct);
-
-            return service.Id;
-        }
+        return Ok(service.Id);
     }
 }

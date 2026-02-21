@@ -1,31 +1,33 @@
 ﻿using Garage.Application.Abstractions;
-using Garage.Domain.Common.Exceptions;
-using Garage.Domain.SensorIssues.Entities;
+using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
 using Garage.Domain.ServicePrices.Entities;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Garage.Application.ServicePrices.Commands.Create
 {
-    public sealed class CreateServicePriceCommandHandler(IRepository<ServicePrice> repo, IUnitOfWork uow) : IRequestHandler<CreateServicePriceCommand, Guid>
+    public sealed class CreateServicePriceCommandHandler : BaseCommandHandler<CreateServicePriceCommand, Guid>
     {
-        public async Task<Guid> Handle(CreateServicePriceCommand command, CancellationToken cancellationToken)
-        {
-            var r=command.Request;
+        private readonly IRepository<ServicePrice> _repo;
+        private readonly IUnitOfWork _uow;
 
-            var hasOverlap = await repo.Query()
+        public CreateServicePriceCommandHandler(IRepository<ServicePrice> repo, IUnitOfWork uow)
+        {
+            _repo = repo;
+            _uow = uow;
+        }
+
+        public override async Task<Result<Guid>> Handle(CreateServicePriceCommand command, CancellationToken cancellationToken)
+        {
+            var r = command.Request;
+
+            var hasOverlap = await _repo.Query()
                                        .AsNoTracking()
                                        .Where(x => x.ServiceId == r.ServiceId && x.MarkId == r.MarkId)
                                        .AnyAsync(x => x.FromYear <= r.ToYear && x.ToYear >= r.FromYear, cancellationToken);
 
             if (hasOverlap)
-                throw new DomainException("Year range overlaps with an existing price for the same service and mark.");
-
+                return Fail("Year range overlaps with an existing price for the same service and mark.");
 
             var entity = new ServicePrice(
                 r.ServiceId,
@@ -34,10 +36,10 @@ namespace Garage.Application.ServicePrices.Commands.Create
                 r.ToYear,
                 r.Price);
 
-            await repo.AddAsync(entity, cancellationToken);
-            await uow.SaveChangesAsync(cancellationToken);
+            await _repo.AddAsync(entity, cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken);
 
-            return entity.Id;
+            return Ok(entity.Id);
         }
     }
 }

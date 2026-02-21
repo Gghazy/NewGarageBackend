@@ -20,7 +20,7 @@ namespace Garage.Domain.Employees.Entities
             BranchId = branchId;
         }
 
-        public void update(string nameAr, string nameEn, Guid branchId)
+        public void Update(string nameAr, string nameEn, Guid branchId)
         {
             NameAr = nameAr;
             NameEn = nameEn;

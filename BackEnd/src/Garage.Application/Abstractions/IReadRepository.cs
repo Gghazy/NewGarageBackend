@@ -7,5 +7,15 @@ public interface IReadRepository<T> where T : class
     Task<IReadOnlyList<T>> ListAsync(CancellationToken ct = default);
     IQueryable<T> Query();
     IQueryable<T> QueryTracking();
+    
+    /// <summary>
+    /// Query that includes soft-deleted records (for admin views, audits, etc.)
+    /// </summary>
+    IQueryable<T> QueryIncludingDeleted();
+    
+    /// <summary>
+    /// Tracking query that includes soft-deleted records
+    /// </summary>
+    IQueryable<T> QueryTrackingIncludingDeleted();
 }
 

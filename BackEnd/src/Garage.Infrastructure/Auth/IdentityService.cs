@@ -25,8 +25,9 @@ public class IdentityService(UserManager<AppUser> userManager, RoleManager<AppRo
         if (!ok) return (false, null, string.Empty, null);
         var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
         var role = await roleManager.FindByNameAsync(userRole);
-        var claims = await roleManager.GetClaimsAsync(role!);
-        
+        if (role is null) return (true, user.Id, user.Email!, null);
+        var claims = await roleManager.GetClaimsAsync(role);
+
         return (true, user.Id, user.Email!, claims);
     }
 
@@ -34,6 +35,14 @@ public class IdentityService(UserManager<AppUser> userManager, RoleManager<AppRo
     {
         var data = userManager.Users.Select(u => new UserDto(u.Id, u.Email!, u.PhoneNumber)).ToList();
         return Task.FromResult<IReadOnlyList<UserDto>>(data);
+    }
+
+    public async Task LockUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return;
+        await userManager.SetLockoutEnabledAsync(user, true);
+        await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
     }
 }
 

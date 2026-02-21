@@ -11,6 +11,7 @@ namespace Garage.Application.Abstractions.Repositories
         Task<TEntity?> GetByIdAsync(Guid id, CancellationToken ct);
         Task AddAsync(TEntity entity, CancellationToken ct);
         void Remove(TEntity entity);
+        Task SoftDeleteAsync(TEntity entity, CancellationToken ct = default);
     }
 
 }

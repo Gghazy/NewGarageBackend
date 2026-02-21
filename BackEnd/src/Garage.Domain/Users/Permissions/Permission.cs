@@ -124,7 +124,7 @@ public static class Permission
     public const string Employees_Update = "employees.update";
     public const string Employees_Delete = "employees.delete";
 
-    public const string Dashbord_Read = "dashboard.read";
+    public const string Dashboard_Read = "dashboard.read";
 
 
     public static readonly string[] All =
@@ -152,7 +152,7 @@ public static class Permission
         Term_Read, Term_Create,Term_Update, Term_Delete,
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
-        Dashbord_Read
+        Dashboard_Read
     ];
 }
 

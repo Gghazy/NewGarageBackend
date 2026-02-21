@@ -1,11 +1,7 @@
-﻿using Garage.Contracts.Permissions;
 using Garage.Domain.Users.Permissions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Garage.Api.Controllers;
-
-using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -41,4 +37,3 @@ public sealed class PermissionsController : ControllerBase
             ? value
             : char.ToUpperInvariant(value[0]) + value[1..];
 }
-

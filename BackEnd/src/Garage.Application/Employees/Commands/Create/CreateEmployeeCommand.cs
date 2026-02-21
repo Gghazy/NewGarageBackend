@@ -1,7 +1,7 @@
-﻿using Garage.Contracts.Employees;
+﻿using Garage.Application.Common;
+using Garage.Contracts.Employees;
 using MediatR;
-
 
 namespace Garage.Application.Employees.Commands.Create;
 
-public sealed record CreateEmployeeCommand(EmployeeRequest Request) : IRequest<Guid>;
+public sealed record CreateEmployeeCommand(EmployeeRequest Request) : IRequest<Result<Guid>>;

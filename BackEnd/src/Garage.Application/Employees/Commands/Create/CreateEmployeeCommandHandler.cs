@@ -1,23 +1,32 @@
 ﻿using Garage.Application.Abstractions;
+using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
 using Garage.Domain.Employees.Entities;
-using Garage.Domain.MechIssues.Entities;
 using Garage.Infrastructure.Auth.Entities;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Garage.Application.Employees.Commands.Create;
 
-public class CreateEmployeeCommandHandler(IRepository<Employee> repo, IUnitOfWork _ofWork, UserManager<AppUser> _userManager, RoleManager<AppRole> _roleManager) : IRequestHandler<CreateEmployeeCommand, Guid>
+public class CreateEmployeeCommandHandler : BaseCommandHandler<CreateEmployeeCommand, Guid>
 {
+    private readonly IRepository<Employee> _repository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<AppUser> _userManager;
+    private readonly RoleManager<AppRole> _roleManager;
 
+    public CreateEmployeeCommandHandler(
+        IRepository<Employee> repository,
+        IUnitOfWork unitOfWork,
+        UserManager<AppUser> userManager,
+        RoleManager<AppRole> roleManager)
+    {
+        _repository = repository;
+        _unitOfWork = unitOfWork;
+        _userManager = userManager;
+        _roleManager = roleManager;
+    }
 
-    public async Task<Guid> Handle(CreateEmployeeCommand command, CancellationToken ct)
+    public override async Task<Result<Guid>> Handle(CreateEmployeeCommand command, CancellationToken ct)
     {
         var user = new AppUser
         {
@@ -31,18 +40,15 @@ public class CreateEmployeeCommandHandler(IRepository<Employee> repo, IUnitOfWor
         var createUser = await _userManager.CreateAsync(user, "123456");
 
         if (!createUser.Succeeded)
-            throw new Exception(string.Join(",", createUser.Errors.Select(e => e.Description)));
+            return Fail($"Failed to create user: {string.Join(", ", createUser.Errors.Select(e => e.Description))}");
 
         var role = await _roleManager.FindByIdAsync(command.Request.RoleId.ToString());
         if (role is null)
-            throw new Exception("Role not found");
-
+            return Fail("Role not found");
 
         var addToRole = await _userManager.AddToRoleAsync(user, role.Name!);
         if (!addToRole.Succeeded)
-            throw new Exception(string.Join(",", addToRole.Errors.Select(e => e.Description)));
-
-
+            return Fail($"Failed to assign role: {string.Join(", ", addToRole.Errors.Select(e => e.Description))}");
 
         var employee = new Employee(
             user.Id,
@@ -51,9 +57,9 @@ public class CreateEmployeeCommandHandler(IRepository<Employee> repo, IUnitOfWor
             command.Request.BranchId
         );
 
-        await repo.AddAsync(employee);
-        await _ofWork.SaveChangesAsync(ct);
+        await _repository.AddAsync(employee, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
 
-        return employee.Id;
+        return Ok(employee.Id);
     }
 }

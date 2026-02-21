@@ -1,3 +1,4 @@
+using Garage.Api.Controllers.Common;
 using Garage.Application.Branches.Commands.Create;
 using Garage.Application.Branches.Commands.Delete;
 using Garage.Application.Branches.Commands.Update;
@@ -17,46 +18,49 @@ namespace Garage.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class BranchesController(IMediator mediator, IStringLocalizer T) : ControllerBase
+public class BranchesController : ApiControllerBase
 {
+    private readonly IMediator _mediator;
 
+    public BranchesController(IMediator mediator, IStringLocalizer localizer)
+        : base(localizer)
+    {
+        _mediator = mediator;
+    }
     [HttpGet]
     [HasPermission(Permission.Branches_Read)]
-    public async Task<IActionResult> GetAll() => Ok(await mediator.Send(new GetAllBranchesQuery()));
-
-
+    public async Task<IActionResult> GetAll()
+    {
+        var branches = await _mediator.Send(new GetAllBranchesQuery());
+        return Success(branches);
+    }
     [HttpPost("pagination")]
     [HasPermission(Permission.Branches_Read)]
-    public async Task<IActionResult> GetAll(SearchCriteria search) => Ok(await mediator.Send(new GetAllBranchesBySearchQuery(search)));
-
+    public async Task<IActionResult> Search(SearchCriteria search)
+    {
+        var result = await _mediator.Send(new GetAllBranchesBySearchQuery(search));
+        return Success(result);
+    }
     [HttpPost]
     [HasPermission(Permission.Branches_Create)]
     public async Task<IActionResult> Create(CreateBranchRequest request)
     {
-        var res = await mediator.Send(new CreateBranchCommand(request));
-        if (!res.Succeeded) return BadRequest(new ApiMessage(T["Branch.Exists"]!));
-
-        var x = T["Branch.Created"];
-
-        return Ok(new ApiMessage(T["Branch.Created"]!));
+        var result = await _mediator.Send(new CreateBranchCommand(request));
+        return HandleResult(result, "Branch.Created");
     }
-
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.Branches_Update)]
     public async Task<IActionResult> Update(Guid id, UpdateBranchRequest request)
     {
-        var res = await mediator.Send(new UpdateBranchCommand(id, request));
-        if (!res.Succeeded) return NotFound(new ApiMessage(T["NotFound"]!));
-        return Ok(new ApiMessage(T["Branch.Updated"]!));
+        var result = await _mediator.Send(new UpdateBranchCommand(id, request));
+        return HandleResult(result, "Branch.Updated");
     }
-
     [HttpDelete("{id:Guid}")]
     [HasPermission(Permission.Branches_Delete)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var res = await mediator.Send(new DeleteBranchCommand(id));
-        if (!res.Succeeded) return NotFound(new ApiMessage(T["NotFound"]!));
-        return Ok(new ApiMessage(T["Branch.Deleted"]!));
+        var result = await _mediator.Send(new DeleteBranchCommand(id));
+        return HandleResult(result, "Branch.Deleted");
     }
 }
 

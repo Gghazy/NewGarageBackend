@@ -1,18 +1,107 @@
 {
+  "Auth": {
+    "InvalidCredentials": "Invalid credentials.",
+    "Unauthorized": "You are not authorized to perform this action.",
+    "TokenExpired": "Your session has expired. Please log in again.",
+    "InvalidToken": "Invalid token provided.",
+    "AccessDenied": "Access denied.",
+    "Forbidden": "You do not have permission to perform this action."
+  },
+  "Common": {
+    "NotFound": "Resource not found.",
+    "Success": "Operation completed successfully.",
+    "Deleted": "Resource deleted successfully.",
+    "Conflict": "Resource already exists."
+  },
+  "Validation": {
+    "Error": "Validation failed. Please check your input.",
+    "Required": "This field is required.",
+    "InvalidFormat": "Invalid format.",
+    "InvalidEmail": "Invalid email address.",
+    "BadArgument": "Invalid argument provided.",
+    "InvalidPhone": "Invalid phone number format.",
+    "PasswordTooShort": "Password must be at least 6 characters long.",
+    "PasswordRequiresUpper": "Password must contain at least one uppercase letter.",
+    "PasswordRequiresLower": "Password must contain at least one lowercase letter.",
+    "PasswordRequiresDigit": "Password must contain at least one digit."
+  },
+  "Operation": {
+    "InvalidOperation": "Invalid operation.",
+    "OperationFailed": "Operation failed. Please try again."
+  },
+  "Server": {
+    "Error": "An unexpected error occurred. Please try again later.",
+    "InternalError": "Internal server error."
+  },
   "Branch": {
     "Created": "Branch created successfully.",
     "Updated": "Branch updated successfully.",
     "Deleted": "Branch deleted successfully.",
-    "Exists": "Branch code already exists."
+    "Exists": "Branch code already exists.",
+    "NotFound": "Branch not found."
   },
-  "Auth": {
-    "InvalidCredentials": "Invalid credentials.",
-    "Unauthorized": "You are not authorized to perform this action."
+  "Client": {
+    "Created": "Client created successfully.",
+    "Updated": "Client updated successfully.",
+    "Deleted": "Client deleted successfully.",
+    "Exists": "Client already exists.",
+    "NotFound": "Client not found."
   },
-  "Common": {
-    "NotFound": "Not found."
+  "User": {
+    "Created": "User created successfully.",
+    "Updated": "User updated successfully.",
+    "Deleted": "User deleted successfully.",
+    "Exists": "User already exists.",
+    "NotFound": "User not found.",
+    "PasswordChanged": "Password changed successfully."
   },
-  "Server": {
-    "Error": "An unexpected error occurred. Please try again later."
+  "Employee": {
+    "Created": "Employee created successfully.",
+    "Updated": "Employee updated successfully.",
+    "Deleted": "Employee deleted successfully.",
+    "Exists": "Employee already exists.",
+    "NotFound": "Employee not found."
+  },
+  "Service": {
+    "Created": "Service created successfully.",
+    "Updated": "Service updated successfully.",
+    "Deleted": "Service deleted successfully.",
+    "NotFound": "Service not found."
+  },
+  "MechIssue": {
+    "Created": "Mechanical issue created successfully.",
+    "Updated": "Mechanical issue updated successfully.",
+    "Deleted": "Mechanical issue deleted successfully.",
+    "NotFound": "Mechanical issue not found."
+  },
+  "SensorIssue": {
+    "Created": "Sensor issue created successfully.",
+    "Updated": "Sensor issue updated successfully.",
+    "Deleted": "Sensor issue deleted successfully.",
+    "NotFound": "Sensor issue not found."
+  },
+  "ServicePrice": {
+    "Created": "Service price created successfully.",
+    "Updated": "Service price updated successfully.",
+    "Deleted": "Service price deleted successfully.",
+    "NotFound": "Service price not found."
+  },
+  "Role": {
+    "Created": "Role created successfully.",
+    "Updated": "Role updated successfully.",
+    "Deleted": "Role deleted successfully.",
+    "NotFound": "Role not found."
+  },
+  "Lookup": {
+    "Created": "Lookup created successfully.",
+    "Updated": "Lookup updated successfully.",
+    "Deleted": "Lookup deleted successfully.",
+    "NotFound": "Lookup not found."
+  },
+  "Terms": {
+    "Created": "Terms and conditions updated successfully.",
+    "Updated": "Terms and conditions updated successfully.",
+    "Deleted": "Terms and conditions deleted successfully.",
+    "NotFound": "Terms and conditions not found."
   }
 }

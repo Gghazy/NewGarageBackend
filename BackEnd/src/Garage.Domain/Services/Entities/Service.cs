@@ -1,12 +1,7 @@
-﻿using Garage.Domain.Common.Exceptions;
+using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
 using Garage.Domain.ServicePrices.Entities;
 using Garage.Domain.Services.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Garage.Domain.Services.Entities
 {
@@ -19,7 +14,7 @@ namespace Garage.Domain.Services.Entities
         public IReadOnlyCollection<ServicesStage> Stages => _stages.AsReadOnly();
 
         private readonly List<ServicePrice> _prices = new();
-        public IReadOnlyCollection<ServicePrice> Prices => _prices;
+        public IReadOnlyCollection<ServicePrice> Prices => _prices.AsReadOnly();
 
         private Service() { }
 

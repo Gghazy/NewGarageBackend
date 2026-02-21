@@ -6,23 +6,32 @@ using Garage.Domain.Clients.ValueObjects;
 using Garage.Domain.Shared.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Garage.Application.Common.Handlers;
+using Garage.Application.Common;
 
 
 namespace Garage.Application.Clients.Commands.Update;
 
 
 
-public sealed class UpdateClientCommandHandler(
-    IRepository<Client> clientRepo,
-    UserManager<AppUser> userManager,
-    IUnitOfWork uow)
-    : IRequestHandler<UpdateClientCommand, Guid>
+public sealed class UpdateClientCommandHandler : BaseCommandHandler<UpdateClientCommand, Guid>
 {
-    private readonly IRepository<Client> _clientRepo = clientRepo;
-    private readonly UserManager<AppUser> _userManager = userManager;
-    private readonly IUnitOfWork _uow = uow;
 
-    public async Task<Guid> Handle(UpdateClientCommand command, CancellationToken ct)
+private readonly IRepository<Client> _clientRepo;
+private readonly UserManager<AppUser> _userManager;
+    private readonly IUnitOfWork _uow ;
+
+
+
+    public UpdateClientCommandHandler(IRepository<Client> clientRepo, UserManager<AppUser> userManager, IUnitOfWork uow) 
+    {
+        _clientRepo = clientRepo;
+        _userManager = userManager;
+        _uow = uow;
+    }
+
+
+    public async override Task<Result<Guid>> Handle(UpdateClientCommand command, CancellationToken ct)
     {
         var r = command.Request;
 
@@ -93,7 +102,8 @@ public sealed class UpdateClientCommandHandler(
         }
 
         await _uow.SaveChangesAsync(ct);
-        return client.Id;
+        return  Ok(client.Id);
     }
+
 }
 

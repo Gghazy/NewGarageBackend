@@ -1,27 +1,44 @@
 using Garage.Application.Abstractions;
 using Garage.Application.Common;
+using Garage.Application.Common.Handlers;
 using Garage.Domain.Branches.Entities;
-using MediatR;
 
 namespace Garage.Application.Branches.Commands.Update;
 
-public class UpdateBranchHandler(IRepository<Branch> repo, IUnitOfWork uow) : IRequestHandler<UpdateBranchCommand, Result<bool>>
+public class UpdateBranchHandler : BaseCommandHandler<UpdateBranchCommand, bool>
 {
-    public async Task<Result<bool>> Handle(UpdateBranchCommand request, CancellationToken ct)
-    {
-        var entity = await repo.GetByIdAsync(request.Id, ct);
-        if (entity is null) return Result<bool>.Fail("Not found");
+    private readonly IRepository<Branch> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
+    public UpdateBranchHandler(IRepository<Branch> repository, IUnitOfWork unitOfWork)
+    {
+        _repository = repository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public override async Task<Result<bool>> Handle(UpdateBranchCommand request, CancellationToken ct)
+    {
+        // Fetch entity
+        var entity = await _repository.GetByIdAsync(request.Id, ct);
+        if (entity is null)
+            return Fail(NotFoundError);
+
+        // Update entity with domain logic
         entity.Update(request.Request.NameAr, request.Request.NameEn);
+        
         if (request.Request.IsActive is not null)
         {
-            if (request.Request.IsActive.Value) entity.Activate();
-            else entity.Deactivate();
+            if (request.Request.IsActive.Value)
+                entity.Activate();
+            else
+                entity.Deactivate();
         }
 
-        await repo.UpdateAsync(entity, ct);
-        await uow.SaveChangesAsync(ct);
-        return Result<bool>.Ok(true);
+        // Persist changes
+        await _repository.UpdateAsync(entity, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+        
+        return Ok(true);
     }
 }
 

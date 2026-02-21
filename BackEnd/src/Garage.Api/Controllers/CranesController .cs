@@ -1,4 +1,6 @@
+using Garage.Api.Controllers.Common;
 using Garage.Application.Lookup.Commands.Create;
+using Garage.Application.Lookup.Commands.Delete;
 using Garage.Application.Lookup.Commands.Update;
 using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Application.Lookup.Queries.GetAllPagination;
@@ -17,26 +19,45 @@ namespace Garage.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CranesController(IMediator _mediator, IStringLocalizer T) : ControllerBase
+public class CranesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.CarMark_Read)]
-    public async Task<QueryResult<LookupDto>> GetAll(SearchCriteria search) => await _mediator.Send(new GetAllPaginationQuery<Crane>(search));
+    [HasPermission(Permission.Crane_Read)]
+    public async Task<IActionResult> GetAll(SearchCriteria search)
+    {
+        var result = await mediator.Send(new GetAllPaginationQuery<Crane>(search));
+        return Success(result);
+    }
 
     [HttpGet]
-    public async Task<List<LookupDto>> GetAll()
-          => await _mediator.Send(new GetAllLookupQuery<Crane>());
+    [HasPermission(Permission.Crane_Read)]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await mediator.Send(new GetAllLookupQuery<Crane>());
+        return Success(result);
+    }
 
     [HttpPost]
-    [HasPermission(Permission.CarMark_Create)]
-    public async Task<Guid> Create(LookupRequest req)
-        =>await _mediator.Send(new CreateLookupCommand<Crane>(req));
+    [HasPermission(Permission.Crane_Create)]
+    public async Task<IActionResult> Create(LookupRequest req)
+    {
+        var result = await mediator.Send(new CreateLookupCommand<Crane>(req));
+        return Success(result);
+    }
 
     [HttpPut("{id:Guid}")]
-    [HasPermission(Permission.CarMark_Update)]
+    [HasPermission(Permission.Crane_Update)]
     public async Task<IActionResult> Update(Guid id, LookupRequest req)
-        => await _mediator.Send(new UpdateLookupCommand<Crane>(id, req)) ? NoContent() : NotFound();
+    {
+        var updated = await mediator.Send(new UpdateLookupCommand<Crane>(id, req));
+        return updated ? NoContent() : NotFound();
+    }
 
-
+    [HttpDelete("{id:Guid}")]
+    [HasPermission(Permission.Crane_Delete)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await mediator.Send(new DeleteLookupCommand<Crane>(id));
+        return HandleResult(result, "Lookup.Deleted");
+    }
 }
-

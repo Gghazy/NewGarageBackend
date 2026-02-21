@@ -1,4 +1,5 @@
-﻿using Garage.Contracts.ServicePrices;
+﻿using Garage.Application.Common;
+using Garage.Contracts.ServicePrices;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,6 @@ using System.Threading.Tasks;
 
 namespace Garage.Application.ServicePrices.Commands.Create
 {
-        public sealed record CreateServicePriceCommand(ServicePriceRequest Request) : IRequest<Guid>;
+        public sealed record CreateServicePriceCommand(ServicePriceRequest Request) : IRequest<Result<Guid>>;
 
 }

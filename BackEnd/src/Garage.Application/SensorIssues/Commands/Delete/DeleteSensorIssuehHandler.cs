@@ -11,7 +11,7 @@ public class DeleteSensorIssuehHandler(IRepository<SensorIssue> repo, IUnitOfWor
     {
         var entity = await repo.GetByIdAsync(request.Id, ct);
         if (entity is null) return Result<bool>.Fail("Not found");
-        await repo.RemoveAsync(entity, ct);
+        await repo.SoftDeleteAsync(entity, ct: ct);
         await uow.SaveChangesAsync(ct);
         return Result<bool>.Ok(true);
     }

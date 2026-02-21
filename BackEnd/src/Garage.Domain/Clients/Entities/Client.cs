@@ -1,4 +1,5 @@
 ﻿using Garage.Domain.Clients.Enums;
+using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
 using Garage.Domain.Shared.ValueObjects;
 
@@ -32,7 +33,7 @@ public abstract class Client : AggregateRoot
     protected void SetUser(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new Exception("UserId is required");
+            throw new DomainException("UserId is required");
 
         UserId = userId;
     }
@@ -40,7 +41,7 @@ public abstract class Client : AggregateRoot
     protected void SetType(ClientType type)
     {
         if (!Enum.IsDefined(typeof(ClientType), type))
-            throw new Exception("Invalid ClientType");
+            throw new DomainException("Invalid ClientType");
 
         Type = type;
     }
@@ -48,13 +49,13 @@ public abstract class Client : AggregateRoot
     public void UpdateBaseData(string nameAr, string nameEn, string phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(nameAr))
-            throw new Exception("NameAr is required");
+            throw new DomainException("NameAr is required");
 
         if (string.IsNullOrWhiteSpace(nameEn))
-            throw new Exception("NameEn is required");
+            throw new DomainException("NameEn is required");
 
         if (string.IsNullOrWhiteSpace(phoneNumber))
-            throw new Exception("PhoneNumber is required");
+            throw new DomainException("PhoneNumber is required");
 
         NameAr = nameAr.Trim();
         NameEn = nameEn.Trim();
