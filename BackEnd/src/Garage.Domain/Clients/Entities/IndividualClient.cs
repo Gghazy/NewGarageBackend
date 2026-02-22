@@ -1,16 +1,11 @@
 ﻿using Garage.Domain.Clients.Enums;
-using Garage.Domain.Shared.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Garage.Domain.Clients.Entities
 {
     public sealed class IndividualClient : Client
     {
-        public Address Address { get; private set; } = null!;
+        public string? Address { get; private set; } = null!;
 
         private IndividualClient() { }
 
@@ -19,15 +14,16 @@ namespace Garage.Domain.Clients.Entities
             string nameAr,
             string nameEn,
             string phoneNumber,
-            Address address)
-            : base(userId, ClientType.Individual, nameAr, nameEn, phoneNumber)
+            Guid? resourceId,
+            string? address)
+            : base(userId, ClientType.Individual, nameAr, nameEn, phoneNumber, resourceId)
         {
-            Address = address ?? throw new ArgumentNullException(nameof(address));
+            Address = address;
         }
 
-        public void UpdatePersonalInfo( Address address)
+        public void UpdatePersonalInfo( string address)
         {
-            Address = address ?? throw new ArgumentNullException(nameof(address));
+            Address = address;
         }
     }
 

@@ -7,9 +7,7 @@ using MediatR;
 
 namespace Garage.Application.Lookup.Commands.Delete
 {
-    public sealed class DeleteLookupHandler<TEntity>
-        : IRequestHandler<DeleteLookupCommand<TEntity>, Result<bool>>
-        where TEntity : LookupBase
+    public sealed class DeleteLookupHandler<TEntity>: IRequestHandler<DeleteLookupCommand<TEntity>, Result<bool>> where TEntity : LookupBase
     {
         private readonly ILookupRepository<TEntity> _repo;
         private readonly IUnitOfWork _uow;

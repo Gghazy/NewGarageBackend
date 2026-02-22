@@ -1,4 +1,6 @@
+using Garage.Application.Common;
 using Garage.Application.Lookup.Commands.Create;
+using Garage.Application.Lookup.Commands.Delete;
 using Garage.Application.Lookup.Commands.Update;
 using Garage.Application.Lookup.Queries.GetAll;
 using Garage.Application.Lookup.Queries.GetAllPagination;
@@ -50,7 +52,7 @@ namespace Garage.Api
                     entityType: entityType
                 );
 
-                // Update (????? bool)
+                // Update (يرجع bool)
                 RegisterClosedHandler(
                     services,
                     requestOpenGeneric: typeof(UpdateLookupCommand<>),
@@ -58,6 +60,16 @@ namespace Garage.Api
                     handlerOpenGeneric: typeof(UpdateLookupHandler<>),
                     entityType: entityType
                 );
+
+                // Delete (يرجع Result<bool>)
+                RegisterClosedHandler(
+                    services,
+                    requestOpenGeneric: typeof(DeleteLookupCommand<>),
+                    responseType: typeof(Result<bool>),
+                    handlerOpenGeneric: typeof(DeleteLookupHandler<>),
+                    entityType: entityType
+                );
+
             }
 
             return services;

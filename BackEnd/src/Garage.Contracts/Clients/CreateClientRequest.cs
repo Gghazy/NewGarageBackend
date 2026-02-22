@@ -7,7 +7,7 @@ namespace Garage.Contracts.Clients
     string Email,
 
     // Common
-    int Type,
+    string Type,
     string NameAr,
     string NameEn,
     string PhoneNumber,
@@ -15,9 +15,12 @@ namespace Garage.Contracts.Clients
     // Company
     string? CommercialRegister,
     string? TaxNumber,
+    Guid? ResourceId,
 
 
     // Address
+
+    string? Address,
     string? StreetName,
     string? AdditionalStreetName,
     string? CityName,

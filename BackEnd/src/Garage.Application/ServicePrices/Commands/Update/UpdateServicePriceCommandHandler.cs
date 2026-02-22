@@ -1,11 +1,10 @@
 ﻿using Garage.Application.Abstractions;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
-using Garage.Application.ServicePrices.Commands.Update;
 using Garage.Domain.ServicePrices.Entities;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class UpdateServicePriceCommandHandler : BaseCommandHandler<UpdateServicePriceCommand, Guid>
+public sealed class UpdateServicePriceCommandHandler : BaseCommandHandler<UpdateServicePriceCommand, bool>
 {
     private readonly IRepository<ServicePrice> _repo;
     private readonly IUnitOfWork _uow;
@@ -19,7 +18,7 @@ public sealed class UpdateServicePriceCommandHandler : BaseCommandHandler<Update
         _uow = uow;
     }
 
-    public override async Task<Result<Guid>> Handle(UpdateServicePriceCommand command, CancellationToken cancellationToken)
+    public override async Task<Result<bool>> Handle(UpdateServicePriceCommand command, CancellationToken cancellationToken)
     {
         var r = command.Request;
 
@@ -41,7 +40,7 @@ public sealed class UpdateServicePriceCommandHandler : BaseCommandHandler<Update
 
         await _uow.SaveChangesAsync(cancellationToken);
 
-        return Ok(entity.Id);
+        return Ok(true);
     }
 }
 

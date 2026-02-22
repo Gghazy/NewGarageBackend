@@ -30,7 +30,6 @@ public class ClientResourcesController(IMediator mediator, IStringLocalizer loca
     }
 
     [HttpGet]
-    [HasPermission(Permission.ClientResource_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<ClientResource>());

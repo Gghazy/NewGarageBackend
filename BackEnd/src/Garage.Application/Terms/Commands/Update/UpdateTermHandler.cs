@@ -22,7 +22,7 @@ public sealed class UpdateTermHandler : BaseCommandHandler<UpdateTermCommand, Gu
         if (entity is null)
             return Fail(NotFoundError);
 
-        entity.Update(command.Request.TermsAndConditionsAr, command.Request.TermsAndConditionsEn, command.Request.CancelWarrantyDocumentAr, command.Request.CancelWarrantyDocumentEn);
+        entity.Update(command.Request.TermsAndCondtionsAr, command.Request.TermsAndCondtionsEn, command.Request.CancelWarrantyDocumentAr, command.Request.CancelWarrantyDocumentEn);
 
         await _uow.SaveChangesAsync(ct);
         return Ok(entity.Id);

@@ -32,18 +32,13 @@ namespace Garage.Infrastructure.Persistence
 
         public void Remove(TEntity entity) => _db.Set<TEntity>().Remove(entity);
 
-        public Task SoftDeleteAsync(TEntity entity, CancellationToken ct = default)
-        {
-            entity.SoftDelete();
-            _db.Set<TEntity>().Update(entity);
-            return Task.CompletedTask;
-        }
 
         public async Task<QueryResult<TEntity>> GetAllAsync(SearchCriteria search, CancellationToken ct)
         {
-            var q = _db.Set<TEntity>().Where(x => !x.IsDeleted).AsNoTracking().AsQueryable();
+            var q = _db.Set<TEntity>().AsNoTracking().AsQueryable();
             return await q.OrderByDescending(x => x.Id)
                 .ToQueryResult(search.CurrentPage, search.ItemsPerPage);
+            ;
         }
     }
 

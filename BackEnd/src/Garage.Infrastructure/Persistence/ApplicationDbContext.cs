@@ -104,14 +104,41 @@ public sealed class ApplicationDbContext
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-        // Global soft-delete filter: automatically excludes IsDeleted = true from ALL queries
+
+
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
-            if (typeof(Entity).IsAssignableFrom(entityType.ClrType) && !entityType.IsAbstract())
+            if (entityType.BaseType != null)
+                continue;
+
+            if (entityType.IsOwned() || entityType.ClrType == null)
+                continue;
+
+            if (!typeof(Entity).IsAssignableFrom(entityType.ClrType) || entityType.IsAbstract())
+                continue;
+
+            if (entityType.ClrType == typeof(Client))
+            {
+                var param = Expression.Parameter(typeof(Client), "e");
+
+                var isDeletedProp = Expression.Property(param, nameof(Entity.IsDeleted));
+                var notDeleted = Expression.Not(isDeletedProp);
+
+                var isCompanyClient = Expression.TypeIs(param, typeof(CompanyClient));
+
+                var body = Expression.OrElse(notDeleted, isCompanyClient);
+
+                var filter = Expression.Lambda(body, param);
+                entityType.SetQueryFilter(filter);
+
+                continue;
+            }
+
             {
                 var param = Expression.Parameter(entityType.ClrType, "e");
                 var prop = Expression.Property(param, nameof(Entity.IsDeleted));
-                var filter = Expression.Lambda(Expression.Not(prop), param);
+                var body = Expression.Not(prop);
+                var filter = Expression.Lambda(body, param);
                 entityType.SetQueryFilter(filter);
             }
         }

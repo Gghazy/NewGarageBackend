@@ -56,7 +56,7 @@ public sealed class CreateClientCommandHandler : BaseCommandHandler<CreateClient
         try
         {
             // Create client based on type
-            var clientType = ClientType.FromValue(req.Type);
+            var clientType = ClientType.FromName(req.Type);
             
             var client = clientType switch
             {
@@ -81,23 +81,14 @@ public sealed class CreateClientCommandHandler : BaseCommandHandler<CreateClient
 
     private static Client CreateIndividual(Guid userId, CreateClientRequest request)
     {
-        var address = new Address(
-            streetName: request.StreetName!,
-            additionalStreetName: request.AdditionalStreetName,
-            cityName: request.CityName!,
-            postalZone: request.PostalZone!,
-            countrySubentity: request.CountrySubentity,
-            countryCode: request.CountryCode!,
-            buildingNumber: request.BuildingNumber!,
-            citySubdivisionName: request.CitySubdivisionName
-        );
 
         return new IndividualClient(
             userId: userId,
             nameAr: request.NameAr,
             nameEn: request.NameEn,
             phoneNumber: request.PhoneNumber,
-            address: address
+            resourceId: request.ResourceId,
+            address: request.Address
         );
     }
 
@@ -125,7 +116,8 @@ public sealed class CreateClientCommandHandler : BaseCommandHandler<CreateClient
             nameEn: request.NameEn,
             phoneNumber: request.PhoneNumber,
             identity: identity,
-            address: address
+            address: address,
+            resourceId: request.ResourceId
         );
     }
 }

@@ -3,11 +3,7 @@ using Garage.Infrastructure.Auth.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Garage.Application.Roles.Queries.GetAllRoles
 {
@@ -17,6 +13,7 @@ namespace Garage.Application.Roles.Queries.GetAllRoles
         {
             var roles = await _roleManager.Roles
              .AsNoTracking()
+             .Where(x=>x.Name!="Admin")
              .OrderBy(r => r.Name)             
              .Select(r => new RoleDto(r.Id, r.Name!)) 
              .ToListAsync(ct);

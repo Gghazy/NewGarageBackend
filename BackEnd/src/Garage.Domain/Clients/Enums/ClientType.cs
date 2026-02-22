@@ -16,8 +16,8 @@ public sealed class ClientType : SmartEnum<ClientType>
         DisplayOrder = displayOrder;
     }
 
-    public static readonly ClientType Individual = new(10, "Individual", "فرد", 1);
-    public static readonly ClientType Company = new(20, "Company", "شركة", 2);
-    public static readonly ClientType Government = new(30, "Government", "جهة حكومية", 3);
+    public static readonly ClientType Individual = new(1, "Individual", "فرد", 1);
+    public static readonly ClientType Company = new(2, "Company", "شركة", 2);
+    public static readonly ClientType Government = new(3, "Government", "جهة حكومية", 3);
 }
 

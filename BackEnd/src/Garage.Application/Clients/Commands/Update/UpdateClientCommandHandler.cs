@@ -3,11 +3,11 @@ using Garage.Domain.Clients.Entities;
 using Garage.Infrastructure.Auth.Entities;
 using MediatR;
 using Garage.Domain.Clients.ValueObjects;
-using Garage.Domain.Shared.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Garage.Application.Common.Handlers;
 using Garage.Application.Common;
+using Garage.Domain.Shared.ValueObjects;
 
 
 namespace Garage.Application.Clients.Commands.Update;
@@ -66,23 +66,26 @@ private readonly UserManager<AppUser> _userManager;
         if (!updateUserRes.Succeeded)
             throw new Exception(string.Join(", ", updateUserRes.Errors.Select(e => e.Description)));
 
-        client.UpdateBaseData(r.NameAr, r.NameEn, r.PhoneNumber); 
+        client.UpdateBaseData(r.NameAr, r.NameEn, r.PhoneNumber,r.ResourceId); 
 
-        var address = new Address(
-            streetName: r.StreetName!,
-            additionalStreetName: r.AdditionalStreetName,
-            cityName: r.CityName!,
-            postalZone: r.PostalZone!,
-            countrySubentity: r.CountrySubentity,
-            countryCode: r.CountryCode!,
-            buildingNumber: r.BuildingNumber!,
-            citySubdivisionName: r.CitySubdivisionName
-        );
+    
 
         switch (client)
         {
             case CompanyClient company:
                 {
+
+                    var address = new Address(
+                                    streetName: r.StreetName!,
+                                    additionalStreetName: r.AdditionalStreetName,
+                                    cityName: r.CityName!,
+                                    postalZone: r.PostalZone!,
+                                    countrySubentity: r.CountrySubentity,
+                                    countryCode: r.CountryCode!,
+                                    buildingNumber: r.BuildingNumber!,
+                                    citySubdivisionName: r.CitySubdivisionName
+                                );
+
                     var identity = new CompanyIdentity(
                         commercialRegister: r.CommercialRegister!,
                         taxNumber: r.TaxNumber!
@@ -93,7 +96,7 @@ private readonly UserManager<AppUser> _userManager;
 
             case IndividualClient individual:
                 {
-                    individual.UpdatePersonalInfo(address);
+                    individual.UpdatePersonalInfo(r.Address);
                     break;
                 }
 

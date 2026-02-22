@@ -45,7 +45,7 @@ public abstract class ApiControllerBase : ControllerBase
         if (result.Succeeded)
             return Success(result.Value);
 
-        return BadRequest(new ApiMessage(_localizer[result.Error!]));
+        return BadRequest(new ApiMessage(result.Error!));
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public abstract class ApiControllerBase : ControllerBase
         if (result.Succeeded)
             return SuccessMessage(successMessageKey);
 
-        return BadRequest(new ApiMessage(_localizer[result.Error!]));
+        return BadRequest(new ApiMessage(result.Error!));
     }
 
     /// <summary>

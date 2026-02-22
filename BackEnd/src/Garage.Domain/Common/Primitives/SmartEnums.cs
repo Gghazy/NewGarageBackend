@@ -25,9 +25,15 @@ namespace Garage.Domain.Common.Primitives
                      .Select(f => (T)f.GetValue(null)!)
                      .ToList()
                      .AsReadOnly();
+        public static T FromValue(int value)
+      => List.FirstOrDefault(x => x.Value == value)
+         ?? throw new ArgumentOutOfRangeException(nameof(value),
+             $"Invalid {typeof(T).Name} value '{value}'.");
 
-        public static T FromValue(int value) =>
-            List.First(x => x.Value == value);
+        public static T FromName(string name)
+                 => List.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))
+                         ?? throw new ArgumentException($"Invalid {typeof(T).Name} name '{name}'.", nameof(name));
+
     }
 
 }

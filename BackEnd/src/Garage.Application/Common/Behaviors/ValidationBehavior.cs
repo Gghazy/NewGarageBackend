@@ -37,10 +37,10 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
                     .GroupBy(x => x.PropertyName)
                     .ToDictionary(
                         g => g.Key,
-                        g => g.Select(x => x.ErrorCode).ToArray()
+                        g => g.Select(x => x.ErrorMessage).ToArray()
                     );
 
-                throw new Exceptions.ValidationException(
+                throw new ValidationException(
                     "Validation.Error",
                     "Validation.Error",
                     errors

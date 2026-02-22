@@ -27,6 +27,10 @@ public class BranchesController : ApiControllerBase
     {
         _mediator = mediator;
     }
+
+    /// <summary>
+    /// Gets all branches
+    /// </summary>
     [HttpGet]
     [HasPermission(Permission.Branches_Read)]
     public async Task<IActionResult> GetAll()
@@ -34,6 +38,10 @@ public class BranchesController : ApiControllerBase
         var branches = await _mediator.Send(new GetAllBranchesQuery());
         return Success(branches);
     }
+
+    /// <summary>
+    /// Searches branches with pagination
+    /// </summary>
     [HttpPost("pagination")]
     [HasPermission(Permission.Branches_Read)]
     public async Task<IActionResult> Search(SearchCriteria search)
@@ -41,6 +49,10 @@ public class BranchesController : ApiControllerBase
         var result = await _mediator.Send(new GetAllBranchesBySearchQuery(search));
         return Success(result);
     }
+
+    /// <summary>
+    /// Creates a new branch
+    /// </summary>
     [HttpPost]
     [HasPermission(Permission.Branches_Create)]
     public async Task<IActionResult> Create(CreateBranchRequest request)
@@ -48,6 +60,10 @@ public class BranchesController : ApiControllerBase
         var result = await _mediator.Send(new CreateBranchCommand(request));
         return HandleResult(result, "Branch.Created");
     }
+
+    /// <summary>
+    /// Updates an existing branch
+    /// </summary>
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.Branches_Update)]
     public async Task<IActionResult> Update(Guid id, UpdateBranchRequest request)
@@ -55,6 +71,10 @@ public class BranchesController : ApiControllerBase
         var result = await _mediator.Send(new UpdateBranchCommand(id, request));
         return HandleResult(result, "Branch.Updated");
     }
+
+    /// <summary>
+    /// Deletes a branch
+    /// </summary>
     [HttpDelete("{id:Guid}")]
     [HasPermission(Permission.Branches_Delete)]
     public async Task<IActionResult> Delete(Guid id)

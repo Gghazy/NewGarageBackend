@@ -33,10 +33,6 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         b.HasIndex(x => x.NameAr);
         b.HasIndex(x => x.NameEn);
 
-        b.HasDiscriminator<int>("ClientType")
-            .HasValue<CompanyClient>(ClientType.Company.Value)
-            .HasValue<IndividualClient>(ClientType.Individual.Value);
-
     }
 }
 

@@ -1,6 +1,5 @@
 using Garage.Api.Controllers.Common;
 using Garage.Application.Clients.Commands.Create;
-using Garage.Application.Clients.Commands.Delete;
 using Garage.Application.Clients.Commands.Update;
 using Garage.Application.Clients.Queries.GetAllClients;
 using Garage.Application.Clients.Queries.GetAllClientsBySearch;
@@ -28,6 +27,9 @@ public class ClientsController : ApiControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Gets all clients
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -35,6 +37,9 @@ public class ClientsController : ApiControllerBase
         return Success(clients);
     }
 
+    /// <summary>
+    /// Searches clients with pagination
+    /// </summary>
     [HttpPost("pagination")]
     [HasPermission(Permission.Client_Read)]
     public async Task<IActionResult> Search(SearchCriteria search)
@@ -43,6 +48,9 @@ public class ClientsController : ApiControllerBase
         return Success(result);
     }
 
+    /// <summary>
+    /// Creates a new client
+    /// </summary>
     [HttpPost]
     [HasPermission(Permission.Client_Create)]
     public async Task<IActionResult> Create(CreateClientRequest request)
@@ -51,19 +59,14 @@ public class ClientsController : ApiControllerBase
         return HandleResult(result, "Client.Created");
     }
 
+    /// <summary>
+    /// Updates an existing client
+    /// </summary>
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.Client_Update)]
     public async Task<IActionResult> Update(Guid id, CreateClientRequest request)
     {
         var result = await _mediator.Send(new UpdateClientCommand(id, request));
         return HandleResult(result, "Client.Updated");
-    }
-
-    [HttpDelete("{id:Guid}")]
-    [HasPermission(Permission.Client_Delete)]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var result = await _mediator.Send(new DeleteClientCommand(id));
-        return HandleResult(result, "Client.Deleted");
     }
 }

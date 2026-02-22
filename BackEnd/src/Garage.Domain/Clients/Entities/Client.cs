@@ -23,11 +23,11 @@ public abstract class Client : AggregateRoot
 
     protected Client() { }
 
-    protected Client(Guid userId, ClientType type, string nameAr, string nameEn, string phoneNumber)
+    protected Client(Guid userId, ClientType type, string nameAr, string nameEn, string phoneNumber,Guid? resourceId)
     {
         SetUser(userId);
         SetType(type);
-        UpdateBaseData(nameAr, nameEn, phoneNumber);
+        UpdateBaseData(nameAr, nameEn, phoneNumber,resourceId);
     }
 
     protected void SetUser(Guid userId)
@@ -40,13 +40,11 @@ public abstract class Client : AggregateRoot
 
     protected void SetType(ClientType type)
     {
-        if (!Enum.IsDefined(typeof(ClientType), type))
-            throw new DomainException("Invalid ClientType");
+        Type = type ?? throw new ArgumentNullException(nameof(type));
 
-        Type = type;
     }
 
-    public void UpdateBaseData(string nameAr, string nameEn, string phoneNumber)
+    public void UpdateBaseData(string nameAr, string nameEn, string phoneNumber, Guid? resourceId)
     {
         if (string.IsNullOrWhiteSpace(nameAr))
             throw new DomainException("NameAr is required");
@@ -59,6 +57,7 @@ public abstract class Client : AggregateRoot
 
         NameAr = nameAr.Trim();
         NameEn = nameEn.Trim();
-        PhoneNumber = phoneNumber.Trim(); 
+        PhoneNumber = phoneNumber.Trim();
+        ResourceId = resourceId; 
     }
 }

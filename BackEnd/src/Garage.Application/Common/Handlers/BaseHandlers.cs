@@ -15,12 +15,12 @@ public abstract class BaseCommandHandler<TRequest, TResponse> : IRequestHandler<
     /// <summary>
     /// Default error message for not found scenarios
     /// </summary>
-    protected const string NotFoundError = "Common.NotFound";
+    protected const string NotFoundError = "Resource not found";
 
     /// <summary>
     /// Default error message for conflict scenarios
     /// </summary>
-    protected const string ConflictError = "Common.Conflict";
+    protected const string ConflictError = "Resource already exists";
 
     /// <summary>
     /// Handles the command and returns a Result.

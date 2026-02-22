@@ -10,8 +10,7 @@
   "Common": {
     "NotFound": "Resource not found.",
     "Success": "Operation completed successfully.",
-    "Deleted": "Resource deleted successfully.",
-    "Conflict": "Resource already exists."
+    "Deleted": "Resource deleted successfully."
   },
   "Validation": {
     "Error": "Validation failed. Please check your input.",
@@ -101,7 +100,6 @@
   "Terms": {
     "Created": "Terms and conditions updated successfully.",
     "Updated": "Terms and conditions updated successfully.",
-    "Deleted": "Terms and conditions deleted successfully.",
     "NotFound": "Terms and conditions not found."
   }
 }

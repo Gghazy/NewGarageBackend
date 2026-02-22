@@ -1,6 +1,5 @@
 ﻿using Garage.Api.Controllers.Common;
 using Garage.Application.Services.Commands.Create;
-using Garage.Application.Services.Commands.Delete;
 using Garage.Application.Services.Commands.Update;
 using Garage.Application.Services.Queries.GetAll;
 using Garage.Application.Services.Queries.GetAllPagination;
@@ -85,17 +84,6 @@ public sealed class ServicesController : ApiControllerBase
     {
         var result = await _mediator.Send(new UpdateServiceCommand(id, request), ct);
         return HandleResult(result, "Service.Updated");
-    }
-
-    /// <summary>
-    /// Deletes a service
-    /// </summary>
-    [HttpDelete("{id:guid}")]
-    [HasPermission(Permission.Service_Delete)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
-    {
-        var result = await _mediator.Send(new DeleteServiceCommand(id), ct);
-        return HandleResult(result, "Service.Deleted");
     }
 
     /// <summary>
