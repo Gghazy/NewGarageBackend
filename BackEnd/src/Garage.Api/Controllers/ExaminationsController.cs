@@ -1,9 +1,7 @@
 using Garage.Api.Controllers.Common;
-using Garage.Application.Examinations.Commands.AddPayment;
 using Garage.Application.Examinations.Commands.ChangeStatus;
 using Garage.Application.Examinations.Commands.Create;
 using Garage.Application.Examinations.Commands.Delete;
-using Garage.Application.Examinations.Commands.RefundPayment;
 using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
@@ -103,23 +101,5 @@ public class ExaminationsController : ApiControllerBase
     {
         var result = await _mediator.Send(new DeleteExaminationCommand(id));
         return HandleResult(result, "Examination.Deleted");
-    }
-
-    /// <summary>Adds a payment to an examination.</summary>
-    [HttpPost("{id:Guid}/payments")]
-    [HasPermission(Permission.Examination_Update)]
-    public async Task<IActionResult> AddPayment(Guid id, AddPaymentRequest request)
-    {
-        var result = await _mediator.Send(new AddPaymentCommand(id, request));
-        return HandleResult(result, "Examination.PaymentAdded");
-    }
-
-    /// <summary>Adds a refund to an examination.</summary>
-    [HttpPost("{id:Guid}/refunds")]
-    [HasPermission(Permission.Examination_Update)]
-    public async Task<IActionResult> AddRefund(Guid id, AddPaymentRequest request)
-    {
-        var result = await _mediator.Send(new RefundPaymentCommand(id, request));
-        return HandleResult(result, "Examination.RefundAdded");
     }
 }

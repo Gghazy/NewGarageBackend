@@ -7,6 +7,7 @@ using Garage.Domain.Branches.Entities;
 using Garage.Domain.Clients.Entities;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Vehicles;
+using Garage.Domain.InvoiceManagement.Invoices;
 using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Examinations.Commands.Create;
@@ -14,6 +15,7 @@ namespace Garage.Application.Examinations.Commands.Create;
 public sealed class CreateExaminationHandler(
     IRepository<Examination>  examinationRepo,
     IRepository<Vehicle>      vehicleRepo,
+    IRepository<Invoice>      invoiceRepo,
     IReadRepository<Client>   clientRepo,
     IReadRepository<Branch>   branchRepo,
     IUnitOfWork               unitOfWork,
@@ -111,6 +113,28 @@ public sealed class CreateExaminationHandler(
 
             await examinationRepo.AddAsync(examination, ct);
             await unitOfWork.SaveChangesAsync(ct);
+
+            // 4d. Auto-create linked Invoice ──────────────────────────────────
+            var invoice = Invoice.Create(
+                client:        clientRef,
+                branch:        branchRef,
+                currency:      "EGP",
+                examinationId: examination.Id);
+
+            foreach (var item in examination.Items)
+            {
+                invoice.AddItem(
+                    description:   item.Service.NameEn,
+                    quantity:      1,
+                    unitPrice:     item.Price,
+                    serviceId:     item.Service.ServiceId,
+                    serviceNameAr: item.Service.NameAr,
+                    serviceNameEn: item.Service.NameEn);
+            }
+
+            await invoiceRepo.AddAsync(invoice, ct);
+            await unitOfWork.SaveChangesAsync(ct);
+
             await tx.CommitAsync(ct);
 
             return Ok(examination.Id);

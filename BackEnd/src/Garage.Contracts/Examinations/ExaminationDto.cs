@@ -2,7 +2,6 @@ namespace Garage.Contracts.Examinations;
 
 public sealed record ExaminationDto(
     Guid    Id,
-    string? InvoiceNumber,
 
     // ── Status ────────────────────────────────────────────────────────────────
     string  Status,
@@ -43,21 +42,8 @@ public sealed record ExaminationDto(
     string? MarketerCode,
     string? Notes,
 
-    // ── Financials ────────────────────────────────────────────────────────────
-    decimal SubTotal,
-    decimal TaxRate,
-    decimal TaxAmount,
-    decimal TotalWithTax,
-    string  Currency,
-    decimal TotalPaid,
-    decimal TotalRefunded,
-    decimal Balance,
-
     // ── Items ─────────────────────────────────────────────────────────────────
     List<ExaminationItemDto> Items,
-
-    // ── Payments ──────────────────────────────────────────────────────────────
-    List<PaymentDto> Payments,
 
     DateTime CreatedAtUtc
 );
@@ -71,14 +57,4 @@ public sealed record ExaminationItemDto(
     string  Currency,
     string  Status,
     string? Notes
-);
-
-public sealed record PaymentDto(
-    Guid    Id,
-    decimal Amount,
-    string  Currency,
-    string  Method,
-    string  Type,
-    string? Notes,
-    DateTime CreatedAtUtc
 );

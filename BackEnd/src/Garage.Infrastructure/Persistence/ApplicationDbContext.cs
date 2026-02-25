@@ -2,6 +2,7 @@ using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
 using Garage.Domain.AccessoryIssues.Entity;
 using Garage.Domain.ExaminationManagement.Vehicles;
+using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.Branches.Entities;
 using Garage.Domain.CarMarkes.Entity;
 using Garage.Domain.Clients.Entities;
@@ -103,6 +104,12 @@ public sealed class ApplicationDbContext
     #region Examinations
     public DbSet<Vehicle>     Vehicles     => Set<Vehicle>();
     public DbSet<Examination> Examinations => Set<Examination>();
+    #endregion
+
+    #region Invoices
+    public DbSet<Invoice>        Invoices        => Set<Invoice>();
+    public DbSet<InvoiceItem>    InvoiceItems    => Set<InvoiceItem>();
+    public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)

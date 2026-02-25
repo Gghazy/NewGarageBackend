@@ -25,38 +25,11 @@ public sealed class StartExaminationHandler : BaseCommandHandler<StartExaminatio
 
         if (examination is null) return Fail("Examination not found.");
 
-        try
-        {
-            var invoiceNumber = await GenerateInvoiceNumber(ct);
-            examination.SetInvoiceNumber(invoiceNumber);
-            examination.Start();
-        }
+        try   { examination.Start(); }
         catch (Exception ex) { return Fail(ex.Message); }
 
         await _unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
-    }
-
-    private async Task<string> GenerateInvoiceNumber(CancellationToken ct)
-    {
-        var year   = DateTime.UtcNow.Year;
-        var prefix = $"INV-{year}-";
-
-        var lastNumber = await _repo.Query()
-            .Where(e => e.InvoiceNumber != null && e.InvoiceNumber.StartsWith(prefix))
-            .Select(e => e.InvoiceNumber!)
-            .OrderByDescending(n => n)
-            .FirstOrDefaultAsync(ct);
-
-        var next = 1;
-        if (lastNumber is not null)
-        {
-            var numPart = lastNumber.Substring(prefix.Length);
-            if (int.TryParse(numPart, out var parsed))
-                next = parsed + 1;
-        }
-
-        return $"{prefix}{next:D5}";
     }
 }
 

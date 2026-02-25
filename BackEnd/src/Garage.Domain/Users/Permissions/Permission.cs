@@ -131,6 +131,11 @@ public static class Permission
     public const string Examination_Update = "examination.update";
     public const string Examination_Delete = "examination.delete";
 
+    public const string Invoice_Read   = "invoice.read";
+    public const string Invoice_Create = "invoice.create";
+    public const string Invoice_Update = "invoice.update";
+    public const string Invoice_Delete = "invoice.delete";
+
     public static readonly string[] All =
     [
         Users_Read, Users_Create, Users_Update, Users_Delete,
@@ -157,7 +162,8 @@ public static class Permission
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
         Dashboard_Read,
-        Examination_Read, Examination_Create, Examination_Update, Examination_Delete
+        Examination_Read, Examination_Create, Examination_Update, Examination_Delete,
+        Invoice_Read, Invoice_Create, Invoice_Update, Invoice_Delete
     ];
 }
 

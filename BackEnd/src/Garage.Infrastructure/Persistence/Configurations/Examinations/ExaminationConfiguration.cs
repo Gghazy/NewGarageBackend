@@ -21,8 +21,6 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
         b.Property(x => x.HasWarranty).IsRequired();
         b.Property(x => x.HasPhotos).IsRequired();
         b.Property(x => x.MarketerCode).HasMaxLength(50).IsRequired(false);
-        b.Property(x => x.InvoiceNumber).HasMaxLength(20).IsRequired(false);
-        b.HasIndex(x => x.InvoiceNumber).IsUnique().HasFilter("[InvoiceNumber] IS NOT NULL");
         b.Property(x => x.Notes).HasMaxLength(1000).IsRequired(false);
 
         // ── Client reference (owned) ──────────────────────────────────────────
@@ -151,59 +149,8 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
                 .IsRequired(false);
         });
 
-        // ── Financials ───────────────────────────────────────────────────────
-        b.OwnsOne(x => x.TotalPrice, m =>
-        {
-            m.Property(p => p.Amount)
-                .HasColumnName("TotalAmount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-
-            m.Property(p => p.Currency)
-                .HasColumnName("TotalCurrency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
-
-        b.Property(x => x.TaxRate)
-            .HasColumnType("decimal(5,4)")
-            .IsRequired()
-            .HasDefaultValue(0.15m);
-
-        b.OwnsOne(x => x.TaxAmount, m =>
-        {
-            m.Property(p => p.Amount)
-                .HasColumnName("TaxAmount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-
-            m.Property(p => p.Currency)
-                .HasColumnName("TaxCurrency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
-
-        b.OwnsOne(x => x.TotalWithTax, m =>
-        {
-            m.Property(p => p.Amount)
-                .HasColumnName("TotalWithTaxAmount")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-
-            m.Property(p => p.Currency)
-                .HasColumnName("TotalWithTaxCurrency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
-
         // ── Items ─────────────────────────────────────────────────────────────
         b.HasMany(x => x.Items)
-            .WithOne()
-            .HasForeignKey("ExaminationId")
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // ── Payments ──────────────────────────────────────────────────────────
-        b.HasMany(x => x.Payments)
             .WithOne()
             .HasForeignKey("ExaminationId")
             .OnDelete(DeleteBehavior.Cascade);

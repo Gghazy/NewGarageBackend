@@ -7,6 +7,7 @@ using Garage.Contracts.Examinations;
 using Garage.Domain.Clients.Entities;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Vehicles;
+using Garage.Domain.InvoiceManagement.Invoices;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ namespace Garage.Application.Examinations.Commands.Update;
 public sealed class UpdateExaminationHandler(
     IRepository<Examination>  examinationRepo,
     IRepository<Vehicle>      vehicleRepo,
+    IRepository<Invoice>      invoiceRepo,
     IReadRepository<Client>   clientRepo,
     IMediator                 mediator,
     IUnitOfWork               unitOfWork,
@@ -102,18 +104,19 @@ public sealed class UpdateExaminationHandler(
                 transmission:       transmission);
 
             // 5c. Update examination ──────────────────────────────────────────
-            examination.Update(req.HasWarranty, req.HasPhotos, req.MarketerCode, req.Notes);
-
-            examination.UpdateClientSnapshot(new ClientReference(
+            var clientRef = new ClientReference(
                 ClientId:    client.Id,
                 NameAr:      client.NameAr,
                 NameEn:      client.NameEn,
                 PhoneNumber: client.PhoneNumber,
-                Email:       req.ClientEmail));
+                Email:       req.ClientEmail);
 
+            examination.Update(req.HasWarranty, req.HasPhotos, req.MarketerCode, req.Notes);
+            examination.UpdateClientSnapshot(clientRef);
             examination.UpdateVehicleSnapshot(vehicle.ToSnapshot());
 
             // 5d. Replace items if provided (Draft only) ──────────────────────
+            var itemsReplaced = false;
             if (req.Items is { Count: > 0 })
             {
                 if (examination.Status != ExaminationStatus.Draft)
@@ -123,9 +126,45 @@ public sealed class UpdateExaminationHandler(
                     examination.RemoveItem(item.Service.ServiceId);
 
                 await examinationService.AddItemsAsync(examination, req, servicesResult.Value, ct);
+                itemsReplaced = true;
             }
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            // 5e. Sync linked invoice (if examination not delivered) ──────────
+            if (examination.Status != ExaminationStatus.Delivered)
+            {
+                var invoice = await invoiceRepo.QueryTracking()
+                    .Include(i => i.Items)
+                    .FirstOrDefaultAsync(i => i.ExaminationId == examination.Id, ct);
+
+                if (invoice is not null)
+                {
+                    // Sync client snapshot
+                    invoice.UpdateClientSnapshot(clientRef);
+
+                    // Sync items if they were replaced and invoice is still Draft
+                    if (itemsReplaced && invoice.Status == InvoiceStatus.Draft)
+                    {
+                        foreach (var invoiceItem in invoice.Items.ToList())
+                            invoice.RemoveItem(invoiceItem.Id);
+
+                        foreach (var examItem in examination.Items)
+                        {
+                            invoice.AddItem(
+                                description:   examItem.Service.NameEn,
+                                quantity:      1,
+                                unitPrice:     examItem.Price,
+                                serviceId:     examItem.Service.ServiceId,
+                                serviceNameAr: examItem.Service.NameAr,
+                                serviceNameEn: examItem.Service.NameEn);
+                        }
+                    }
+
+                    await unitOfWork.SaveChangesAsync(ct);
+                }
+            }
+
             await tx.CommitAsync(ct);
 
             return Ok(examination.Id);

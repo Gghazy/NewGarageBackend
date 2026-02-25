@@ -20,12 +20,10 @@ public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> 
                 e => e.Client.NameAr.Contains(search.TextSearch!)   ||
                      e.Client.NameEn.Contains(search.TextSearch!)   ||
                      e.Client.PhoneNumber.Contains(search.TextSearch!) ||
-                     (e.InvoiceNumber != null && e.InvoiceNumber.Contains(search.TextSearch!)) ||
                      (e.MarketerCode != null && e.MarketerCode.Contains(search.TextSearch!)))
             .Select(e => new ExaminationDto(
                 // Id
                 e.Id,
-                e.InvoiceNumber,
                 // Status, Type
                 e.Status.ToString(),
                 e.Type.ToString(),
@@ -60,17 +58,6 @@ public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> 
                 e.HasPhotos,
                 e.MarketerCode,
                 e.Notes,
-                // Financials
-                e.TotalPrice.Amount,
-                e.TaxRate,
-                e.TaxAmount.Amount,
-                e.TotalWithTax.Amount,
-                e.TotalPrice.Currency,
-                e.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount),
-                e.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
-                e.TotalWithTax.Amount
-                    - e.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount)
-                    + e.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
                 // Items
                 e.Items.Select(i => new ExaminationItemDto(
                     i.Id,
@@ -81,16 +68,6 @@ public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> 
                     i.Price.Currency,
                     i.Status.ToString(),
                     i.Notes
-                )).ToList(),
-                // Payments
-                e.Payments.Select(p => new PaymentDto(
-                    p.Id,
-                    p.Amount.Amount,
-                    p.Amount.Currency,
-                    p.Method.ToString(),
-                    p.Type.ToString(),
-                    p.Notes,
-                    p.CreatedAtUtc
                 )).ToList(),
                 // CreatedAt
                 e.CreatedAtUtc

@@ -1,4 +1,4 @@
-﻿using Garage.Domain.Common.Exceptions;
+using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
@@ -17,19 +17,10 @@ public sealed class Examination : AggregateRoot
     public bool HasWarranty { get; private set; }
     public bool HasPhotos   { get; private set; }
     public string? MarketerCode { get; private set; }
-    public string? InvoiceNumber { get; private set; }
     public string? Notes { get; private set; }
-
-    public Money TotalPrice    { get; private set; } = Money.Zero("EGP");
-    public decimal TaxRate     { get; private set; } = 0.15m;
-    public Money TaxAmount     { get; private set; } = Money.Zero("EGP");
-    public Money TotalWithTax  { get; private set; } = Money.Zero("EGP");
 
     private readonly List<ExaminationItem> _items = new();
     public IReadOnlyCollection<ExaminationItem> Items => _items.AsReadOnly();
-
-    private readonly List<Payment> _payments = new();
-    public IReadOnlyCollection<Payment> Payments => _payments.AsReadOnly();
 
     private Examination() { }
 
@@ -40,8 +31,7 @@ public sealed class Examination : AggregateRoot
         ExaminationType type,
         bool hasWarranty,
         bool hasPhotos,
-        string? marketerCode,
-        string currency)
+        string? marketerCode)
     {
         Client = client;
         Branch = branch;
@@ -52,10 +42,7 @@ public sealed class Examination : AggregateRoot
         HasPhotos   = hasPhotos;
         MarketerCode = Normalize(marketerCode);
 
-        Status       = ExaminationStatus.Draft;
-        TotalPrice   = Money.Zero(currency);
-        TaxAmount    = Money.Zero(currency);
-        TotalWithTax = Money.Zero(currency);
+        Status = ExaminationStatus.Draft;
     }
 
     public static Examination Create(
@@ -65,15 +52,13 @@ public sealed class Examination : AggregateRoot
         ExaminationType type,
         bool hasWarranty,
         bool hasPhotos,
-        string? marketerCode = null,
-        string currency = "EGP")
+        string? marketerCode = null)
     {
         if (client.ClientId == Guid.Empty)  throw new DomainException("Client is required.");
         if (branch.BranchId == Guid.Empty)  throw new DomainException("Branch is required.");
         if (vehicle.VehicleId == Guid.Empty) throw new DomainException("Vehicle is required.");
-        if (string.IsNullOrWhiteSpace(currency)) throw new DomainException("Currency is required.");
 
-        return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos, marketerCode, currency);
+        return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos, marketerCode);
     }
 
     public void SetNotes(string? notes) => Notes = Normalize(notes);
@@ -101,29 +86,6 @@ public sealed class Examination : AggregateRoot
         Vehicle = snapshot;
     }
 
-    public void AddPayment(Money amount, PaymentMethod method, string? notes)
-    {
-        if (Status == ExaminationStatus.Cancelled)
-            throw new DomainException("Cannot add payment to a cancelled examination.");
-
-        _payments.Add(new Payment(amount, method, PaymentType.Payment, notes));
-    }
-
-    public void AddRefund(Money amount, PaymentMethod method, string? notes)
-    {
-        if (Status == ExaminationStatus.Cancelled)
-            throw new DomainException("Cannot add refund to a cancelled examination.");
-
-        var totalPaid     = _payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount);
-        var totalRefunded = _payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount);
-        var refundable    = totalPaid - totalRefunded;
-
-        if (amount.Amount > refundable)
-            throw new DomainException($"Refund amount ({amount.Amount}) exceeds refundable balance ({refundable}).");
-
-        _payments.Add(new Payment(amount, method, PaymentType.Refund, notes));
-    }
-
     public void AddItem(ServiceSnapshot service, Money? overridePrice = null)
     {
         EnsureDraft();
@@ -134,8 +96,6 @@ public sealed class Examination : AggregateRoot
 
         var price = overridePrice ?? service.DefaultPrice;
         _items.Add(new ExaminationItem(service, price));
-
-        RecalculateTotal();
     }
 
     public void RemoveItem(Guid serviceId)
@@ -146,7 +106,6 @@ public sealed class Examination : AggregateRoot
         if (item is null) return;
 
         _items.Remove(item);
-        RecalculateTotal();
     }
 
     public void UpdateItemPrice(Guid serviceId, Money newPrice)
@@ -157,17 +116,6 @@ public sealed class Examination : AggregateRoot
                    ?? throw new DomainException("Item not found.");
 
         item.UpdatePrice(newPrice);
-        RecalculateTotal();
-    }
-
-    public void SetInvoiceNumber(string invoiceNumber)
-    {
-        if (!string.IsNullOrWhiteSpace(InvoiceNumber))
-            throw new DomainException("Invoice number already assigned.");
-        if (string.IsNullOrWhiteSpace(invoiceNumber))
-            throw new DomainException("Invoice number is required.");
-
-        InvoiceNumber = invoiceNumber;
     }
 
     public void Start()
@@ -214,25 +162,6 @@ public sealed class Examination : AggregateRoot
     {
         if (Status != ExaminationStatus.Draft)
             throw new DomainException("You can modify examination only in Draft status.");
-    }
-
-    private void RecalculateTotal()
-    {
-        if (_items.Count == 0)
-        {
-            TotalPrice   = Money.Zero(TotalPrice.Currency);
-            TaxAmount    = Money.Zero(TotalPrice.Currency);
-            TotalWithTax = Money.Zero(TotalPrice.Currency);
-            return;
-        }
-
-        var total = Money.Zero(_items[0].Price.Currency);
-        foreach (var i in _items)
-            total = total.Add(i.Price);
-
-        TotalPrice   = total;
-        TaxAmount    = Money.Create(Math.Round(total.Amount * TaxRate, 2), total.Currency);
-        TotalWithTax = total.Add(TaxAmount);
     }
 
     private static string? Normalize(string? v)

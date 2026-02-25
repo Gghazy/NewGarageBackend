@@ -3,25 +3,26 @@ using Garage.Application.Abstractions;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
 using Garage.Domain.ExaminationManagement.Shared;
+using Garage.Domain.InvoiceManagement.Invoices;
 using Microsoft.EntityFrameworkCore;
 
-namespace Garage.Application.Examinations.Commands.RefundPayment;
+namespace Garage.Application.Invoices.Commands.RefundPayment;
 
-public sealed class RefundPaymentHandler(
-    IRepository<Examination> repo,
+public sealed class RefundInvoicePaymentHandler(
+    IRepository<Invoice> repo,
     IUnitOfWork unitOfWork)
-    : BaseCommandHandler<RefundPaymentCommand, Guid>
+    : BaseCommandHandler<RefundInvoicePaymentCommand, Guid>
 {
-    public override async Task<Result<Guid>> Handle(RefundPaymentCommand command, CancellationToken ct)
+    public override async Task<Result<Guid>> Handle(RefundInvoicePaymentCommand command, CancellationToken ct)
     {
         var req = command.Request;
 
-        var examination = await repo.QueryTracking()
-            .Include(e => e.Payments)
-            .FirstOrDefaultAsync(e => e.Id == command.ExaminationId, ct);
+        var invoice = await repo.QueryTracking()
+            .Include(i => i.Payments)
+            .FirstOrDefaultAsync(i => i.Id == command.InvoiceId, ct);
 
-        if (examination is null)
-            return Fail("Examination not found.");
+        if (invoice is null)
+            return Fail("Invoice not found.");
 
         if (!Enum.TryParse<PaymentMethod>(req.Method, ignoreCase: true, out var method))
             return Fail($"Invalid payment method '{req.Method}'. Use Cash, Card, BankTransfer or Cheque.");
@@ -31,7 +32,7 @@ public sealed class RefundPaymentHandler(
 
         try
         {
-            examination.AddRefund(amount, method, req.Notes);
+            invoice.AddRefund(amount, method, req.Notes);
         }
         catch (Exception ex)
         {
@@ -40,7 +41,7 @@ public sealed class RefundPaymentHandler(
 
         await unitOfWork.SaveChangesAsync(ct);
 
-        var payment = examination.Payments.Last();
+        var payment = invoice.Payments.Last();
         return Ok(payment.Id);
     }
 }
