@@ -1,4 +1,6 @@
-﻿using Garage.Domain.AccessoryIssues.Entity;
+﻿using Domain.ExaminationManagement.Examinations;
+using Garage.Domain.AccessoryIssues.Entity;
+using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.Branches.Entities;
 using Garage.Domain.CarMarkes.Entity;
 using Garage.Domain.ClientResources.Entities;
@@ -63,6 +65,11 @@ namespace Garage.Application.Abstractions
         DbSet<Client> Clients { get; }
         DbSet<CompanyClient> CompanyClients { get; }
         DbSet<IndividualClient> IndividualClients { get; }
+        #endregion
+
+        #region Examinations
+        DbSet<Vehicle>     Vehicles     { get; }
+        DbSet<Examination> Examinations { get; }
         #endregion
     }
 }

@@ -7,7 +7,7 @@ public class CreateTermsRequestValidator : AbstractValidator<CreateTermsRequest>
 {
     public CreateTermsRequestValidator()
     {
-        RuleFor(x => x.TermsAndCondtionsAr)
+        RuleFor(x => x.TermsAndConditionsAr)
             .NotEmpty()
                 .WithErrorCode("Validation.Required")
                 .WithMessage("Validation.Required")
@@ -18,7 +18,7 @@ public class CreateTermsRequestValidator : AbstractValidator<CreateTermsRequest>
                 .WithErrorCode("Validation.InvalidFormat")
                 .WithMessage("Terms and conditions (Arabic) must not exceed 5000 characters");
 
-        RuleFor(x => x.TermsAndCondtionsEn)
+        RuleFor(x => x.TermsAndConditionsEn)
             .NotEmpty()
                 .WithErrorCode("Validation.Required")
                 .WithMessage("Validation.Required")

@@ -32,6 +32,11 @@ namespace Garage.Infrastructure.Persistence
 
         public void Remove(TEntity entity) => _db.Set<TEntity>().Remove(entity);
 
+        public Task SoftDeleteAsync(TEntity entity, CancellationToken ct = default)
+        {
+            entity.SoftDelete();
+            return Task.CompletedTask;
+        }
 
         public async Task<QueryResult<TEntity>> GetAllAsync(SearchCriteria search, CancellationToken ct)
         {

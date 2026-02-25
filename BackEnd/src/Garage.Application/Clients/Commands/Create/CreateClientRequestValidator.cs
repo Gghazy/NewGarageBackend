@@ -16,9 +16,9 @@ public class CreateClientRequestValidator : AbstractValidator<CreateClientReques
                 .WithMessage("Validation.InvalidEmail");
 
         RuleFor(x => x.Type)
-            .GreaterThan(0)
-                .WithErrorCode("Validation.InvalidFormat")
-                .WithMessage("Validation.InvalidFormat");
+            .NotEmpty()
+                .WithErrorCode("Validation.Required")
+                .WithMessage("Validation.Required");
 
         RuleFor(x => x.NameAr)
             .NotEmpty()

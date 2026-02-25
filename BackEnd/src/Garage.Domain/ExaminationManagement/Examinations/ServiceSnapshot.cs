@@ -7,4 +7,8 @@ public sealed record ServiceSnapshot(
     string NameAr,
     string NameEn,
     Money DefaultPrice
-);
+)
+{
+    // Parameterless constructor required by EF Core for owned types with navigation references
+    private ServiceSnapshot() : this(Guid.Empty, string.Empty, string.Empty, null!) { }
+}

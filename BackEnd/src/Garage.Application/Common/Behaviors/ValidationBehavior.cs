@@ -40,7 +40,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
                         g => g.Select(x => x.ErrorMessage).ToArray()
                     );
 
-                throw new ValidationException(
+                throw new Garage.Application.Common.Exceptions.ValidationException(
                     "Validation.Error",
                     "Validation.Error",
                     errors

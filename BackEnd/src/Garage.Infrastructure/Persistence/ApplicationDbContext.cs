@@ -1,5 +1,7 @@
+using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
 using Garage.Domain.AccessoryIssues.Entity;
+using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.Branches.Entities;
 using Garage.Domain.CarMarkes.Entity;
 using Garage.Domain.Clients.Entities;
@@ -96,6 +98,11 @@ public sealed class ApplicationDbContext
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<CompanyClient> CompanyClients => Set<CompanyClient>();
     public DbSet<IndividualClient> IndividualClients => Set<IndividualClient>();
+    #endregion
+
+    #region Examinations
+    public DbSet<Vehicle>     Vehicles     => Set<Vehicle>();
+    public DbSet<Examination> Examinations => Set<Examination>();
     #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)

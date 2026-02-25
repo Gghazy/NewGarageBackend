@@ -126,6 +126,10 @@ public static class Permission
 
     public const string Dashboard_Read = "dashboard.read";
 
+    public const string Examination_Read   = "examination.read";
+    public const string Examination_Create = "examination.create";
+    public const string Examination_Update = "examination.update";
+    public const string Examination_Delete = "examination.delete";
 
     public static readonly string[] All =
     [
@@ -152,7 +156,8 @@ public static class Permission
         Term_Read, Term_Create,Term_Update, Term_Delete,
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
-        Dashboard_Read
+        Dashboard_Read,
+        Examination_Read, Examination_Create, Examination_Update, Examination_Delete
     ];
 }
 

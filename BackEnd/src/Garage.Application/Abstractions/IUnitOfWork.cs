@@ -1,3 +1,9 @@
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace Garage.Application.Abstractions;
-public interface IUnitOfWork { Task<int> SaveChangesAsync(CancellationToken ct = default); }
+public interface IUnitOfWork
+{
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);
+}
 

@@ -4,6 +4,8 @@ using Garage.Application.Common.Handlers;
 using Garage.Domain.ServicePrices.Entities;
 using Microsoft.EntityFrameworkCore;
 
+namespace Garage.Application.ServicePrices.Commands.Update;
+
 public sealed class UpdateServicePriceCommandHandler : BaseCommandHandler<UpdateServicePriceCommand, bool>
 {
     private readonly IRepository<ServicePrice> _repo;
