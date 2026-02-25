@@ -20,10 +20,12 @@ public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> 
                 e => e.Client.NameAr.Contains(search.TextSearch!)   ||
                      e.Client.NameEn.Contains(search.TextSearch!)   ||
                      e.Client.PhoneNumber.Contains(search.TextSearch!) ||
+                     (e.InvoiceNumber != null && e.InvoiceNumber.Contains(search.TextSearch!)) ||
                      (e.MarketerCode != null && e.MarketerCode.Contains(search.TextSearch!)))
             .Select(e => new ExaminationDto(
                 // Id
                 e.Id,
+                e.InvoiceNumber,
                 // Status, Type
                 e.Status.ToString(),
                 e.Type.ToString(),

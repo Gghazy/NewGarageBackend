@@ -16,6 +16,7 @@ public sealed class GetExaminationByIdQueryHandler(IReadRepository<Examination> 
             .Select(e => new ExaminationDto(
                 // Id
                 e.Id,
+                e.InvoiceNumber,
                 // Status, Type
                 e.Status.ToString(),
                 e.Type.ToString(),

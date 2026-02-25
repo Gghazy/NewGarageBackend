@@ -17,6 +17,7 @@ public sealed class Examination : AggregateRoot
     public bool HasWarranty { get; private set; }
     public bool HasPhotos   { get; private set; }
     public string? MarketerCode { get; private set; }
+    public string? InvoiceNumber { get; private set; }
     public string? Notes { get; private set; }
 
     public Money TotalPrice    { get; private set; } = Money.Zero("EGP");
@@ -157,6 +158,16 @@ public sealed class Examination : AggregateRoot
 
         item.UpdatePrice(newPrice);
         RecalculateTotal();
+    }
+
+    public void SetInvoiceNumber(string invoiceNumber)
+    {
+        if (!string.IsNullOrWhiteSpace(InvoiceNumber))
+            throw new DomainException("Invoice number already assigned.");
+        if (string.IsNullOrWhiteSpace(invoiceNumber))
+            throw new DomainException("Invoice number is required.");
+
+        InvoiceNumber = invoiceNumber;
     }
 
     public void Start()

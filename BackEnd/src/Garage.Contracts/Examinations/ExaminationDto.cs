@@ -2,6 +2,7 @@ namespace Garage.Contracts.Examinations;
 
 public sealed record ExaminationDto(
     Guid    Id,
+    string? InvoiceNumber,
 
     // ── Status ────────────────────────────────────────────────────────────────
     string  Status,

@@ -21,6 +21,8 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
         b.Property(x => x.HasWarranty).IsRequired();
         b.Property(x => x.HasPhotos).IsRequired();
         b.Property(x => x.MarketerCode).HasMaxLength(50).IsRequired(false);
+        b.Property(x => x.InvoiceNumber).HasMaxLength(20).IsRequired(false);
+        b.HasIndex(x => x.InvoiceNumber).IsUnique().HasFilter("[InvoiceNumber] IS NOT NULL");
         b.Property(x => x.Notes).HasMaxLength(1000).IsRequired(false);
 
         // ── Client reference (owned) ──────────────────────────────────────────
