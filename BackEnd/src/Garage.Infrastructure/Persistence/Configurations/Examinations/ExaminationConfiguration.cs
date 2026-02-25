@@ -149,7 +149,7 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
                 .IsRequired(false);
         });
 
-        // ── Total price (owned Money) ─────────────────────────────────────────
+        // ── Financials ───────────────────────────────────────────────────────
         b.OwnsOne(x => x.TotalPrice, m =>
         {
             m.Property(p => p.Amount)
@@ -159,6 +159,37 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
 
             m.Property(p => p.Currency)
                 .HasColumnName("TotalCurrency")
+                .HasMaxLength(3)
+                .IsRequired();
+        });
+
+        b.Property(x => x.TaxRate)
+            .HasColumnType("decimal(5,4)")
+            .IsRequired()
+            .HasDefaultValue(0.15m);
+
+        b.OwnsOne(x => x.TaxAmount, m =>
+        {
+            m.Property(p => p.Amount)
+                .HasColumnName("TaxAmount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            m.Property(p => p.Currency)
+                .HasColumnName("TaxCurrency")
+                .HasMaxLength(3)
+                .IsRequired();
+        });
+
+        b.OwnsOne(x => x.TotalWithTax, m =>
+        {
+            m.Property(p => p.Amount)
+                .HasColumnName("TotalWithTaxAmount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            m.Property(p => p.Currency)
+                .HasColumnName("TotalWithTaxCurrency")
                 .HasMaxLength(3)
                 .IsRequired();
         });

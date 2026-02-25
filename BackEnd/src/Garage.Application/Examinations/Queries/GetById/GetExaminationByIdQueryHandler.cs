@@ -30,8 +30,10 @@ public sealed class GetExaminationByIdQueryHandler(IReadRepository<Examination> 
                 e.Branch.NameEn,
                 // Vehicle
                 e.Vehicle.VehicleId,
+                e.Vehicle.ManufacturerId,
                 e.Vehicle.ManufacturerNameAr,
                 e.Vehicle.ManufacturerNameEn,
+                e.Vehicle.CarMarkId,
                 e.Vehicle.CarMarkNameAr,
                 e.Vehicle.CarMarkNameEn,
                 e.Vehicle.Year,
@@ -50,7 +52,15 @@ public sealed class GetExaminationByIdQueryHandler(IReadRepository<Examination> 
                 e.Notes,
                 // Financials
                 e.TotalPrice.Amount,
+                e.TaxRate,
+                e.TaxAmount.Amount,
+                e.TotalWithTax.Amount,
                 e.TotalPrice.Currency,
+                e.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount),
+                e.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
+                e.TotalWithTax.Amount
+                    - e.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount)
+                    + e.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
                 // Items
                 e.Items.Select(i => new ExaminationItemDto(
                     i.Id,
@@ -68,6 +78,7 @@ public sealed class GetExaminationByIdQueryHandler(IReadRepository<Examination> 
                     p.Amount.Amount,
                     p.Amount.Currency,
                     p.Method.ToString(),
+                    p.Type.ToString(),
                     p.Notes,
                     p.CreatedAtUtc
                 )).ToList(),

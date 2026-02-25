@@ -19,7 +19,10 @@ public sealed class Examination : AggregateRoot
     public string? MarketerCode { get; private set; }
     public string? Notes { get; private set; }
 
-    public Money TotalPrice { get; private set; } = Money.Zero("EGP");
+    public Money TotalPrice    { get; private set; } = Money.Zero("EGP");
+    public decimal TaxRate     { get; private set; } = 0.15m;
+    public Money TaxAmount     { get; private set; } = Money.Zero("EGP");
+    public Money TotalWithTax  { get; private set; } = Money.Zero("EGP");
 
     private readonly List<ExaminationItem> _items = new();
     public IReadOnlyCollection<ExaminationItem> Items => _items.AsReadOnly();
@@ -48,8 +51,10 @@ public sealed class Examination : AggregateRoot
         HasPhotos   = hasPhotos;
         MarketerCode = Normalize(marketerCode);
 
-        Status     = ExaminationStatus.Draft;
-        TotalPrice = Money.Zero(currency);
+        Status       = ExaminationStatus.Draft;
+        TotalPrice   = Money.Zero(currency);
+        TaxAmount    = Money.Zero(currency);
+        TotalWithTax = Money.Zero(currency);
     }
 
     public static Examination Create(
@@ -100,7 +105,22 @@ public sealed class Examination : AggregateRoot
         if (Status == ExaminationStatus.Cancelled)
             throw new DomainException("Cannot add payment to a cancelled examination.");
 
-        _payments.Add(new Payment(amount, method, notes));
+        _payments.Add(new Payment(amount, method, PaymentType.Payment, notes));
+    }
+
+    public void AddRefund(Money amount, PaymentMethod method, string? notes)
+    {
+        if (Status == ExaminationStatus.Cancelled)
+            throw new DomainException("Cannot add refund to a cancelled examination.");
+
+        var totalPaid     = _payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount);
+        var totalRefunded = _payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount);
+        var refundable    = totalPaid - totalRefunded;
+
+        if (amount.Amount > refundable)
+            throw new DomainException($"Refund amount ({amount.Amount}) exceeds refundable balance ({refundable}).");
+
+        _payments.Add(new Payment(amount, method, PaymentType.Refund, notes));
     }
 
     public void AddItem(ServiceSnapshot service, Money? overridePrice = null)
@@ -189,7 +209,9 @@ public sealed class Examination : AggregateRoot
     {
         if (_items.Count == 0)
         {
-            TotalPrice = Money.Zero(TotalPrice.Currency);
+            TotalPrice   = Money.Zero(TotalPrice.Currency);
+            TaxAmount    = Money.Zero(TotalPrice.Currency);
+            TotalWithTax = Money.Zero(TotalPrice.Currency);
             return;
         }
 
@@ -197,7 +219,9 @@ public sealed class Examination : AggregateRoot
         foreach (var i in _items)
             total = total.Add(i.Price);
 
-        TotalPrice = total;
+        TotalPrice   = total;
+        TaxAmount    = Money.Create(Math.Round(total.Amount * TaxRate, 2), total.Currency);
+        TotalWithTax = total.Add(TaxAmount);
     }
 
     private static string? Normalize(string? v)

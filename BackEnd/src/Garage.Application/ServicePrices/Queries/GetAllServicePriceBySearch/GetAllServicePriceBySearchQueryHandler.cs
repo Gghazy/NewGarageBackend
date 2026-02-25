@@ -14,8 +14,20 @@ public class GetAllServicePriceBySearchQueryHandler(IApplicationDbContext _dbCon
 {
     public async Task<QueryResult<ServicePriceDto>> Handle(GetAllServicePriceBySearchQuery command, CancellationToken ct)
     {
+        var filter = command.Request;
 
-        var query = from sp in _dbContext.ServicePrices.AsNoTracking()
+        var servicePrices = _dbContext.ServicePrices.AsNoTracking().AsQueryable();
+
+        if (filter.ServiceId.HasValue)
+            servicePrices = servicePrices.Where(sp => sp.ServiceId == filter.ServiceId.Value);
+
+        if (filter.MarkId.HasValue)
+            servicePrices = servicePrices.Where(sp => sp.MarkId == filter.MarkId.Value);
+
+        if (filter.Year.HasValue)
+            servicePrices = servicePrices.Where(sp => sp.FromYear <= filter.Year.Value && sp.ToYear >= filter.Year.Value);
+
+        var query = from sp in servicePrices
 
                     join s in _dbContext.Services.AsNoTracking()
                         on sp.ServiceId equals s.Id
@@ -37,7 +49,6 @@ public class GetAllServicePriceBySearchQueryHandler(IApplicationDbContext _dbCon
                         sp.Price
                     );
 
-
-        return await query.ToQueryResult(command.Request.Search.CurrentPage, command.Request.Search.ItemsPerPage, ct: ct);
+        return await query.ToQueryResult(filter.Search.CurrentPage, filter.Search.ItemsPerPage, ct: ct);
     }
 }

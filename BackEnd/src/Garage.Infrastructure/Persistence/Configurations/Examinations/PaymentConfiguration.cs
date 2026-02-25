@@ -17,6 +17,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         b.Property<Guid>("ExaminationId").IsRequired();
 
         b.Property(x => x.Method).IsRequired();
+        b.Property(x => x.Type).IsRequired().HasDefaultValue(PaymentType.Payment);
         b.Property(x => x.Notes).HasMaxLength(500).IsRequired(false);
 
         // ── Amount (owned Money) ──────────────────────────────────────────────

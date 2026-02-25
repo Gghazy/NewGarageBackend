@@ -54,7 +54,10 @@ public sealed record CreateExaminationRequest(
 
     // ── Services ──────────────────────────────────────────────────────────────
     List<ExaminationItemRequest> Items
-);
+) : IExaminationRequest
+{
+    List<ExaminationItemRequest>? IExaminationRequest.Items => Items;
+}
 
 public sealed record ExaminationItemRequest(
     Guid     ServiceId,

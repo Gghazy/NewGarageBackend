@@ -4,6 +4,7 @@ using Garage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225042414_update-payment")]
+    partial class updatepayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,11 +63,6 @@ namespace Garage.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("TaxRate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(5,4)")
-                        .HasDefaultValue(0.15m);
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -1403,29 +1401,6 @@ namespace Garage.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.ExaminationManagement.Examinations.Examination", b =>
                 {
-                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TaxAmount", b1 =>
-                        {
-                            b1.Property<Guid>("ExaminationId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("TaxAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)")
-                                .HasColumnName("TaxCurrency");
-
-                            b1.HasKey("ExaminationId");
-
-                            b1.ToTable("Examinations");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ExaminationId");
-                        });
-
                     b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TotalPrice", b1 =>
                         {
                             b1.Property<Guid>("ExaminationId")
@@ -1440,29 +1415,6 @@ namespace Garage.Infrastructure.Migrations
                                 .HasMaxLength(3)
                                 .HasColumnType("nvarchar(3)")
                                 .HasColumnName("TotalCurrency");
-
-                            b1.HasKey("ExaminationId");
-
-                            b1.ToTable("Examinations");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ExaminationId");
-                        });
-
-                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TotalWithTax", b1 =>
-                        {
-                            b1.Property<Guid>("ExaminationId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("TotalWithTaxAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)")
-                                .HasColumnName("TotalWithTaxCurrency");
 
                             b1.HasKey("ExaminationId");
 
@@ -1651,13 +1603,7 @@ namespace Garage.Infrastructure.Migrations
                     b.Navigation("Client")
                         .IsRequired();
 
-                    b.Navigation("TaxAmount")
-                        .IsRequired();
-
                     b.Navigation("TotalPrice")
-                        .IsRequired();
-
-                    b.Navigation("TotalWithTax")
                         .IsRequired();
 
                     b.Navigation("Vehicle")

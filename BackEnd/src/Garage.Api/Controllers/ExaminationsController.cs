@@ -2,6 +2,8 @@ using Garage.Api.Controllers.Common;
 using Garage.Application.Examinations.Commands.AddPayment;
 using Garage.Application.Examinations.Commands.ChangeStatus;
 using Garage.Application.Examinations.Commands.Create;
+using Garage.Application.Examinations.Commands.Delete;
+using Garage.Application.Examinations.Commands.RefundPayment;
 using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
@@ -29,7 +31,6 @@ public class ExaminationsController : ApiControllerBase
         _mediator = mediator;
     }
 
-    /// <summary>Gets a paginated list of examinations with optional text search.</summary>
     [HttpPost("pagination")]
     [HasPermission(Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
@@ -38,7 +39,6 @@ public class ExaminationsController : ApiControllerBase
         return Success(result);
     }
 
-    /// <summary>Gets a single examination by ID.</summary>
     [HttpGet("{id:Guid}")]
     [HasPermission(Permission.Examination_Read)]
     public async Task<IActionResult> GetById(Guid id)
@@ -47,12 +47,6 @@ public class ExaminationsController : ApiControllerBase
         if (result is null) return NotFound();
         return Success(result);
     }
-
-    /// <summary>
-    /// Creates a new examination (Draft status).
-    /// If ClientId is null a new client is created; otherwise the existing client is updated.
-    /// Items are optional at creation — required before calling Start.
-    /// </summary>
     [HttpPost]
     [HasPermission(Permission.Examination_Create)]
     public async Task<IActionResult> Create(CreateExaminationRequest request)
@@ -61,7 +55,6 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Created");
     }
 
-    /// <summary>Updates an examination's metadata and optionally replaces its items (Draft only).</summary>
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Update(Guid id, UpdateExaminationRequest request)
@@ -70,9 +63,7 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Updated");
     }
 
-    // ── Status transitions ────────────────────────────────────────────────────
 
-    /// <summary>Starts an examination (Draft → InProgress). Requires at least one item.</summary>
     [HttpPost("{id:Guid}/start")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Start(Guid id)
@@ -81,7 +72,6 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Started");
     }
 
-    /// <summary>Marks an examination as completed (InProgress → Completed).</summary>
     [HttpPost("{id:Guid}/complete")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Complete(Guid id)
@@ -90,7 +80,6 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Completed");
     }
 
-    /// <summary>Marks an examination as delivered (Completed → Delivered).</summary>
     [HttpPost("{id:Guid}/deliver")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Deliver(Guid id)
@@ -99,7 +88,6 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Delivered");
     }
 
-    /// <summary>Cancels an examination. Optional cancellation reason.</summary>
     [HttpPost("{id:Guid}/cancel")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Cancel(Guid id, [FromBody] string? reason = null)
@@ -108,7 +96,14 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Cancelled");
     }
 
-    // ── Payments ─────────────────────────────────────────────────────────────
+
+    [HttpDelete("{id:Guid}")]
+    [HasPermission(Permission.Examination_Delete)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteExaminationCommand(id));
+        return HandleResult(result, "Examination.Deleted");
+    }
 
     /// <summary>Adds a payment to an examination.</summary>
     [HttpPost("{id:Guid}/payments")]
@@ -117,5 +112,14 @@ public class ExaminationsController : ApiControllerBase
     {
         var result = await _mediator.Send(new AddPaymentCommand(id, request));
         return HandleResult(result, "Examination.PaymentAdded");
+    }
+
+    /// <summary>Adds a refund to an examination.</summary>
+    [HttpPost("{id:Guid}/refunds")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> AddRefund(Guid id, AddPaymentRequest request)
+    {
+        var result = await _mediator.Send(new RefundPaymentCommand(id, request));
+        return HandleResult(result, "Examination.RefundAdded");
     }
 }

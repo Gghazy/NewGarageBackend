@@ -20,8 +20,10 @@ public sealed record ExaminationDto(
 
     // ── Vehicle ───────────────────────────────────────────────────────────────
     Guid    VehicleId,
+    Guid    ManufacturerId,
     string  ManufacturerNameAr,
     string  ManufacturerNameEn,
+    Guid    CarMarkId,
     string  CarMarkNameAr,
     string  CarMarkNameEn,
     int?    Year,
@@ -41,8 +43,14 @@ public sealed record ExaminationDto(
     string? Notes,
 
     // ── Financials ────────────────────────────────────────────────────────────
-    decimal TotalAmount,
+    decimal SubTotal,
+    decimal TaxRate,
+    decimal TaxAmount,
+    decimal TotalWithTax,
     string  Currency,
+    decimal TotalPaid,
+    decimal TotalRefunded,
+    decimal Balance,
 
     // ── Items ─────────────────────────────────────────────────────────────────
     List<ExaminationItemDto> Items,
@@ -69,6 +77,7 @@ public sealed record PaymentDto(
     decimal Amount,
     string  Currency,
     string  Method,
+    string  Type,
     string? Notes,
     DateTime CreatedAtUtc
 );

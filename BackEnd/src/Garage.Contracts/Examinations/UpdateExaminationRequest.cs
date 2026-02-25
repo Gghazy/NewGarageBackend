@@ -47,4 +47,4 @@ public sealed record UpdateExaminationRequest(
 
     // ── Services ──────────────────────────────────────────────────────────────
     List<ExaminationItemRequest>? Items   // replaces all items (Draft only)
-);
+) : IExaminationRequest;
