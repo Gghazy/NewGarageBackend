@@ -34,11 +34,18 @@ public interface IExaminationRequest
     string   MileageUnit    { get; }
     string?  Transmission   { get; }
 
+    // ── Branch ────────────────────────────────────────────────────────
+    Guid   BranchId { get; }
+
     // ── Meta ────────────────────────────────────────────────────────
+    string  Type         { get; }
     bool    HasWarranty  { get; }
     string? MarketerCode { get; }
     string? Notes        { get; }
 
     // ── Items ───────────────────────────────────────────────────────
     List<ExaminationItemRequest>? Items { get; }
+
+    // ── Workflow ─────────────────────────────────────────────────────
+    bool StartAfterSave { get; }
 }

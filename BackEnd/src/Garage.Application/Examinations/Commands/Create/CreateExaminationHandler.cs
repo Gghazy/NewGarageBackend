@@ -9,7 +9,6 @@ using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
 using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Application.Invoices;
-using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.Services.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,12 +17,11 @@ namespace Garage.Application.Examinations.Commands.Create;
 public sealed class CreateExaminationHandler(
     IRepository<Examination>  examinationRepo,
     IRepository<Vehicle>      vehicleRepo,
-    IRepository<Invoice>      invoiceRepo,
     IReadRepository<Client>   clientRepo,
     IReadRepository<Branch>   branchRepo,
     IUnitOfWork               unitOfWork,
     ExaminationService        examinationService,
-    InvoiceNumberGenerator    invoiceNumberGenerator)
+    InvoiceSyncService        invoiceSyncService)
     : BaseCommandHandler<CreateExaminationCommand, Guid>
 {
     public override async Task<Result<Guid>> Handle(CreateExaminationCommand command, CancellationToken ct)
@@ -164,44 +162,9 @@ public sealed class CreateExaminationHandler(
             // 4d. Auto-create linked Invoice only when NOT draft ────────
             if (req.StartAfterSave)
             {
-                var invoice = Invoice.Create(
-                    client:        clientRef,
-                    branch:        branchRef,
-                    currency:      "SAR",
-                    examinationId: examination.Id);
-
-                var priceMap = await examinationService.LookupServicePricesAsync(
-                    examination.Items.Select(i => i.Service.ServiceId),
-                    req.CarMarkId,
-                    req.Year,
-                    ct);
-
-                var overridePrices = req.Items
-                    .Where(i => i.OverridePrice.HasValue)
-                    .ToDictionary(i => i.ServiceId, i => i.OverridePrice!.Value);
-
-                foreach (var item in examination.Items)
-                {
-                    var unitPrice = overridePrices.TryGetValue(item.Service.ServiceId, out var op)
-                        ? Money.Create(op)
-                        : priceMap.TryGetValue(item.Service.ServiceId, out var p)
-                            ? Money.Create(p) : Money.Zero();
-
-                    invoice.AddItem(
-                        description:   item.Service.NameEn,
-                        quantity:      item.Quantity,
-                        unitPrice:     unitPrice,
-                        serviceId:     item.Service.ServiceId,
-                        serviceNameAr: item.Service.NameAr,
-                        serviceNameEn: item.Service.NameEn);
-                }
-
-                // Assign invoice number
-                var invNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
-                invoice.SetInvoiceNumber(invNumber);
-
-                await invoiceRepo.AddAsync(invoice, ct);
-                await unitOfWork.SaveChangesAsync(ct);
+                var overridePrices = InvoiceSyncService.BuildOverridePrices(req.Items);
+                await invoiceSyncService.CreateInvoiceFromExaminationAsync(
+                    examination, clientRef, branchRef, overridePrices, ct);
             }
 
             await tx.CommitAsync(ct);

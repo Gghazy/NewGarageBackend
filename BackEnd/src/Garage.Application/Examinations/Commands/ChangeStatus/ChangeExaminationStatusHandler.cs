@@ -6,20 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Examinations.Commands.ChangeStatus;
 
-public sealed class StartExaminationHandler : BaseCommandHandler<StartExaminationCommand, Guid>
+public sealed class StartExaminationHandler(
+    IRepository<Examination> repo,
+    IUnitOfWork unitOfWork)
+    : BaseCommandHandler<StartExaminationCommand, Guid>
 {
-    private readonly IRepository<Examination> _repo;
-    private readonly IUnitOfWork              _unitOfWork;
-
-    public StartExaminationHandler(IRepository<Examination> repo, IUnitOfWork unitOfWork)
-    {
-        _repo       = repo;
-        _unitOfWork = unitOfWork;
-    }
-
     public override async Task<Result<Guid>> Handle(StartExaminationCommand command, CancellationToken ct)
     {
-        var examination = await _repo.QueryTracking()
+        var examination = await repo.QueryTracking()
             .Include(e => e.Items)
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
@@ -28,25 +22,19 @@ public sealed class StartExaminationHandler : BaseCommandHandler<StartExaminatio
         try   { examination.Start(); }
         catch (Exception ex) { return Fail(ex.Message); }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
     }
 }
 
-public sealed class CompleteExaminationHandler : BaseCommandHandler<CompleteExaminationCommand, Guid>
+public sealed class CompleteExaminationHandler(
+    IRepository<Examination> repo,
+    IUnitOfWork unitOfWork)
+    : BaseCommandHandler<CompleteExaminationCommand, Guid>
 {
-    private readonly IRepository<Examination> _repo;
-    private readonly IUnitOfWork              _unitOfWork;
-
-    public CompleteExaminationHandler(IRepository<Examination> repo, IUnitOfWork unitOfWork)
-    {
-        _repo       = repo;
-        _unitOfWork = unitOfWork;
-    }
-
     public override async Task<Result<Guid>> Handle(CompleteExaminationCommand command, CancellationToken ct)
     {
-        var examination = await _repo.QueryTracking()
+        var examination = await repo.QueryTracking()
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
         if (examination is null) return Fail("Examination not found.");
@@ -54,25 +42,19 @@ public sealed class CompleteExaminationHandler : BaseCommandHandler<CompleteExam
         try   { examination.Complete(); }
         catch (Exception ex) { return Fail(ex.Message); }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
     }
 }
 
-public sealed class DeliverExaminationHandler : BaseCommandHandler<DeliverExaminationCommand, Guid>
+public sealed class DeliverExaminationHandler(
+    IRepository<Examination> repo,
+    IUnitOfWork unitOfWork)
+    : BaseCommandHandler<DeliverExaminationCommand, Guid>
 {
-    private readonly IRepository<Examination> _repo;
-    private readonly IUnitOfWork              _unitOfWork;
-
-    public DeliverExaminationHandler(IRepository<Examination> repo, IUnitOfWork unitOfWork)
-    {
-        _repo       = repo;
-        _unitOfWork = unitOfWork;
-    }
-
     public override async Task<Result<Guid>> Handle(DeliverExaminationCommand command, CancellationToken ct)
     {
-        var examination = await _repo.QueryTracking()
+        var examination = await repo.QueryTracking()
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
         if (examination is null) return Fail("Examination not found.");
@@ -80,25 +62,19 @@ public sealed class DeliverExaminationHandler : BaseCommandHandler<DeliverExamin
         try   { examination.Deliver(); }
         catch (Exception ex) { return Fail(ex.Message); }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
     }
 }
 
-public sealed class CancelExaminationHandler : BaseCommandHandler<CancelExaminationCommand, Guid>
+public sealed class CancelExaminationHandler(
+    IRepository<Examination> repo,
+    IUnitOfWork unitOfWork)
+    : BaseCommandHandler<CancelExaminationCommand, Guid>
 {
-    private readonly IRepository<Examination> _repo;
-    private readonly IUnitOfWork              _unitOfWork;
-
-    public CancelExaminationHandler(IRepository<Examination> repo, IUnitOfWork unitOfWork)
-    {
-        _repo       = repo;
-        _unitOfWork = unitOfWork;
-    }
-
     public override async Task<Result<Guid>> Handle(CancelExaminationCommand command, CancellationToken ct)
     {
-        var examination = await _repo.QueryTracking()
+        var examination = await repo.QueryTracking()
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
         if (examination is null) return Fail("Examination not found.");
@@ -106,7 +82,7 @@ public sealed class CancelExaminationHandler : BaseCommandHandler<CancelExaminat
         try   { examination.Cancel(command.Reason); }
         catch (Exception ex) { return Fail(ex.Message); }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
     }
 }
