@@ -4,6 +4,7 @@ using Garage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225182852_update-refund-invoice")]
+    partial class updaterefundinvoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,15 +106,6 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal?>("OverridePrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1772,6 +1766,29 @@ namespace Garage.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("ExaminationItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("PriceAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("PriceCurrency");
+
+                            b1.HasKey("ExaminationItemId");
+
+                            b1.ToTable("ExaminationItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExaminationItemId");
+                        });
+
                     b.OwnsOne("Garage.Domain.ExaminationManagement.Examinations.ServiceSnapshot", "Service", b1 =>
                         {
                             b1.Property<Guid>("ExaminationItemId")
@@ -1799,7 +1816,36 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ExaminationItemId");
+
+                            b1.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "DefaultPrice", b2 =>
+                                {
+                                    b2.Property<Guid>("ServiceSnapshotExaminationItemId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<decimal>("Amount")
+                                        .HasColumnType("decimal(18,2)")
+                                        .HasColumnName("DefaultPriceAmount");
+
+                                    b2.Property<string>("Currency")
+                                        .IsRequired()
+                                        .HasMaxLength(3)
+                                        .HasColumnType("nvarchar(3)")
+                                        .HasColumnName("DefaultPriceCurrency");
+
+                                    b2.HasKey("ServiceSnapshotExaminationItemId");
+
+                                    b2.ToTable("ExaminationItems");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ServiceSnapshotExaminationItemId");
+                                });
+
+                            b1.Navigation("DefaultPrice")
+                                .IsRequired();
                         });
+
+                    b.Navigation("Price")
+                        .IsRequired();
 
                     b.Navigation("Service")
                         .IsRequired();
@@ -1942,29 +1988,6 @@ namespace Garage.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
-                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "DiscountAmount", b1 =>
-                        {
-                            b1.Property<Guid>("InvoiceId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("DiscountAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)")
-                                .HasColumnName("DiscountCurrency");
-
-                            b1.HasKey("InvoiceId");
-
-                            b1.ToTable("Invoices");
-
-                            b1.WithOwner()
-                                .HasForeignKey("InvoiceId");
-                        });
-
                     b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TaxAmount", b1 =>
                         {
                             b1.Property<Guid>("InvoiceId")
@@ -2038,9 +2061,6 @@ namespace Garage.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Client")
-                        .IsRequired();
-
-                    b.Navigation("DiscountAmount")
                         .IsRequired();
 
                     b.Navigation("TaxAmount")

@@ -1,8 +1,8 @@
 using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
+using Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
-using Domain.ExaminationManagement.Examinations;
 
 namespace Garage.Domain.InvoiceManagement.Invoices;
 
@@ -11,16 +11,19 @@ public sealed class Invoice : AggregateRoot
     public ClientReference Client { get; private set; } = default!;
     public BranchReference Branch { get; private set; } = default!;
 
+    public InvoiceType Type { get; private set; }
     public InvoiceStatus Status { get; private set; }
     public string? InvoiceNumber { get; private set; }
     public Guid? ExaminationId { get; private set; }
+    public Guid? OriginalInvoiceId { get; private set; }
     public string? Notes { get; private set; }
     public DateTime? DueDate { get; private set; }
 
-    public Money TotalPrice   { get; private set; } = Money.Zero("EGP");
-    public decimal TaxRate    { get; private set; } = 0.15m;
-    public Money TaxAmount    { get; private set; } = Money.Zero("EGP");
-    public Money TotalWithTax { get; private set; } = Money.Zero("EGP");
+    public Money TotalPrice    { get; private set; } = Money.Zero("EGP");
+    public Money DiscountAmount { get; private set; } = Money.Zero("EGP");
+    public decimal TaxRate     { get; private set; } = 0.15m;
+    public Money TaxAmount     { get; private set; } = Money.Zero("EGP");
+    public Money TotalWithTax  { get; private set; } = Money.Zero("EGP");
 
     private readonly List<InvoiceItem> _items = new();
     public IReadOnlyCollection<InvoiceItem> Items => _items.AsReadOnly();
@@ -38,10 +41,12 @@ public sealed class Invoice : AggregateRoot
         Client = client;
         Branch = branch;
 
-        Status       = InvoiceStatus.Draft;
-        TotalPrice   = Money.Zero(currency);
-        TaxAmount    = Money.Zero(currency);
-        TotalWithTax = Money.Zero(currency);
+        Type           = InvoiceType.Invoice;
+        Status         = InvoiceStatus.Draft;
+        TotalPrice     = Money.Zero(currency);
+        DiscountAmount = Money.Zero(currency);
+        TaxAmount      = Money.Zero(currency);
+        TotalWithTax   = Money.Zero(currency);
     }
 
     public static Invoice Create(
@@ -59,8 +64,96 @@ public sealed class Invoice : AggregateRoot
         return invoice;
     }
 
+    public static Invoice CreateRefundInvoice(Invoice original, Money refundAmount)
+    {
+        if (original.Type == InvoiceType.Refund)
+            throw new DomainException("Cannot create refund from a refund invoice.");
+
+        var client = new ClientReference(
+            original.Client.ClientId,
+            original.Client.NameAr,
+            original.Client.NameEn,
+            original.Client.PhoneNumber,
+            original.Client.Email);
+
+        var branch = new BranchReference(
+            original.Branch.BranchId,
+            original.Branch.NameAr,
+            original.Branch.NameEn);
+
+        var refund = new Invoice(client, branch, refundAmount.Currency);
+        refund.Type = InvoiceType.Refund;
+        refund.OriginalInvoiceId = original.Id;
+        refund.AddItem("Refund", 1, refundAmount);
+        refund.Status = InvoiceStatus.Issued;
+
+        return refund;
+    }
+
+    /// <summary>
+    /// Creates a Refund invoice in Draft status (no items). Caller adds items then calls Issue().
+    /// </summary>
+    public static Invoice CreateEmptyRefundInvoice(Invoice original)
+    {
+        if (original.Type == InvoiceType.Refund)
+            throw new DomainException("Cannot create refund from a refund invoice.");
+
+        var client = new ClientReference(
+            original.Client.ClientId,
+            original.Client.NameAr,
+            original.Client.NameEn,
+            original.Client.PhoneNumber,
+            original.Client.Email);
+
+        var branch = new BranchReference(
+            original.Branch.BranchId,
+            original.Branch.NameAr,
+            original.Branch.NameEn);
+
+        var refund = new Invoice(client, branch, original.TotalPrice.Currency);
+        refund.Type = InvoiceType.Refund;
+        refund.OriginalInvoiceId = original.Id;
+
+        return refund;
+    }
+
+    public static Invoice CreateAdjustment(Invoice original)
+    {
+        if (original.Type != InvoiceType.Invoice)
+            throw new DomainException("Can only create adjustment for regular invoices.");
+
+        var client = new ClientReference(
+            original.Client.ClientId,
+            original.Client.NameAr,
+            original.Client.NameEn,
+            original.Client.PhoneNumber,
+            original.Client.Email);
+
+        var branch = new BranchReference(
+            original.Branch.BranchId,
+            original.Branch.NameAr,
+            original.Branch.NameEn);
+
+        var adjustment = new Invoice(client, branch, original.TotalPrice.Currency);
+        adjustment.Type = InvoiceType.Adjustment;
+        adjustment.OriginalInvoiceId = original.Id;
+
+        return adjustment;
+    }
+
     public void SetNotes(string? notes) => Notes = Normalize(notes);
     public void SetDueDate(DateTime? dueDate) => DueDate = dueDate;
+
+    public void SetDiscount(Money discount)
+    {
+        if (discount.Amount < 0)
+            throw new DomainException("Discount cannot be negative.");
+        if (discount.Amount > TotalPrice.Amount)
+            throw new DomainException("Discount cannot exceed subtotal.");
+
+        DiscountAmount = discount;
+        RecalculateTotal();
+    }
 
     public void Update(string? notes, DateTime? dueDate)
     {
@@ -133,12 +226,15 @@ public sealed class Invoice : AggregateRoot
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add refund to a cancelled invoice.");
 
-        var totalPaid     = _payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount);
-        var totalRefunded = _payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount);
-        var refundable    = totalPaid - totalRefunded;
+        var totalPaid = _payments
+            .Where(p => p.Type == PaymentType.Payment)
+            .Sum(p => p.Amount.Amount);
+        var totalRefunded = _payments
+            .Where(p => p.Type == PaymentType.Refund)
+            .Sum(p => p.Amount.Amount);
 
-        if (amount.Amount > refundable)
-            throw new DomainException($"Refund amount ({amount.Amount}) exceeds refundable balance ({refundable}).");
+        if (amount.Amount > totalPaid - totalRefunded)
+            throw new DomainException("Refund amount exceeds paid amount.");
 
         _payments.Add(new InvoicePayment(amount, method, PaymentType.Refund, notes));
         UpdatePaymentStatus();
@@ -178,11 +274,19 @@ public sealed class Invoice : AggregateRoot
         if (Status == InvoiceStatus.Draft || Status == InvoiceStatus.Cancelled)
             return;
 
-        var totalPaid     = _payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount);
-        var totalRefunded = _payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount);
-        var netPaid       = totalPaid - totalRefunded;
+        var totalPaid = _payments
+            .Where(p => p.Type == PaymentType.Payment)
+            .Sum(p => p.Amount.Amount);
+        var totalRefunded = _payments
+            .Where(p => p.Type == PaymentType.Refund)
+            .Sum(p => p.Amount.Amount);
+        var netPaid = totalPaid - totalRefunded;
 
-        if (netPaid >= TotalWithTax.Amount)
+        if (totalRefunded > 0 && totalRefunded >= totalPaid)
+            Status = InvoiceStatus.Refunded;
+        else if (totalRefunded > 0)
+            Status = InvoiceStatus.PartiallyRefunded;
+        else if (netPaid >= TotalWithTax.Amount)
             Status = InvoiceStatus.Paid;
         else if (netPaid > 0)
             Status = InvoiceStatus.PartiallyPaid;
@@ -216,9 +320,15 @@ public sealed class Invoice : AggregateRoot
         foreach (var i in _items)
             total = total.Add(i.TotalPrice);
 
-        TotalPrice   = total;
-        TaxAmount    = Money.Create(Math.Round(total.Amount * TaxRate, 2), total.Currency);
-        TotalWithTax = total.Add(TaxAmount);
+        TotalPrice = total;
+
+        // Clamp discount to subtotal
+        if (DiscountAmount.Amount > total.Amount)
+            DiscountAmount = total;
+
+        var afterDiscount = total.Amount - DiscountAmount.Amount;
+        TaxAmount    = Money.Create(Math.Round(afterDiscount * TaxRate, 2), total.Currency);
+        TotalWithTax = Money.Create(Math.Round(afterDiscount + TaxAmount.Amount, 2), total.Currency);
     }
 
     private static string? Normalize(string? v)

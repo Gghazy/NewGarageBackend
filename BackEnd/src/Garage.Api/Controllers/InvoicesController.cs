@@ -5,6 +5,7 @@ using Garage.Application.Invoices.Commands.Create;
 using Garage.Application.Invoices.Commands.CreateFromExamination;
 using Garage.Application.Invoices.Commands.Delete;
 using Garage.Application.Invoices.Commands.RefundPayment;
+using Garage.Application.Invoices.Commands.SetDiscount;
 using Garage.Application.Invoices.Commands.Update;
 using Garage.Application.Invoices.Queries.GetAll;
 using Garage.Application.Invoices.Queries.GetById;
@@ -95,6 +96,14 @@ public class InvoicesController : ApiControllerBase
     {
         var result = await _mediator.Send(new DeleteInvoiceCommand(id));
         return HandleResult(result, "Invoice.Deleted");
+    }
+
+    [HttpPut("{id:Guid}/discount")]
+    [HasPermission(Permission.Invoice_Update)]
+    public async Task<IActionResult> SetDiscount(Guid id, [FromBody] decimal amount)
+    {
+        var result = await _mediator.Send(new SetInvoiceDiscountCommand(id, amount));
+        return HandleResult(result, "Invoice.Updated");
     }
 
     [HttpPost("{id:Guid}/payments")]

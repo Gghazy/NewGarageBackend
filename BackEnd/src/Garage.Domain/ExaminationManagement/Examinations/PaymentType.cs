@@ -2,6 +2,6 @@ namespace Domain.ExaminationManagement.Examinations;
 
 public enum PaymentType
 {
-    Payment,
-    Refund
+    Payment = 1,
+    Refund = 2
 }

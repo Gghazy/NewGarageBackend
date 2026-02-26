@@ -86,37 +86,42 @@ public sealed class ExaminationService(
             : Result<List<Service>>.Ok(services);
     }
 
-    // ── Lookup prices + add items to examination ────────────────────
-    public async Task AddItemsAsync(
+    // ── Add items to examination (no pricing – operational only) ─────
+    public static void AddItems(
         Examination examination,
         IExaminationRequest req,
-        List<Service> services,
-        CancellationToken ct)
+        List<Service> services)
     {
         if (req.Items is not { Count: > 0 })
             return;
 
-        var serviceIds = req.Items.Select(i => i.ServiceId).Distinct().ToList();
-        var servicePrices = await servicePriceRepo.Query()
-            .Where(sp => serviceIds.Contains(sp.ServiceId)
-                      && sp.MarkId == req.CarMarkId
-                      && (!req.Year.HasValue
-                          || (sp.FromYear <= req.Year.Value && sp.ToYear >= req.Year.Value)))
-            .ToListAsync(ct);
-
-        var priceMap   = servicePrices.ToDictionary(sp => sp.ServiceId, sp => sp.Price);
         var serviceMap = services.ToDictionary(s => s.Id);
 
         foreach (var itemReq in req.Items)
         {
-            var svc          = serviceMap[itemReq.ServiceId];
-            var defaultPrice = priceMap.TryGetValue(svc.Id, out var p)
-                                   ? Money.Create(p) : Money.Zero();
-            var snapshot     = new ServiceSnapshot(svc.Id, svc.NameAr, svc.NameEn, defaultPrice);
-            var price        = itemReq.OverridePrice.HasValue
-                                   ? Money.Create(itemReq.OverridePrice.Value) : null;
-            examination.AddItem(snapshot, price);
+            var svc      = serviceMap[itemReq.ServiceId];
+            var snapshot = new ServiceSnapshot(svc.Id, svc.NameAr, svc.NameEn);
+            examination.AddItem(snapshot, itemReq.Quantity, itemReq.OverridePrice);
         }
+    }
+
+    // ── Lookup ServicePrices for invoice item creation ────────────────
+    public async Task<Dictionary<Guid, decimal>> LookupServicePricesAsync(
+        IEnumerable<Guid> serviceIds,
+        Guid carMarkId,
+        int? year,
+        CancellationToken ct)
+    {
+        var ids = serviceIds.Distinct().ToList();
+
+        var servicePrices = await servicePriceRepo.Query()
+            .Where(sp => ids.Contains(sp.ServiceId)
+                      && sp.MarkId == carMarkId
+                      && (!year.HasValue
+                          || (sp.FromYear <= year.Value && sp.ToYear >= year.Value)))
+            .ToListAsync(ct);
+
+        return servicePrices.ToDictionary(sp => sp.ServiceId, sp => sp.Price);
     }
 
     // ── Map examination request to client request ───────────────────

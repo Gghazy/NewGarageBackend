@@ -9,6 +9,8 @@ using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.Services.Entities;
 using Microsoft.EntityFrameworkCore;
 
+using Garage.Application.Invoices;
+
 namespace Garage.Application.Invoices.Commands.Create;
 
 public sealed class CreateInvoiceHandler(
@@ -16,7 +18,8 @@ public sealed class CreateInvoiceHandler(
     IReadRepository<Client> clientRepo,
     IReadRepository<Branch> branchRepo,
     IReadRepository<Service> serviceRepo,
-    IUnitOfWork             unitOfWork)
+    IUnitOfWork             unitOfWork,
+    InvoiceNumberGenerator  invoiceNumberGenerator)
     : BaseCommandHandler<CreateInvoiceCommand, Guid>
 {
     public override async Task<Result<Guid>> Handle(CreateInvoiceCommand command, CancellationToken ct)
@@ -81,6 +84,15 @@ public sealed class CreateInvoiceHandler(
                 serviceNameAr,
                 serviceNameEn);
         }
+
+        // -- 4. Apply discount --------------------------------------------------------
+        if (req.Discount.HasValue && req.Discount.Value > 0)
+            invoice.SetDiscount(Money.Create(req.Discount.Value));
+
+        // -- 5. Auto-issue ----------------------------------------------------------
+        var invoiceNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
+        invoice.SetInvoiceNumber(invoiceNumber);
+        invoice.Issue();
 
         await invoiceRepo.AddAsync(invoice, ct);
         await unitOfWork.SaveChangesAsync(ct);

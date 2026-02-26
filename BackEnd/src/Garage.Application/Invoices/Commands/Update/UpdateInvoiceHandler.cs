@@ -86,6 +86,10 @@ public sealed class UpdateInvoiceHandler(
                 }
             }
 
+            // -- 5. Apply discount ----------------------------------------------------
+            if (req.Discount.HasValue)
+                invoice.SetDiscount(Money.Create(req.Discount.Value));
+
             await unitOfWork.SaveChangesAsync(ct);
             return Ok(invoice.Id);
         }

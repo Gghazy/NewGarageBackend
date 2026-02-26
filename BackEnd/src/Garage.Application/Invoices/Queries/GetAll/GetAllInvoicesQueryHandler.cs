@@ -16,6 +16,7 @@ public sealed class GetAllInvoicesQueryHandler(IReadRepository<Invoice> repo)
         var search = request.Search;
 
         var query = repo.Query()
+            .Where(i => i.Type == InvoiceType.Invoice)
             .WhereIf(
                 !string.IsNullOrWhiteSpace(search.TextSearch),
                 i => i.Client.NameAr.Contains(search.TextSearch!)   ||
@@ -26,7 +27,9 @@ public sealed class GetAllInvoicesQueryHandler(IReadRepository<Invoice> repo)
                 i.Id,
                 i.InvoiceNumber,
                 i.ExaminationId,
-                // Status
+                i.OriginalInvoiceId,
+                // Type & Status
+                i.Type.ToString(),
                 i.Status.ToString(),
                 // Client
                 i.Client.ClientId,
@@ -42,6 +45,7 @@ public sealed class GetAllInvoicesQueryHandler(IReadRepository<Invoice> repo)
                 i.DueDate,
                 // Financials
                 i.TotalPrice.Amount,
+                i.DiscountAmount.Amount,
                 i.TaxRate,
                 i.TaxAmount.Amount,
                 i.TotalWithTax.Amount,
@@ -73,6 +77,8 @@ public sealed class GetAllInvoicesQueryHandler(IReadRepository<Invoice> repo)
                     p.Notes,
                     p.CreatedAtUtc
                 )).ToList(),
+                // Related invoices (not needed in list view)
+                new List<RelatedInvoiceDto>(),
                 // CreatedAt
                 i.CreatedAtUtc
             ));

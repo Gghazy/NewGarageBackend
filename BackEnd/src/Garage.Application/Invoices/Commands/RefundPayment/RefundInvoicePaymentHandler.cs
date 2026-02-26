@@ -28,11 +28,16 @@ public sealed class RefundInvoicePaymentHandler(
             return Fail($"Invalid payment method '{req.Method}'. Use Cash, Card, BankTransfer or Cheque.");
 
         var currency = string.IsNullOrWhiteSpace(req.Currency) ? "EGP" : req.Currency;
-        var amount = Money.Create(req.Amount, currency);
+        var amount   = Money.Create(req.Amount, currency);
 
         try
         {
+            // Record refund transaction on the original invoice
             invoice.AddRefund(amount, method, req.Notes);
+
+            // Create a refund invoice for documentation
+            var refundInvoice = Invoice.CreateRefundInvoice(invoice, amount);
+            await repo.AddAsync(refundInvoice, ct);
         }
         catch (Exception ex)
         {

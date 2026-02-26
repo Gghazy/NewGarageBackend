@@ -2,9 +2,9 @@ using FluentValidation;
 using Garage.Contracts.Examinations;
 using Garage.Domain.ExaminationManagement.Vehicles;
 
-namespace Garage.Application.Examinations.Commands.Create;
+namespace Garage.Application.Examinations.Commands.Update;
 
-public sealed class CreateExaminationRequestValidator : AbstractValidator<CreateExaminationRequest>
+public sealed class UpdateExaminationRequestValidator : AbstractValidator<UpdateExaminationRequest>
 {
     private static readonly string[] ValidClientTypes =
         ["Individual", "Company", "Government"];
@@ -19,16 +19,8 @@ public sealed class CreateExaminationRequestValidator : AbstractValidator<Create
         [nameof(TransmissionType.Automatic), nameof(TransmissionType.Manual),
          nameof(TransmissionType.CVT),       nameof(TransmissionType.SemiAutomatic)];
 
-    public CreateExaminationRequestValidator()
+    public UpdateExaminationRequestValidator()
     {
-        // ══════════════════════════════════════════════════════════════════════
-        // Always required (draft + normal save)
-        // ══════════════════════════════════════════════════════════════════════
-        RuleFor(x => x.ClientId)
-            .NotEmpty()
-                .WithErrorCode("Validation.Required")
-                .WithMessage("Client is required.");
-
         // ══════════════════════════════════════════════════════════════════════
         // Required rules — only enforced when StartAfterSave (i.e. not draft)
         // ══════════════════════════════════════════════════════════════════════

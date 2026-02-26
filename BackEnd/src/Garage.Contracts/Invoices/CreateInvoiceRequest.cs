@@ -9,6 +9,9 @@ public sealed record CreateInvoiceRequest(
     string? Notes,
     DateTime? DueDate,
 
+    // -- Discount -------------------------------------------------------------
+    decimal? Discount,
+
     // -- Items ----------------------------------------------------------------
     List<InvoiceItemRequest> Items
 );

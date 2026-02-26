@@ -26,9 +26,12 @@ public sealed record UpdateExaminationRequest(
     string? BuildingNumber,
     string? CitySubdivisionName,
 
+    // ── Branch ───────────────────────────────────────────────────────────────
+    Guid   BranchId,
+
     // ── Examination meta ──────────────────────────────────────────────────────
+    string  Type,           // "Regular" | "Warranty" | "PrePurchase"
     bool    HasWarranty,
-    bool    HasPhotos,
     string? MarketerCode,
     string? Notes,
 
@@ -46,5 +49,8 @@ public sealed record UpdateExaminationRequest(
     string?  Transmission,   // "Automatic" | "Manual" | "CVT" | "SemiAutomatic"
 
     // ── Services ──────────────────────────────────────────────────────────────
-    List<ExaminationItemRequest>? Items   // replaces all items (Draft only)
+    List<ExaminationItemRequest>? Items,   // replaces all items (Draft only)
+
+    // ── Workflow ──────────────────────────────────────────────────────────────
+    bool StartAfterSave = false
 ) : IExaminationRequest;

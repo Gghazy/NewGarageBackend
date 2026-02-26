@@ -56,8 +56,8 @@ public sealed class GetExaminationByIdQueryHandler(IReadRepository<Examination> 
                     i.Service.ServiceId,
                     i.Service.NameAr,
                     i.Service.NameEn,
-                    i.Price.Amount,
-                    i.Price.Currency,
+                    i.Quantity,
+                    i.OverridePrice,
                     i.Status.ToString(),
                     i.Notes
                 )).ToList(),

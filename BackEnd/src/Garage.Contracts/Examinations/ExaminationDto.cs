@@ -53,8 +53,8 @@ public sealed record ExaminationItemDto(
     Guid    ServiceId,
     string  ServiceNameAr,
     string  ServiceNameEn,
-    decimal Price,
-    string  Currency,
+    int     Quantity,
+    decimal? OverridePrice,
     string  Status,
     string? Notes
 );

@@ -12,13 +12,15 @@ public sealed class GetInvoiceByIdQueryHandler(IReadRepository<Invoice> repo)
 {
     public override async Task<InvoiceDto?> Handle(GetInvoiceByIdQuery request, CancellationToken ct)
     {
-        return await repo.Query()
+        var invoice = await repo.Query()
             .Where(i => i.Id == request.Id)
             .Select(i => new InvoiceDto(
                 i.Id,
                 i.InvoiceNumber,
                 i.ExaminationId,
-                // Status
+                i.OriginalInvoiceId,
+                // Type & Status
+                i.Type.ToString(),
                 i.Status.ToString(),
                 // Client
                 i.Client.ClientId,
@@ -34,6 +36,7 @@ public sealed class GetInvoiceByIdQueryHandler(IReadRepository<Invoice> repo)
                 i.DueDate,
                 // Financials
                 i.TotalPrice.Amount,
+                i.DiscountAmount.Amount,
                 i.TaxRate,
                 i.TaxAmount.Amount,
                 i.TotalWithTax.Amount,
@@ -65,9 +68,29 @@ public sealed class GetInvoiceByIdQueryHandler(IReadRepository<Invoice> repo)
                     p.Notes,
                     p.CreatedAtUtc
                 )).ToList(),
+                // Related invoices – populated below
+                new List<RelatedInvoiceDto>(),
                 // CreatedAt
                 i.CreatedAtUtc
             ))
             .FirstOrDefaultAsync(ct);
+
+        if (invoice is null) return null;
+
+        // Fetch related invoices (Refund / Adjustment that reference this invoice)
+        var relatedInvoices = await repo.Query()
+            .Where(r => r.OriginalInvoiceId == request.Id)
+            .Select(r => new RelatedInvoiceDto(
+                r.Id,
+                r.InvoiceNumber,
+                r.Type.ToString(),
+                r.Status.ToString(),
+                r.TotalWithTax.Amount,
+                r.TotalPrice.Currency,
+                r.CreatedAtUtc
+            ))
+            .ToListAsync(ct);
+
+        return invoice with { RelatedInvoices = relatedInvoices };
     }
 }

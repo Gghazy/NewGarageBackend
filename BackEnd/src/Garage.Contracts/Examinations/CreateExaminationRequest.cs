@@ -35,7 +35,6 @@ public sealed record CreateExaminationRequest(
     // ── Examination meta ─────────────────────────────────────────────────────
     string  Type,           // "Regular" | "Warranty" | "PrePurchase"
     bool    HasWarranty,
-    bool    HasPhotos,
     string? MarketerCode,
     string? Notes,
 
@@ -53,7 +52,10 @@ public sealed record CreateExaminationRequest(
     string?  Transmission,  // "Automatic" | "Manual" | "CVT" | "SemiAutomatic"
 
     // ── Services ──────────────────────────────────────────────────────────────
-    List<ExaminationItemRequest> Items
+    List<ExaminationItemRequest> Items,
+
+    // ── Workflow ──────────────────────────────────────────────────────────────
+    bool StartAfterSave = false
 ) : IExaminationRequest
 {
     List<ExaminationItemRequest>? IExaminationRequest.Items => Items;
@@ -61,5 +63,6 @@ public sealed record CreateExaminationRequest(
 
 public sealed record ExaminationItemRequest(
     Guid     ServiceId,
-    decimal? OverridePrice
+    int      Quantity = 1,
+    decimal? OverridePrice = null
 );

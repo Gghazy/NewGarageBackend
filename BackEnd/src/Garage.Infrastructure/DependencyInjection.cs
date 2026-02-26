@@ -1,6 +1,7 @@
 using Garage.Application.Abstractions;
 using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Examinations;
+using Garage.Application.Invoices;
 using Garage.Application.Lookup.Queries.GetAllPagination;
 using Garage.Contracts.Common;
 using Garage.Contracts.Lookup;
@@ -56,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<ExaminationService>();
+        services.AddScoped<InvoiceNumberGenerator>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped(typeof(ILookupRepository<>), typeof(LookupRepository<>));
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();

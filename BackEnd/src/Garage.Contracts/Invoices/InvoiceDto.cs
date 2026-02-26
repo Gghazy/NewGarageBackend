@@ -4,8 +4,10 @@ public sealed record InvoiceDto(
     Guid    Id,
     string? InvoiceNumber,
     Guid?   ExaminationId,
+    Guid?   OriginalInvoiceId,
 
-    // -- Status ---------------------------------------------------------------
+    // -- Type & Status -----------------------------------------------------------
+    string  Type,
     string  Status,
 
     // -- Client ---------------------------------------------------------------
@@ -25,6 +27,7 @@ public sealed record InvoiceDto(
 
     // -- Financials -----------------------------------------------------------
     decimal SubTotal,
+    decimal DiscountAmount,
     decimal TaxRate,
     decimal TaxAmount,
     decimal TotalWithTax,
@@ -38,6 +41,9 @@ public sealed record InvoiceDto(
 
     // -- Payments -------------------------------------------------------------
     List<InvoicePaymentDto> Payments,
+
+    // -- Related invoices (Refund / Adjustment linked to this one) ----------
+    List<RelatedInvoiceDto> RelatedInvoices,
 
     DateTime CreatedAtUtc
 );
@@ -61,5 +67,15 @@ public sealed record InvoicePaymentDto(
     string  Method,
     string  Type,
     string? Notes,
+    DateTime CreatedAtUtc
+);
+
+public sealed record RelatedInvoiceDto(
+    Guid    Id,
+    string? InvoiceNumber,
+    string  Type,
+    string  Status,
+    decimal TotalWithTax,
+    string  Currency,
     DateTime CreatedAtUtc
 );

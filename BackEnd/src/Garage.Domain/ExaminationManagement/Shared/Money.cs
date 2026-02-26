@@ -25,6 +25,8 @@ public sealed class Money : ValueObject
 
     public static Money Zero(string currency = "EGP") => new(0m, currency.Trim().ToUpperInvariant());
 
+    public Money Negate() => new(-Amount, Currency);
+
     public Money Add(Money other)
     {
         EnsureSameCurrency(other);

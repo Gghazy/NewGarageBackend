@@ -4,6 +4,7 @@ using Garage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225193923_update-invoices")]
+    partial class updateinvoices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,10 +106,6 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal?>("OverridePrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
@@ -1942,29 +1941,6 @@ namespace Garage.Infrastructure.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
-                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "DiscountAmount", b1 =>
-                        {
-                            b1.Property<Guid>("InvoiceId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("DiscountAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("nvarchar(3)")
-                                .HasColumnName("DiscountCurrency");
-
-                            b1.HasKey("InvoiceId");
-
-                            b1.ToTable("Invoices");
-
-                            b1.WithOwner()
-                                .HasForeignKey("InvoiceId");
-                        });
-
                     b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TaxAmount", b1 =>
                         {
                             b1.Property<Guid>("InvoiceId")
@@ -2038,9 +2014,6 @@ namespace Garage.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Client")
-                        .IsRequired();
-
-                    b.Navigation("DiscountAmount")
                         .IsRequired();
 
                     b.Navigation("TaxAmount")

@@ -36,7 +36,6 @@ public interface IExaminationRequest
 
     // ── Meta ────────────────────────────────────────────────────────
     bool    HasWarranty  { get; }
-    bool    HasPhotos    { get; }
     string? MarketerCode { get; }
     string? Notes        { get; }
 

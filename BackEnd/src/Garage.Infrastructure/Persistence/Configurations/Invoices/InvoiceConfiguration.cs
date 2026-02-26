@@ -13,7 +13,8 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedNever();
 
-        // -- Status ---------------------------------------------------------------
+        // -- Type & Status --------------------------------------------------------
+        b.Property(x => x.Type).IsRequired();
         b.Property(x => x.Status).IsRequired();
 
         // -- Invoice Number -------------------------------------------------------
@@ -23,6 +24,10 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         // -- Examination link -----------------------------------------------------
         b.Property(x => x.ExaminationId).IsRequired(false);
         b.HasIndex(x => x.ExaminationId).IsUnique().HasFilter("[ExaminationId] IS NOT NULL");
+
+        // -- Original invoice link (for refunds) ---------------------------------
+        b.Property(x => x.OriginalInvoiceId).IsRequired(false);
+        b.HasIndex(x => x.OriginalInvoiceId);
 
         // -- Meta -----------------------------------------------------------------
         b.Property(x => x.Notes).HasMaxLength(1000).IsRequired(false);
@@ -84,6 +89,19 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
             m.Property(p => p.Currency)
                 .HasColumnName("TotalCurrency")
+                .HasMaxLength(3)
+                .IsRequired();
+        });
+
+        b.OwnsOne(x => x.DiscountAmount, m =>
+        {
+            m.Property(p => p.Amount)
+                .HasColumnName("DiscountAmount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            m.Property(p => p.Currency)
+                .HasColumnName("DiscountCurrency")
                 .HasMaxLength(3)
                 .IsRequired();
         });

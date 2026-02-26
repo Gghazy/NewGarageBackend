@@ -9,6 +9,9 @@ public sealed record UpdateInvoiceRequest(
     string? Notes,
     DateTime? DueDate,
 
+    // -- Discount -------------------------------------------------------------
+    decimal? Discount,
+
     // -- Items ----------------------------------------------------------------
     List<InvoiceItemRequest>? Items   // replaces all items (Draft only)
 );

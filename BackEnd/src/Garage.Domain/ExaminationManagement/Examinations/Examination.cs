@@ -1,7 +1,6 @@
 using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
 using Garage.Domain.ExaminationManagement.Examinations;
-using Garage.Domain.ExaminationManagement.Shared;
 
 namespace Domain.ExaminationManagement.Examinations;
 
@@ -55,8 +54,6 @@ public sealed class Examination : AggregateRoot
         string? marketerCode = null)
     {
         if (client.ClientId == Guid.Empty)  throw new DomainException("Client is required.");
-        if (branch.BranchId == Guid.Empty)  throw new DomainException("Branch is required.");
-        if (vehicle.VehicleId == Guid.Empty) throw new DomainException("Vehicle is required.");
 
         return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos, marketerCode);
     }
@@ -82,25 +79,29 @@ public sealed class Examination : AggregateRoot
     public void UpdateVehicleSnapshot(VehicleSnapshot snapshot)
     {
         EnsureEditable();
-        if (snapshot.VehicleId == Guid.Empty) throw new DomainException("Vehicle is required.");
         Vehicle = snapshot;
     }
 
-    public void AddItem(ServiceSnapshot service, Money? overridePrice = null)
+    public void UpdateBranchSnapshot(BranchReference branchRef)
     {
-        EnsureDraft();
+        EnsureEditable();
+        Branch = branchRef;
+    }
+
+    public void AddItem(ServiceSnapshot service, int quantity = 1, decimal? overridePrice = null)
+    {
+        EnsureEditable();
 
         if (service.ServiceId == Guid.Empty) throw new DomainException("Service is required.");
         if (_items.Any(x => x.Service.ServiceId == service.ServiceId))
             throw new DomainException("Service already added.");
 
-        var price = overridePrice ?? service.DefaultPrice;
-        _items.Add(new ExaminationItem(service, price));
+        _items.Add(new ExaminationItem(service, quantity, overridePrice));
     }
 
     public void RemoveItem(Guid serviceId)
     {
-        EnsureDraft();
+        EnsureEditable();
 
         var item = _items.FirstOrDefault(x => x.Service.ServiceId == serviceId);
         if (item is null) return;
@@ -108,21 +109,19 @@ public sealed class Examination : AggregateRoot
         _items.Remove(item);
     }
 
-    public void UpdateItemPrice(Guid serviceId, Money newPrice)
-    {
-        EnsureDraft();
-
-        var item = _items.FirstOrDefault(x => x.Service.ServiceId == serviceId)
-                   ?? throw new DomainException("Item not found.");
-
-        item.UpdatePrice(newPrice);
-    }
-
     public void Start()
     {
         EnsureDraft();
         if (_items.Count == 0)
             throw new DomainException("Cannot start examination without items.");
+
+        Status = ExaminationStatus.Pending;
+    }
+
+    public void BeginWork()
+    {
+        if (Status != ExaminationStatus.Pending)
+            throw new DomainException("Only Pending examination can begin work.");
 
         Status = ExaminationStatus.InProgress;
     }
@@ -154,8 +153,8 @@ public sealed class Examination : AggregateRoot
 
     private void EnsureEditable()
     {
-        if (Status != ExaminationStatus.Draft && Status != ExaminationStatus.InProgress)
-            throw new DomainException("Examination can only be updated in Draft or InProgress status.");
+        if (Status != ExaminationStatus.Draft && Status != ExaminationStatus.Pending && Status != ExaminationStatus.InProgress)
+            throw new DomainException("Examination can only be updated in Draft, Pending or InProgress status.");
     }
 
     private void EnsureDraft()
