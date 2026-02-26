@@ -12,6 +12,7 @@ using Garage.Domain.InsideAndDecorParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
+using Garage.Domain.PaymentMethods.Entity;
 using Garage.Domain.MechIssues.Entities;
 using Garage.Domain.MechIssueTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
@@ -49,6 +50,7 @@ namespace Garage.Application.Abstractions
         DbSet<Crane> Cranes { get; }
         DbSet<Term> Terms { get; }
         DbSet<ClientResource> ClientResources { get; }
+        DbSet<PaymentMethodLookup> PaymentMethodLookups { get; }
         #endregion
 
         #region Services

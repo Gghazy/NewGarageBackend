@@ -6,13 +6,13 @@ namespace Domain.ExaminationManagement.Examinations;
 public sealed class Payment : Entity
 {
     public Money Amount { get; private set; } = Money.Zero();
-    public PaymentMethod Method { get; private set; }
+    public string Method { get; private set; } = null!;
     public PaymentType Type { get; private set; }
     public string? Notes { get; private set; }
 
     private Payment() { } // EF
 
-    internal Payment(Money amount, PaymentMethod method, PaymentType type, string? notes)
+    internal Payment(Money amount, string method, PaymentType type, string? notes)
     {
         Amount = amount;
         Method = method;

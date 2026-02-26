@@ -1,4 +1,5 @@
 using Domain.ExaminationManagement.Examinations;
+using Garage.Domain.ExaminationManagement.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +17,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         // shadow FK set by ExaminationConfiguration
         b.Property<Guid>("ExaminationId").IsRequired();
 
-        b.Property(x => x.Method).IsRequired();
+        b.Property(x => x.Method).IsRequired().HasMaxLength(100);
         b.Property(x => x.Type).IsRequired().HasDefaultValue(PaymentType.Payment);
         b.Property(x => x.Notes).HasMaxLength(500).IsRequired(false);
 

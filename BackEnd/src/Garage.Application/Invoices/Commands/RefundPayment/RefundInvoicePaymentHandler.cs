@@ -1,4 +1,3 @@
-using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
@@ -24,8 +23,8 @@ public sealed class RefundInvoicePaymentHandler(
         if (invoice is null)
             return Fail("Invoice not found.");
 
-        if (!Enum.TryParse<PaymentMethod>(req.Method, ignoreCase: true, out var method))
-            return Fail($"Invalid payment method '{req.Method}'. Use Cash, Card, BankTransfer or Cheque.");
+        if (string.IsNullOrWhiteSpace(req.Method))
+            return Fail("Payment method is required.");
 
         var currency = string.IsNullOrWhiteSpace(req.Currency) ? "SAR" : req.Currency;
         var amount   = Money.Create(req.Amount, currency);
@@ -33,7 +32,7 @@ public sealed class RefundInvoicePaymentHandler(
         try
         {
             // Record refund transaction on the original invoice
-            invoice.AddRefund(amount, method, req.Notes);
+            invoice.AddRefund(amount, req.Method.Trim(), req.Notes);
 
             // Create a refund invoice for documentation
             var refundInvoice = Invoice.CreateRefundInvoice(invoice, amount);

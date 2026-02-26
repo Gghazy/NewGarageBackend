@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
-using Domain.ExaminationManagement.Examinations;
 using Garage.Contracts.Invoices;
+using Domain.ExaminationManagement.Examinations;
 using Garage.Domain.InvoiceManagement.Invoices;
 
 namespace Garage.Application.Invoices.Queries;
@@ -57,7 +57,7 @@ public static class InvoiceProjection
                 p.Id,
                 p.Amount.Amount,
                 p.Amount.Currency,
-                p.Method.ToString(),
+                p.Method,
                 p.Type.ToString(),
                 p.Notes,
                 p.CreatedAtUtc

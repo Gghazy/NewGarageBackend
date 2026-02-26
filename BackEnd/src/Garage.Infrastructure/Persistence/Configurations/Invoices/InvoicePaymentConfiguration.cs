@@ -26,7 +26,7 @@ public sealed class InvoicePaymentConfiguration : IEntityTypeConfiguration<Invoi
                 .IsRequired();
         });
 
-        b.Property(x => x.Method).IsRequired();
+        b.Property(x => x.Method).IsRequired().HasMaxLength(100);
         b.Property(x => x.Notes).HasMaxLength(500).IsRequired(false);
 
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");

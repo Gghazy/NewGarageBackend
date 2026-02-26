@@ -14,6 +14,7 @@ using Garage.Domain.InsideAndDecorParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
+using Garage.Domain.PaymentMethods.Entity;
 using Garage.Domain.MechIssues.Entities;
 using Garage.Domain.MechIssueTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
@@ -83,6 +84,7 @@ public sealed class ApplicationDbContext
     public DbSet<Crane> Cranes => Set<Crane>();
     public DbSet<Term> Terms => Set<Term>();
     public DbSet<ClientResource> ClientResources => Set<ClientResource>();
+    public DbSet<PaymentMethodLookup> PaymentMethodLookups => Set<PaymentMethodLookup>();
     #endregion
 
     #region Services

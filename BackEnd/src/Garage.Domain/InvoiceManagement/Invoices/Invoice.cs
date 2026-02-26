@@ -1,6 +1,6 @@
+using Domain.ExaminationManagement.Examinations;
 using Garage.Domain.Common.Exceptions;
 using Garage.Domain.Common.Primitives;
-using Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
 
@@ -211,7 +211,7 @@ public sealed class Invoice : AggregateRoot
         RecalculateTotal();
     }
 
-    public void AddPayment(Money amount, PaymentMethod method, string? notes)
+    public void AddPayment(Money amount, string method, string? notes)
     {
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add payment to a cancelled invoice.");
@@ -220,7 +220,7 @@ public sealed class Invoice : AggregateRoot
         UpdatePaymentStatus();
     }
 
-    public void AddRefund(Money amount, PaymentMethod method, string? notes)
+    public void AddRefund(Money amount, string method, string? notes)
     {
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add refund to a cancelled invoice.");

@@ -248,7 +248,7 @@ public sealed class InvoiceSyncService(
 
             // Auto-refund on original since it's Paid
             var refundAmount = Money.Create(Math.Abs(refundInvoice.TotalWithTax.Amount), refundInvoice.TotalWithTax.Currency);
-            invoice.AddRefund(refundAmount, PaymentMethod.Cash, "Auto-refund due to service changes");
+            invoice.AddRefund(refundAmount, "Cash", "Auto-refund due to service changes");
         }
     }
 }
