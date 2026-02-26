@@ -55,7 +55,7 @@ public sealed class UpdateInvoiceHandler(
                 NameAr:   branch.NameAr,
                 NameEn:   branch.NameEn));
 
-            // -- 4. Replace items if provided (Draft only) -------------------------
+            // -- 4. Replace items if provided ----------------------------------------
             if (req.Items is { Count: > 0 })
             {
                 foreach (var item in invoice.Items.ToList())

@@ -42,7 +42,7 @@ public sealed class CreateInvoiceFromExaminationHandler(
         var invoice = Invoice.Create(
             exam.Client,
             exam.Branch,
-            "EGP",
+            "SAR",
             examinationId: exam.Id);
 
         if (!string.IsNullOrWhiteSpace(exam.Notes))
@@ -70,10 +70,9 @@ public sealed class CreateInvoiceFromExaminationHandler(
                 serviceNameEn: examItem.Service.NameEn);
         }
 
-        // -- 5. Auto-issue the invoice ------------------------------------------------
+        // -- 5. Assign invoice number ---------------------------------------------------
         var invoiceNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
         invoice.SetInvoiceNumber(invoiceNumber);
-        invoice.Issue();
 
         await invoiceRepo.AddAsync(invoice, ct);
         await unitOfWork.SaveChangesAsync(ct);

@@ -167,7 +167,7 @@ public sealed class CreateExaminationHandler(
                 var invoice = Invoice.Create(
                     client:        clientRef,
                     branch:        branchRef,
-                    currency:      "EGP",
+                    currency:      "SAR",
                     examinationId: examination.Id);
 
                 var priceMap = await examinationService.LookupServicePricesAsync(
@@ -196,10 +196,9 @@ public sealed class CreateExaminationHandler(
                         serviceNameEn: item.Service.NameEn);
                 }
 
-                // Auto-issue
+                // Assign invoice number
                 var invNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
                 invoice.SetInvoiceNumber(invNumber);
-                invoice.Issue();
 
                 await invoiceRepo.AddAsync(invoice, ct);
                 await unitOfWork.SaveChangesAsync(ct);

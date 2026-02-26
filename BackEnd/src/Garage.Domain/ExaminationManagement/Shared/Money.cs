@@ -16,16 +16,23 @@ public sealed class Money : ValueObject
         Currency = currency;
     }
 
-    public static Money Create(decimal amount, string currency = "EGP")
+    public static Money Create(decimal amount, string currency = "SAR")
     {
         if (amount < 0) throw new DomainException("Amount cannot be negative.");
         if (string.IsNullOrWhiteSpace(currency)) throw new DomainException("Currency is required.");
         return new Money(decimal.Round(amount, 2), currency.Trim().ToUpperInvariant());
     }
 
-    public static Money Zero(string currency = "EGP") => new(0m, currency.Trim().ToUpperInvariant());
+    public static Money Zero(string currency = "SAR") => new(0m, currency.Trim().ToUpperInvariant());
 
     public Money Negate() => new(-Amount, Currency);
+
+    /// <summary>Creates a Money instance that allows negative amounts (for refunds/credit notes).</summary>
+    public static Money CreateAllowNegative(decimal amount, string currency = "SAR")
+    {
+        if (string.IsNullOrWhiteSpace(currency)) throw new DomainException("Currency is required.");
+        return new Money(decimal.Round(amount, 2), currency.Trim().ToUpperInvariant());
+    }
 
     public Money Add(Money other)
     {

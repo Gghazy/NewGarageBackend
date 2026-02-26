@@ -74,14 +74,6 @@ public class InvoicesController : ApiControllerBase
         return HandleResult(result, "Invoice.Updated");
     }
 
-    [HttpPost("{id:Guid}/issue")]
-    [HasPermission(Permission.Invoice_Update)]
-    public async Task<IActionResult> Issue(Guid id)
-    {
-        var result = await _mediator.Send(new IssueInvoiceCommand(id));
-        return HandleResult(result, "Invoice.Issued");
-    }
-
     [HttpPost("{id:Guid}/cancel")]
     [HasPermission(Permission.Invoice_Update)]
     public async Task<IActionResult> Cancel(Guid id, [FromBody] string? reason = null)

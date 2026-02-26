@@ -27,7 +27,7 @@ public sealed class AddInvoicePaymentHandler(
         if (!Enum.TryParse<PaymentMethod>(req.Method, ignoreCase: true, out var method))
             return Fail($"Invalid payment method '{req.Method}'. Use Cash, Card, BankTransfer or Cheque.");
 
-        var currency = string.IsNullOrWhiteSpace(req.Currency) ? "EGP" : req.Currency;
+        var currency = string.IsNullOrWhiteSpace(req.Currency) ? "SAR" : req.Currency;
         var amount   = Money.Create(req.Amount, currency);
 
         try

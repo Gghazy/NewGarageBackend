@@ -13,5 +13,5 @@ public sealed record UpdateInvoiceRequest(
     decimal? Discount,
 
     // -- Items ----------------------------------------------------------------
-    List<InvoiceItemRequest>? Items   // replaces all items (Draft only)
+    List<InvoiceItemRequest>? Items   // replaces all items (Issued only)
 );

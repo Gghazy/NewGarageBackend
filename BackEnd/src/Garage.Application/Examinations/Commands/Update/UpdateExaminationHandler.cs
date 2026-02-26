@@ -244,7 +244,7 @@ public sealed class UpdateExaminationHandler(
                     invoice = Invoice.Create(
                         client:        clientRef,
                         branch:        invoiceBranchRef,
-                        currency:      "EGP",
+                        currency:      "SAR",
                         examinationId: examination.Id);
 
                     var priceMap = await examinationService.LookupServicePricesAsync(
@@ -269,10 +269,9 @@ public sealed class UpdateExaminationHandler(
                             serviceNameEn: examItem.Service.NameEn);
                     }
 
-                    // Auto-issue
+                    // Assign invoice number
                     var invNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
                     invoice.SetInvoiceNumber(invNumber);
-                    invoice.Issue();
 
                     await invoiceRepo.AddAsync(invoice, ct);
                     await unitOfWork.SaveChangesAsync(ct);
@@ -280,17 +279,17 @@ public sealed class UpdateExaminationHandler(
                 else if (itemsReplaced)
                 {
                     // ── Invoice exists & items changed → sync ───────────────────
-                    invoice.UpdateClientSnapshot(clientRef);
-
                     var priceMap = await examinationService.LookupServicePricesAsync(
                         examination.Items.Select(i => i.Service.ServiceId),
                         req.CarMarkId,
                         req.Year,
                         ct);
 
-                    if (invoice.Status == InvoiceStatus.Draft)
+                    if (invoice.Status == InvoiceStatus.Issued)
                     {
-                        // Draft → replace items directly
+                        // Issued → replace items directly & update client
+                        invoice.UpdateClientSnapshot(clientRef);
+
                         foreach (var invoiceItem in invoice.Items.ToList())
                             invoice.RemoveItem(invoiceItem.Id);
 
@@ -310,87 +309,123 @@ public sealed class UpdateExaminationHandler(
                                 serviceNameEn: examItem.Service.NameEn);
                         }
                     }
-                    else if (invoice.Status == InvoiceStatus.Issued
-                          || invoice.Status == InvoiceStatus.Paid
-                          || invoice.Status == InvoiceStatus.PartiallyPaid)
+                    else if (invoice.Status == InvoiceStatus.Paid)
                     {
-                        // Issued/Paid/PartiallyPaid → compare items, create Refund or Debit Note
-                        var oldServiceIds = invoice.Items
+                        // Paid → compare items & prices, create Refund or Adjustment
+                        var oldItemsByService = invoice.Items
                             .Where(i => i.ServiceId.HasValue)
-                            .Select(i => i.ServiceId!.Value)
-                            .ToHashSet();
+                            .ToDictionary(i => i.ServiceId!.Value);
 
                         var newServiceIds = examination.Items
                             .Select(i => i.Service.ServiceId)
                             .ToHashSet();
 
-                        // Added services = in exam but not in original invoice
-                        var addedItems = examination.Items
-                            .Where(i => !oldServiceIds.Contains(i.Service.ServiceId))
-                            .ToList();
+                        // Track totals for adjustment (increase) and refund (decrease)
+                        decimal totalIncrease = 0;
+                        decimal totalDecrease = 0;
 
-                        // Removed services = in original invoice but not in exam
-                        var removedItems = invoice.Items
-                            .Where(i => i.ServiceId.HasValue && !newServiceIds.Contains(i.ServiceId.Value))
-                            .ToList();
+                        // Items to include in adjustment/refund invoices
+                        var adjustmentItems = new List<(string desc, int qty, Money unitPrice, Guid serviceId, string nameAr, string nameEn)>();
+                        var refundItems = new List<(string desc, int qty, Money unitPrice, Guid? serviceId, string? nameAr, string? nameEn)>();
 
-                        if (addedItems.Count > 0)
+                        // 1. Added services (in exam but not in invoice)
+                        foreach (var examItem in examination.Items)
                         {
-                            // Service added → Debit Note (Adjustment) with actual service items
+                            var svcId = examItem.Service.ServiceId;
+                            var newUnitPrice = overridePrices.TryGetValue(svcId, out var op)
+                                ? Money.Create(op)
+                                : priceMap.TryGetValue(svcId, out var p)
+                                    ? Money.Create(p) : Money.Zero();
+
+                            if (!oldItemsByService.ContainsKey(svcId))
+                            {
+                                // New service → full amount is increase
+                                var itemTotal = newUnitPrice.Amount * examItem.Quantity;
+                                totalIncrease += itemTotal;
+                                adjustmentItems.Add((examItem.Service.NameEn, examItem.Quantity, newUnitPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                            }
+                            else
+                            {
+                                // Existing service → check price/quantity change
+                                var oldItem = oldItemsByService[svcId];
+                                var oldTotal = oldItem.TotalPrice.Amount;
+                                var newTotal = newUnitPrice.Amount * examItem.Quantity;
+                                var diff = newTotal - oldTotal;
+
+                                if (diff > 0.001m)
+                                {
+                                    // Price increased → adjustment for the difference
+                                    totalIncrease += diff;
+                                    var diffPerUnit = Money.Create(Math.Round(diff / examItem.Quantity, 2));
+                                    adjustmentItems.Add((examItem.Service.NameEn, examItem.Quantity, diffPerUnit, svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                                }
+                                else if (diff < -0.001m)
+                                {
+                                    // Price decreased → refund for the difference
+                                    totalDecrease += Math.Abs(diff);
+                                    var diffPerUnit = Money.Create(Math.Round(Math.Abs(diff) / examItem.Quantity, 2));
+                                    refundItems.Add((examItem.Service.NameEn, examItem.Quantity, diffPerUnit.Negate(), svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                                }
+                            }
+                        }
+
+                        // 2. Removed services (in invoice but not in exam)
+                        foreach (var oldItem in invoice.Items)
+                        {
+                            if (oldItem.ServiceId.HasValue && !newServiceIds.Contains(oldItem.ServiceId.Value))
+                            {
+                                totalDecrease += Math.Abs(oldItem.TotalPrice.Amount);
+                                refundItems.Add((oldItem.Description, oldItem.Quantity, oldItem.UnitPrice.Negate(), oldItem.ServiceId, oldItem.ServiceNameAr, oldItem.ServiceNameEn));
+                            }
+                        }
+
+                        // 3. Create Adjustment invoice if there's an increase
+                        if (adjustmentItems.Count > 0)
+                        {
                             var adjustment = Invoice.CreateAdjustment(invoice);
 
-                            foreach (var examItem in addedItems)
+                            foreach (var item in adjustmentItems)
                             {
-                                var unitPrice = overridePrices.TryGetValue(examItem.Service.ServiceId, out var op)
-                                    ? Money.Create(op)
-                                    : priceMap.TryGetValue(examItem.Service.ServiceId, out var p)
-                                        ? Money.Create(p) : Money.Zero();
-
                                 adjustment.AddItem(
-                                    description:   examItem.Service.NameEn,
-                                    quantity:      examItem.Quantity,
-                                    unitPrice:     unitPrice,
-                                    serviceId:     examItem.Service.ServiceId,
-                                    serviceNameAr: examItem.Service.NameAr,
-                                    serviceNameEn: examItem.Service.NameEn);
+                                    description:   item.desc,
+                                    quantity:      item.qty,
+                                    unitPrice:     item.unitPrice,
+                                    serviceId:     item.serviceId,
+                                    serviceNameAr: item.nameAr,
+                                    serviceNameEn: item.nameEn);
                             }
 
                             var adjNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Adjustment, ct);
                             adjustment.SetInvoiceNumber(adjNumber);
-                            adjustment.Issue();
-
                             await invoiceRepo.AddAsync(adjustment, ct);
+                            await unitOfWork.SaveChangesAsync(ct);
                         }
 
-                        if (removedItems.Count > 0)
+                        // 4. Create Refund invoice if there's a decrease (negative amounts)
+                        if (refundItems.Count > 0)
                         {
-                            // Service removed → Refund Invoice with negative-priced service items
                             var refundInvoice = Invoice.CreateEmptyRefundInvoice(invoice);
 
-                            foreach (var removedItem in removedItems)
+                            foreach (var item in refundItems)
                             {
                                 refundInvoice.AddItem(
-                                    description:   removedItem.Description,
-                                    quantity:      removedItem.Quantity,
-                                    unitPrice:     removedItem.UnitPrice.Negate(),
-                                    serviceId:     removedItem.ServiceId,
-                                    serviceNameAr: removedItem.ServiceNameAr,
-                                    serviceNameEn: removedItem.ServiceNameEn);
+                                    description:   item.desc,
+                                    quantity:      item.qty,
+                                    unitPrice:     item.unitPrice,
+                                    serviceId:     item.serviceId,
+                                    serviceNameAr: item.nameAr,
+                                    serviceNameEn: item.nameEn);
                             }
 
                             var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
                             refundInvoice.SetInvoiceNumber(refNumber);
-                            refundInvoice.Issue();
-
-                            // Add refund transaction on original only if it has payments
-                            if (invoice.Status == InvoiceStatus.Paid || invoice.Status == InvoiceStatus.PartiallyPaid)
-                            {
-                                var absTotal = Math.Abs(refundInvoice.TotalWithTax.Amount);
-                                var refundAmount = Money.Create(absTotal, refundInvoice.TotalWithTax.Currency);
-                                invoice.AddRefund(refundAmount, PaymentMethod.Cash, "Auto-refund due to service removal");
-                            }
 
                             await invoiceRepo.AddAsync(refundInvoice, ct);
+                            await unitOfWork.SaveChangesAsync(ct);
+
+                            // Auto-refund on original since it's Paid
+                            var refundAmount = Money.Create(Math.Abs(refundInvoice.TotalWithTax.Amount), refundInvoice.TotalWithTax.Currency);
+                            invoice.AddRefund(refundAmount, PaymentMethod.Cash, "Auto-refund due to service changes");
                         }
                     }
 

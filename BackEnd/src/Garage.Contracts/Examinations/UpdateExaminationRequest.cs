@@ -49,7 +49,7 @@ public sealed record UpdateExaminationRequest(
     string?  Transmission,   // "Automatic" | "Manual" | "CVT" | "SemiAutomatic"
 
     // ── Services ──────────────────────────────────────────────────────────────
-    List<ExaminationItemRequest>? Items,   // replaces all items (Draft only)
+    List<ExaminationItemRequest>? Items,   // replaces all items
 
     // ── Workflow ──────────────────────────────────────────────────────────────
     bool StartAfterSave = false

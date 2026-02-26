@@ -6,33 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Invoices.Commands.ChangeStatus;
 
-public sealed class IssueInvoiceHandler(
-    IRepository<Invoice>     repo,
-    IUnitOfWork              unitOfWork,
-    InvoiceNumberGenerator   numberGenerator)
-    : BaseCommandHandler<IssueInvoiceCommand, Guid>
-{
-    public override async Task<Result<Guid>> Handle(IssueInvoiceCommand command, CancellationToken ct)
-    {
-        var invoice = await repo.QueryTracking()
-            .Include(i => i.Items)
-            .FirstOrDefaultAsync(i => i.Id == command.Id, ct);
-
-        if (invoice is null) return Fail("Invoice not found.");
-
-        try
-        {
-            var invoiceNumber = await numberGenerator.GenerateAsync(invoice.Type, ct);
-            invoice.SetInvoiceNumber(invoiceNumber);
-            invoice.Issue();
-        }
-        catch (Exception ex) { return Fail(ex.Message); }
-
-        await unitOfWork.SaveChangesAsync(ct);
-        return Ok(invoice.Id);
-    }
-}
-
 public sealed class CancelInvoiceHandler : BaseCommandHandler<CancelInvoiceCommand, Guid>
 {
     private readonly IRepository<Invoice> _repo;

@@ -89,10 +89,9 @@ public sealed class CreateInvoiceHandler(
         if (req.Discount.HasValue && req.Discount.Value > 0)
             invoice.SetDiscount(Money.Create(req.Discount.Value));
 
-        // -- 5. Auto-issue ----------------------------------------------------------
+        // -- 5. Assign invoice number ------------------------------------------------
         var invoiceNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
         invoice.SetInvoiceNumber(invoiceNumber);
-        invoice.Issue();
 
         await invoiceRepo.AddAsync(invoice, ct);
         await unitOfWork.SaveChangesAsync(ct);

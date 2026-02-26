@@ -19,11 +19,11 @@ public sealed class Invoice : AggregateRoot
     public string? Notes { get; private set; }
     public DateTime? DueDate { get; private set; }
 
-    public Money TotalPrice    { get; private set; } = Money.Zero("EGP");
-    public Money DiscountAmount { get; private set; } = Money.Zero("EGP");
+    public Money TotalPrice    { get; private set; } = Money.Zero("SAR");
+    public Money DiscountAmount { get; private set; } = Money.Zero("SAR");
     public decimal TaxRate     { get; private set; } = 0.15m;
-    public Money TaxAmount     { get; private set; } = Money.Zero("EGP");
-    public Money TotalWithTax  { get; private set; } = Money.Zero("EGP");
+    public Money TaxAmount     { get; private set; } = Money.Zero("SAR");
+    public Money TotalWithTax  { get; private set; } = Money.Zero("SAR");
 
     private readonly List<InvoiceItem> _items = new();
     public IReadOnlyCollection<InvoiceItem> Items => _items.AsReadOnly();
@@ -42,7 +42,7 @@ public sealed class Invoice : AggregateRoot
         Branch = branch;
 
         Type           = InvoiceType.Invoice;
-        Status         = InvoiceStatus.Draft;
+        Status         = InvoiceStatus.Issued;
         TotalPrice     = Money.Zero(currency);
         DiscountAmount = Money.Zero(currency);
         TaxAmount      = Money.Zero(currency);
@@ -52,7 +52,7 @@ public sealed class Invoice : AggregateRoot
     public static Invoice Create(
         ClientReference client,
         BranchReference branch,
-        string currency = "EGP",
+        string currency = "SAR",
         Guid? examinationId = null)
     {
         if (client.ClientId == Guid.Empty)  throw new DomainException("Client is required.");
@@ -85,7 +85,6 @@ public sealed class Invoice : AggregateRoot
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
         refund.AddItem("Refund", 1, refundAmount);
-        refund.Status = InvoiceStatus.Issued;
 
         return refund;
     }
@@ -179,7 +178,7 @@ public sealed class Invoice : AggregateRoot
     public void AddItem(string description, int quantity, Money unitPrice,
         Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null)
     {
-        EnsureDraft();
+        EnsureItemsEditable();
 
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("Item description is required.");
@@ -192,7 +191,7 @@ public sealed class Invoice : AggregateRoot
 
     public void RemoveItem(Guid itemId)
     {
-        EnsureDraft();
+        EnsureItemsEditable();
 
         var item = _items.FirstOrDefault(x => x.Id == itemId);
         if (item is null) return;
@@ -203,7 +202,7 @@ public sealed class Invoice : AggregateRoot
 
     public void UpdateItem(Guid itemId, string description, int quantity, Money unitPrice)
     {
-        EnsureDraft();
+        EnsureItemsEditable();
 
         var item = _items.FirstOrDefault(x => x.Id == itemId)
                    ?? throw new DomainException("Item not found.");
@@ -250,15 +249,6 @@ public sealed class Invoice : AggregateRoot
         InvoiceNumber = invoiceNumber;
     }
 
-    public void Issue()
-    {
-        EnsureDraft();
-        if (_items.Count == 0)
-            throw new DomainException("Cannot issue invoice without items.");
-
-        Status = InvoiceStatus.Issued;
-    }
-
     public void Cancel(string? reason = null)
     {
         if (Status == InvoiceStatus.Paid)
@@ -271,7 +261,7 @@ public sealed class Invoice : AggregateRoot
 
     private void UpdatePaymentStatus()
     {
-        if (Status == InvoiceStatus.Draft || Status == InvoiceStatus.Cancelled)
+        if (Status == InvoiceStatus.Cancelled)
             return;
 
         var totalPaid = _payments
@@ -288,22 +278,20 @@ public sealed class Invoice : AggregateRoot
             Status = InvoiceStatus.PartiallyRefunded;
         else if (netPaid >= TotalWithTax.Amount)
             Status = InvoiceStatus.Paid;
-        else if (netPaid > 0)
-            Status = InvoiceStatus.PartiallyPaid;
         else
             Status = InvoiceStatus.Issued;
     }
 
     private void EnsureEditable()
     {
-        if (Status != InvoiceStatus.Draft && Status != InvoiceStatus.Issued && Status != InvoiceStatus.PartiallyPaid)
-            throw new DomainException("Invoice can only be updated in Draft, Issued, or PartiallyPaid status.");
+        if (Status != InvoiceStatus.Issued)
+            throw new DomainException("Invoice can only be updated in Issued status.");
     }
 
-    private void EnsureDraft()
+    private void EnsureItemsEditable()
     {
-        if (Status != InvoiceStatus.Draft)
-            throw new DomainException("You can modify invoice items only in Draft status.");
+        if (Status != InvoiceStatus.Issued)
+            throw new DomainException("You can modify invoice items only in Issued status.");
     }
 
     private void RecalculateTotal()
@@ -322,13 +310,13 @@ public sealed class Invoice : AggregateRoot
 
         TotalPrice = total;
 
-        // Clamp discount to subtotal
-        if (DiscountAmount.Amount > total.Amount)
+        // Clamp discount to subtotal (only for positive totals)
+        if (total.Amount >= 0 && DiscountAmount.Amount > total.Amount)
             DiscountAmount = total;
 
         var afterDiscount = total.Amount - DiscountAmount.Amount;
-        TaxAmount    = Money.Create(Math.Round(afterDiscount * TaxRate, 2), total.Currency);
-        TotalWithTax = Money.Create(Math.Round(afterDiscount + TaxAmount.Amount, 2), total.Currency);
+        TaxAmount    = Money.CreateAllowNegative(Math.Round(afterDiscount * TaxRate, 2), total.Currency);
+        TotalWithTax = Money.CreateAllowNegative(Math.Round(afterDiscount + TaxAmount.Amount, 2), total.Currency);
     }
 
     private static string? Normalize(string? v)

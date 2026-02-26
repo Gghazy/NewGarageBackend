@@ -23,7 +23,7 @@ public sealed class InvoiceItem : Entity
         Description    = description;
         Quantity       = quantity;
         UnitPrice      = unitPrice;
-        TotalPrice     = Money.Create(unitPrice.Amount * quantity, unitPrice.Currency);
+        TotalPrice     = Money.CreateAllowNegative(unitPrice.Amount * quantity, unitPrice.Currency);
         ServiceId      = serviceId;
         ServiceNameAr  = serviceNameAr;
         ServiceNameEn  = serviceNameEn;
@@ -34,7 +34,7 @@ public sealed class InvoiceItem : Entity
         Description = description;
         Quantity    = quantity;
         UnitPrice   = unitPrice;
-        TotalPrice  = Money.Create(unitPrice.Amount * quantity, unitPrice.Currency);
+        TotalPrice  = Money.CreateAllowNegative(unitPrice.Amount * quantity, unitPrice.Currency);
     }
 
     private static string? Normalize(string? v)
