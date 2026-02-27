@@ -1,14 +1,17 @@
 using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
 using Garage.Domain.ExaminationManagement.Shared;
 using Garage.Domain.InvoiceManagement.Invoices;
+using Garage.Domain.PaymentMethods.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Invoices.Commands.RefundPayment;
 
 public sealed class RefundInvoicePaymentHandler(
     IRepository<Invoice> repo,
+    ILookupRepository<PaymentMethodLookup> methodRepo,
     IUnitOfWork unitOfWork)
     : BaseCommandHandler<RefundInvoicePaymentCommand, Guid>
 {
@@ -23,8 +26,9 @@ public sealed class RefundInvoicePaymentHandler(
         if (invoice is null)
             return Fail("Invoice not found.");
 
-        if (string.IsNullOrWhiteSpace(req.Method))
-            return Fail("Payment method is required.");
+        var method = await methodRepo.GetByIdAsync(req.MethodId, ct);
+        if (method is null)
+            return Fail("Payment method not found.");
 
         var currency = string.IsNullOrWhiteSpace(req.Currency) ? "SAR" : req.Currency;
         var amount   = Money.Create(req.Amount, currency);
@@ -32,7 +36,7 @@ public sealed class RefundInvoicePaymentHandler(
         try
         {
             // Record refund transaction on the original invoice
-            invoice.AddRefund(amount, req.Method.Trim(), req.Notes);
+            invoice.AddRefund(amount, method.Id, method.NameAr, method.NameEn, req.Notes);
 
             // Create a refund invoice for documentation
             var refundInvoice = Invoice.CreateRefundInvoice(invoice, amount);

@@ -211,16 +211,16 @@ public sealed class Invoice : AggregateRoot
         RecalculateTotal();
     }
 
-    public void AddPayment(Money amount, string method, string? notes)
+    public void AddPayment(Money amount, Guid methodId, string methodNameAr, string methodNameEn, string? notes)
     {
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add payment to a cancelled invoice.");
 
-        _payments.Add(new InvoicePayment(amount, method, PaymentType.Payment, notes));
+        _payments.Add(new InvoicePayment(amount, methodId, methodNameAr, methodNameEn, PaymentType.Payment, notes));
         UpdatePaymentStatus();
     }
 
-    public void AddRefund(Money amount, string method, string? notes)
+    public void AddRefund(Money amount, Guid methodId, string methodNameAr, string methodNameEn, string? notes)
     {
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add refund to a cancelled invoice.");
@@ -235,7 +235,7 @@ public sealed class Invoice : AggregateRoot
         if (amount.Amount > totalPaid - totalRefunded)
             throw new DomainException("Refund amount exceeds paid amount.");
 
-        _payments.Add(new InvoicePayment(amount, method, PaymentType.Refund, notes));
+        _payments.Add(new InvoicePayment(amount, methodId, methodNameAr, methodNameEn, PaymentType.Refund, notes));
         UpdatePaymentStatus();
     }
 

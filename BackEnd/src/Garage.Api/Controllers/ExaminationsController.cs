@@ -5,6 +5,9 @@ using Garage.Application.Examinations.Commands.Delete;
 using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
+using Garage.Application.Examinations.Queries.GetCount;
+using Garage.Application.Examinations.Queries.GetServiceUsage;
+using Garage.Application.Examinations.Queries.GetWorkflow;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -101,5 +104,30 @@ public class ExaminationsController : ApiControllerBase
     {
         var result = await _mediator.Send(new DeleteExaminationCommand(id));
         return HandleResult(result, "Examination.Deleted");
+    }
+
+    [HttpGet("{id:Guid}/workflow")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetWorkflow(Guid id)
+    {
+        var result = await _mediator.Send(new GetExaminationWorkflowQuery(id));
+        if (result is null) return NotFound();
+        return Success(result);
+    }
+
+    [HttpGet("count")]
+    [HasPermission(Permission.Dashboard_Examinations)]
+    public async Task<IActionResult> GetCount([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetExaminationsCountQuery(from, to, branchId));
+        return Success(result);
+    }
+
+    [HttpGet("service-usage")]
+    [HasPermission(Permission.Dashboard_Examinations)]
+    public async Task<IActionResult> GetServiceUsage([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetServiceUsageQuery(from, to, branchId));
+        return Success(result);
     }
 }

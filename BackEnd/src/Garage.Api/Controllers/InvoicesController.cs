@@ -9,6 +9,7 @@ using Garage.Application.Invoices.Commands.SetDiscount;
 using Garage.Application.Invoices.Commands.Update;
 using Garage.Application.Invoices.Queries.GetAll;
 using Garage.Application.Invoices.Queries.GetById;
+using Garage.Application.Invoices.Queries.GetRevenue;
 using Garage.Contracts.Common;
 using Garage.Contracts.Invoices;
 using Garage.Domain.Users.Permissions;
@@ -114,6 +115,14 @@ public class InvoicesController : ApiControllerBase
         return HandleResult(result, "Invoice.RefundAdded");
     }
 
+    [HttpGet("revenue")]
+    [HasPermission(Permission.Dashboard_Revenue)]
+    public async Task<IActionResult> GetRevenue([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetRevenueQuery(from, to, branchId));
+        return Success(result);
+    }
+
     [HttpGet("{id:Guid}/view")]
     [AllowAnonymous]
     public async Task<IActionResult> PublicView(Guid id)
@@ -136,7 +145,7 @@ public class InvoicesController : ApiControllerBase
                 <td>{p.CreatedAtUtc:yyyy-MM-dd}</td>
                 <td style='text-align:center'>{p.Type}</td>
                 <td style='text-align:center'>{p.Amount:F2} {p.Currency}</td>
-                <td>{p.Method}</td>
+                <td>{p.MethodNameAr}</td>
             </tr>"));
 
         var html = $@"<!DOCTYPE html>

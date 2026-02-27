@@ -7,18 +7,22 @@ namespace Garage.Domain.InvoiceManagement.Invoices;
 public sealed class InvoicePayment : Entity
 {
     public Money Amount { get; private set; } = Money.Zero();
-    public string Method { get; private set; } = null!;
+    public Guid MethodId { get; private set; }
+    public string MethodNameAr { get; private set; } = null!;
+    public string MethodNameEn { get; private set; } = null!;
     public PaymentType Type { get; private set; }
     public string? Notes { get; private set; }
 
     private InvoicePayment() { } // EF
 
-    internal InvoicePayment(Money amount, string method, PaymentType type, string? notes)
+    internal InvoicePayment(Money amount, Guid methodId, string methodNameAr, string methodNameEn, PaymentType type, string? notes)
     {
-        Amount = amount;
-        Method = method;
-        Type   = type;
-        Notes  = Normalize(notes);
+        Amount       = amount;
+        MethodId     = methodId;
+        MethodNameAr = methodNameAr;
+        MethodNameEn = methodNameEn;
+        Type         = type;
+        Notes        = Normalize(notes);
     }
 
     private static string? Normalize(string? v)

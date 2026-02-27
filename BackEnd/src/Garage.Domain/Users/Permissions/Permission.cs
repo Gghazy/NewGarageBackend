@@ -124,7 +124,8 @@ public static class Permission
     public const string Employees_Update = "employees.update";
     public const string Employees_Delete = "employees.delete";
 
-    public const string Dashboard_Read = "dashboard.read";
+    public const string Dashboard_Examinations   = "dashboard.examinations";
+    public const string Dashboard_Revenue        = "dashboard.revenue";
 
     public const string Examination_Read   = "examination.read";
     public const string Examination_Create = "examination.create";
@@ -166,7 +167,7 @@ public static class Permission
         Term_Read, Term_Create,Term_Update, Term_Delete,
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
-        Dashboard_Read,
+        Dashboard_Examinations, Dashboard_Revenue,
         Examination_Read, Examination_Create, Examination_Update, Examination_Delete,
         Invoice_Read, Invoice_Create, Invoice_Update, Invoice_Delete,
         PaymentMethod_Read, PaymentMethod_Create, PaymentMethod_Update, PaymentMethod_Delete

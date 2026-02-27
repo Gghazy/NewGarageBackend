@@ -57,7 +57,9 @@ public static class InvoiceProjection
                 p.Id,
                 p.Amount.Amount,
                 p.Amount.Currency,
-                p.Method,
+                p.MethodId,
+                p.MethodNameAr,
+                p.MethodNameEn,
                 p.Type.ToString(),
                 p.Notes,
                 p.CreatedAtUtc

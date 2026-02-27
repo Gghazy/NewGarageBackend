@@ -64,7 +64,9 @@ public sealed record InvoicePaymentDto(
     Guid    Id,
     decimal Amount,
     string  Currency,
-    string  Method,
+    Guid    MethodId,
+    string  MethodNameAr,
+    string  MethodNameEn,
     string  Type,
     string? Notes,
     DateTime CreatedAtUtc

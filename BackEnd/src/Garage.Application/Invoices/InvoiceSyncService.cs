@@ -1,10 +1,12 @@
 using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
+using Garage.Application.Abstractions.Repositories;
 using Garage.Application.Examinations;
 using Garage.Contracts.Examinations;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
 using Garage.Domain.InvoiceManagement.Invoices;
+using Garage.Domain.PaymentMethods.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Invoices;
@@ -13,7 +15,8 @@ public sealed class InvoiceSyncService(
     IRepository<Invoice>   invoiceRepo,
     IUnitOfWork            unitOfWork,
     ExaminationService     examinationService,
-    InvoiceNumberGenerator invoiceNumberGenerator)
+    InvoiceNumberGenerator invoiceNumberGenerator,
+    ILookupRepository<PaymentMethodLookup> methodRepo)
 {
     /// <summary>Build override prices dict from request items.</summary>
     public static Dictionary<Guid, decimal> BuildOverridePrices(List<ExaminationItemRequest>? items)
@@ -248,7 +251,9 @@ public sealed class InvoiceSyncService(
 
             // Auto-refund on original since it's Paid
             var refundAmount = Money.Create(Math.Abs(refundInvoice.TotalWithTax.Amount), refundInvoice.TotalWithTax.Currency);
-            invoice.AddRefund(refundAmount, "Cash", "Auto-refund due to service changes");
+            var defaultMethod = (await methodRepo.GetAllAsync(ct)).FirstOrDefault()
+                ?? throw new InvalidOperationException("No payment methods configured.");
+            invoice.AddRefund(refundAmount, defaultMethod.Id, defaultMethod.NameAr, defaultMethod.NameEn, "Auto-refund due to service changes");
         }
     }
 }
