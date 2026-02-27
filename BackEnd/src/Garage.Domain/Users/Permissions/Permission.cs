@@ -60,11 +60,30 @@ public static class Permission
     public const string RoadTestIssue_Update = "roadTestIssue.update";
     public const string RoadTestIssue_Delete = "roadTestIssue.delete";
 
+    public const string RoadTestIssueType_Read   = "roadTestIssueType.read";
+    public const string RoadTestIssueType_Create = "roadTestIssueType.create";
+    public const string RoadTestIssueType_Update = "roadTestIssueType.update";
+    public const string RoadTestIssueType_Delete = "roadTestIssueType.delete";
+
     public const string InsideAndDecorPart_Read   = "insideAndDecorPart.read";
     public const string InsideAndDecorPart_Create = "insideAndDecorPart.create";
     public const string InsideAndDecorPart_Update = "insideAndDecorPart.update";
     public const string InsideAndDecorPart_Delete = "insideAndDecorPart.delete";
 
+    public const string InsideAndDecorPartIssue_Read   = "insideAndDecorPartIssue.read";
+    public const string InsideAndDecorPartIssue_Create = "insideAndDecorPartIssue.create";
+    public const string InsideAndDecorPartIssue_Update = "insideAndDecorPartIssue.update";
+    public const string InsideAndDecorPartIssue_Delete = "insideAndDecorPartIssue.delete";
+
+    public const string InteriorBodyPart_Read   = "interiorBodyPart.read";
+    public const string InteriorBodyPart_Create = "interiorBodyPart.create";
+    public const string InteriorBodyPart_Update = "interiorBodyPart.update";
+    public const string InteriorBodyPart_Delete = "interiorBodyPart.delete";
+
+    public const string ExteriorBodyPart_Read   = "exteriorBodyPart.read";
+    public const string ExteriorBodyPart_Create = "exteriorBodyPart.create";
+    public const string ExteriorBodyPart_Update = "exteriorBodyPart.update";
+    public const string ExteriorBodyPart_Delete = "exteriorBodyPart.delete";
 
     public const string CarMark_Read   = "carMark.read";
     public const string CarMark_Create = "carMark.create";
@@ -157,7 +176,11 @@ public static class Permission
         ExteriorBodyIssue_Read, ExteriorBodyIssue_Create,ExteriorBodyIssue_Update, ExteriorBodyIssue_Delete,
         AccessoryIssue_Read, AccessoryIssue_Create,AccessoryIssue_Update, AccessoryIssue_Delete,
         RoadTestIssue_Read, RoadTestIssue_Create,RoadTestIssue_Update, RoadTestIssue_Delete,
+        RoadTestIssueType_Read, RoadTestIssueType_Create,RoadTestIssueType_Update, RoadTestIssueType_Delete,
         InsideAndDecorPart_Read, InsideAndDecorPart_Create,InsideAndDecorPart_Update, InsideAndDecorPart_Delete,
+        InsideAndDecorPartIssue_Read, InsideAndDecorPartIssue_Create,InsideAndDecorPartIssue_Update, InsideAndDecorPartIssue_Delete,
+        InteriorBodyPart_Read, InteriorBodyPart_Create,InteriorBodyPart_Update, InteriorBodyPart_Delete,
+        ExteriorBodyPart_Read, ExteriorBodyPart_Create,ExteriorBodyPart_Update, ExteriorBodyPart_Delete,
         CarMark_Read, CarMark_Create,CarMark_Update, CarMark_Delete,
         Manufacturer_Read, Manufacturer_Create,Manufacturer_Update, Manufacturer_Delete,
         ServiceType_Read, ServiceType_Create,ServiceType_Update, ServiceType_Delete,

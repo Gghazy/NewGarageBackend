@@ -10,6 +10,9 @@ using Garage.Domain.Cranes.Entity;
 using Garage.Domain.Employees.Entities;
 using Garage.Domain.ExteriorBodyIssues.Entity;
 using Garage.Domain.InsideAndDecorParts.Entity;
+using Garage.Domain.InsideAndDecorPartIssues.Entity;
+using Garage.Domain.InteriorBodyParts.Entity;
+using Garage.Domain.ExteriorBodyParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
@@ -45,7 +48,11 @@ namespace Garage.Application.Abstractions
         DbSet<ExteriorBodyIssue> ExteriorBodyIssues { get; }
         DbSet<AccessoryIssue> AccessoryIssues { get; }
         DbSet<RoadTestIssue> RoadTestIssues { get; }
+        DbSet<RoadTestIssueType> RoadTestIssueTypes { get; }
         DbSet<InsideAndDecorPart> InsideAndDecorParts { get; }
+        DbSet<InsideAndDecorPartIssue> InsideAndDecorPartIssues { get; }
+        DbSet<InteriorBodyPart> InteriorBodyParts { get; }
+        DbSet<ExteriorBodyPart> ExteriorBodyParts { get; }
         DbSet<CarMark> CarMarks { get; }
         DbSet<Manufacturer> Manufacturers { get; }
         DbSet<Crane> Cranes { get; }
@@ -74,6 +81,10 @@ namespace Garage.Application.Abstractions
         DbSet<Vehicle>     Vehicles     { get; }
         DbSet<Examination> Examinations { get; }
         DbSet<SensorStageResult> SensorStageResults { get; }
+        DbSet<DashboardIndicatorsStageResult> DashboardIndicatorsStageResults { get; }
+        DbSet<InteriorDecorStageResult> InteriorDecorStageResults { get; }
+        DbSet<InteriorBodyStageResult> InteriorBodyStageResults { get; }
+        DbSet<ExteriorBodyStageResult> ExteriorBodyStageResults { get; }
         #endregion
     }
 }

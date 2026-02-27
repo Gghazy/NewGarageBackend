@@ -8,6 +8,7 @@ using Garage.Application.Invoices.Commands.RefundPayment;
 using Garage.Application.Invoices.Commands.SetDiscount;
 using Garage.Application.Invoices.Commands.Update;
 using Garage.Application.Invoices.Queries.GetAll;
+using Garage.Application.Invoices.Queries.GetByExamination;
 using Garage.Application.Invoices.Queries.GetById;
 using Garage.Application.Invoices.Queries.GetRevenue;
 using Garage.Contracts.Common;
@@ -48,6 +49,14 @@ public class InvoicesController : ApiControllerBase
     {
         var result = await _mediator.Send(new GetInvoiceByIdQuery(id));
         if (result is null) return NotFound();
+        return Success(result);
+    }
+
+    [HttpGet("by-examination/{examinationId:Guid}")]
+    [HasPermission(Permission.Invoice_Read)]
+    public async Task<IActionResult> GetByExamination(Guid examinationId)
+    {
+        var result = await _mediator.Send(new GetInvoicesByExaminationQuery(examinationId));
         return Success(result);
     }
 

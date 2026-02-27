@@ -12,6 +12,9 @@ using Garage.Domain.Cranes.Entity;
 using Garage.Domain.Employees.Entities;
 using Garage.Domain.ExteriorBodyIssues.Entity;
 using Garage.Domain.InsideAndDecorParts.Entity;
+using Garage.Domain.InsideAndDecorPartIssues.Entity;
+using Garage.Domain.InteriorBodyParts.Entity;
+using Garage.Domain.ExteriorBodyParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
@@ -76,7 +79,11 @@ public sealed class ApplicationDbContext
     public DbSet<ExteriorBodyIssue> ExteriorBodyIssues => Set<ExteriorBodyIssue>();
     public DbSet<AccessoryIssue> AccessoryIssues => Set<AccessoryIssue>();
     public DbSet<RoadTestIssue> RoadTestIssues => Set<RoadTestIssue>();
+    public DbSet<RoadTestIssueType> RoadTestIssueTypes => Set<RoadTestIssueType>();
     public DbSet<InsideAndDecorPart> InsideAndDecorParts => Set<InsideAndDecorPart>();
+    public DbSet<InsideAndDecorPartIssue> InsideAndDecorPartIssues => Set<InsideAndDecorPartIssue>();
+    public DbSet<InteriorBodyPart> InteriorBodyParts => Set<InteriorBodyPart>();
+    public DbSet<ExteriorBodyPart> ExteriorBodyParts => Set<ExteriorBodyPart>();
 
     // Tip: fix typo CarMarkes -> CarMarks (rename if you can)
     public DbSet<CarMark> CarMarks => Set<CarMark>();
@@ -108,6 +115,10 @@ public sealed class ApplicationDbContext
     public DbSet<Vehicle>     Vehicles     => Set<Vehicle>();
     public DbSet<Examination> Examinations => Set<Examination>();
     public DbSet<SensorStageResult> SensorStageResults => Set<SensorStageResult>();
+    public DbSet<DashboardIndicatorsStageResult> DashboardIndicatorsStageResults => Set<DashboardIndicatorsStageResult>();
+    public DbSet<InteriorDecorStageResult> InteriorDecorStageResults => Set<InteriorDecorStageResult>();
+    public DbSet<InteriorBodyStageResult> InteriorBodyStageResults => Set<InteriorBodyStageResult>();
+    public DbSet<ExteriorBodyStageResult> ExteriorBodyStageResults => Set<ExteriorBodyStageResult>();
     #endregion
 
     #region Invoices

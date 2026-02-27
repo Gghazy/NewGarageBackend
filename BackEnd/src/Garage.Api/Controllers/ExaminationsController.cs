@@ -8,8 +8,16 @@ using Garage.Application.Examinations.Queries.GetById;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
 using Garage.Application.Examinations.Queries.GetSensorStage;
+using Garage.Application.Examinations.Queries.GetDashboardIndicatorsStage;
 using Garage.Application.Examinations.Queries.GetWorkflow;
 using Garage.Application.Examinations.Commands.SaveSensorStage;
+using Garage.Application.Examinations.Commands.SaveDashboardIndicatorsStage;
+using Garage.Application.Examinations.Commands.SaveInteriorDecorStage;
+using Garage.Application.Examinations.Commands.SaveInteriorBodyStage;
+using Garage.Application.Examinations.Commands.SaveExteriorBodyStage;
+using Garage.Application.Examinations.Queries.GetInteriorDecorStage;
+using Garage.Application.Examinations.Queries.GetInteriorBodyStage;
+using Garage.Application.Examinations.Queries.GetExteriorBodyStage;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -130,6 +138,70 @@ public class ExaminationsController : ApiControllerBase
     public async Task<IActionResult> GetSensorStage(Guid id)
     {
         var result = await _mediator.Send(new GetSensorStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/dashboard-indicators")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveDashboardIndicatorsStage(Guid id, SaveDashboardIndicatorsStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveDashboardIndicatorsStageCommand(id, request));
+        return HandleResult(result, "Examination.DashboardIndicatorsStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/dashboard-indicators")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetDashboardIndicatorsStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetDashboardIndicatorsStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/interior-decor")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveInteriorDecorStage(Guid id, SaveInteriorDecorStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveInteriorDecorStageCommand(id, request));
+        return HandleResult(result, "Examination.InteriorDecorStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/interior-decor")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetInteriorDecorStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetInteriorDecorStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/interior-body")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveInteriorBodyStage(Guid id, SaveInteriorBodyStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveInteriorBodyStageCommand(id, request));
+        return HandleResult(result, "Examination.InteriorBodyStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/interior-body")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetInteriorBodyStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetInteriorBodyStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/exterior-body")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveExteriorBodyStage(Guid id, SaveExteriorBodyStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveExteriorBodyStageCommand(id, request));
+        return HandleResult(result, "Examination.ExteriorBodyStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/exterior-body")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetExteriorBodyStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetExteriorBodyStageQuery(id));
         return Success(result);
     }
 

@@ -1,16 +1,28 @@
 using Garage.Domain.Common.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Garage.Domain.RoadTestIssues.Entity
+namespace Garage.Domain.RoadTestIssues.Entity;
+
+public class RoadTestIssue : AggregateRoot
 {
-    public class RoadTestIssue :LookupBase
+    public string NameAr { get; private set; }
+    public string NameEn { get; private set; }
+    public Guid RoadTestIssueTypeId { get; private set; }
+
+    public virtual RoadTestIssueType RoadTestIssueType { get; private set; }
+
+    private RoadTestIssue() { }
+
+    public RoadTestIssue(string nameAr, string nameEn, Guid roadTestIssueTypeId)
     {
-        public RoadTestIssue() { }
-        public RoadTestIssue(string nameAr, string nameEn) : base(nameAr, nameEn) { }
+        RoadTestIssueTypeId = roadTestIssueTypeId;
+        NameAr = nameAr;
+        NameEn = nameEn;
+    }
+
+    public void Update(string nameAr, string nameEn, Guid roadTestIssueTypeId)
+    {
+        RoadTestIssueTypeId = roadTestIssueTypeId;
+        NameAr = nameAr;
+        NameEn = nameEn;
     }
 }
-

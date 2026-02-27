@@ -525,6 +525,368 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("Employees", (string)null);
                 });
 
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExaminationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId")
+                        .IsUnique();
+
+                    b.ToTable("DashboardIndicatorsStageResults", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResultItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DashboardIndicatorsStageResultId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("NotApplicable")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("Value")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DashboardIndicatorsStageResultId");
+
+                    b.ToTable("DashboardIndicatorsStageResultItems", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExaminationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NoIssuesFound")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId")
+                        .IsUnique();
+
+                    b.ToTable("ExteriorBodyStageResults", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResultItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExteriorBodyIssueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExteriorBodyPartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ExteriorBodyStageResultId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExteriorBodyStageResultId");
+
+                    b.ToTable("ExteriorBodyStageResultItems", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExaminationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NoIssuesFound")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId")
+                        .IsUnique();
+
+                    b.ToTable("InteriorBodyStageResults", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResultItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InteriorBodyIssueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InteriorBodyPartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InteriorBodyStageResultId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InteriorBodyStageResultId");
+
+                    b.ToTable("InteriorBodyStageResultItems", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExaminationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NoIssuesFound")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExaminationId")
+                        .IsUnique();
+
+                    b.ToTable("InteriorDecorStageResults", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResultItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InsideAndDecorPartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InsideAndDecorPartIssueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InteriorDecorStageResultId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InteriorDecorStageResultId");
+
+                    b.ToTable("InteriorDecorStageResultItems", (string)null);
+                });
+
             modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.SensorStageResult", b =>
                 {
                     b.Property<Guid>("Id")
@@ -743,6 +1105,90 @@ namespace Garage.Infrastructure.Migrations
                     b.ToTable("ExteriorBodyIssues", (string)null);
                 });
 
+            modelBuilder.Entity("Garage.Domain.ExteriorBodyParts.Entity.ExteriorBodyPart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExteriorBodyParts", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.InsideAndDecorPartIssues.Entity.InsideAndDecorPartIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InsideAndDecorPartIssues", (string)null);
+                });
+
             modelBuilder.Entity("Garage.Domain.InsideAndDecorParts.Entity.InsideAndDecorPart", b =>
                 {
                     b.Property<Guid>("Id")
@@ -826,6 +1272,48 @@ namespace Garage.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InteriorBodyIssues", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.InteriorBodyParts.Entity.InteriorBodyPart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InteriorBodyParts", (string)null);
                 });
 
             modelBuilder.Entity("Garage.Domain.InteriorIssues.Entity.InteriorIssue", b =>
@@ -1239,7 +1727,57 @@ namespace Garage.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("RoadTestIssueTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoadTestIssueTypeId");
+
+                    b.ToTable("RoadTestIssues", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.RoadTestIssues.Entity.RoadTestIssueType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -1271,7 +1809,7 @@ namespace Garage.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoadTestIssues", (string)null);
+                    b.ToTable("RoadTestIssueTypes", (string)null);
                 });
 
             modelBuilder.Entity("Garage.Domain.SensorIssues.Entities.SensorIssue", b =>
@@ -1993,6 +2531,74 @@ namespace Garage.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResult", b =>
+                {
+                    b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
+                        .WithOne("DashboardIndicatorsStageResult")
+                        .HasForeignKey("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResult", "ExaminationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResultItem", b =>
+                {
+                    b.HasOne("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResult", null)
+                        .WithMany("Items")
+                        .HasForeignKey("DashboardIndicatorsStageResultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", b =>
+                {
+                    b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
+                        .WithOne("ExteriorBodyStageResult")
+                        .HasForeignKey("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", "ExaminationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResultItem", b =>
+                {
+                    b.HasOne("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", null)
+                        .WithMany("Items")
+                        .HasForeignKey("ExteriorBodyStageResultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResult", b =>
+                {
+                    b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
+                        .WithOne("InteriorBodyStageResult")
+                        .HasForeignKey("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResult", "ExaminationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResultItem", b =>
+                {
+                    b.HasOne("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResult", null)
+                        .WithMany("Items")
+                        .HasForeignKey("InteriorBodyStageResultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResult", b =>
+                {
+                    b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
+                        .WithOne("InteriorDecorStageResult")
+                        .HasForeignKey("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResult", "ExaminationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResultItem", b =>
+                {
+                    b.HasOne("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResult", null)
+                        .WithMany("Items")
+                        .HasForeignKey("InteriorDecorStageResultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.SensorStageResult", b =>
                 {
                     b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
@@ -2325,6 +2931,17 @@ namespace Garage.Infrastructure.Migrations
                     b.Navigation("MechIssueType");
                 });
 
+            modelBuilder.Entity("Garage.Domain.RoadTestIssues.Entity.RoadTestIssue", b =>
+                {
+                    b.HasOne("Garage.Domain.RoadTestIssues.Entity.RoadTestIssueType", "RoadTestIssueType")
+                        .WithMany("RoadTestIssues")
+                        .HasForeignKey("RoadTestIssueTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RoadTestIssueType");
+                });
+
             modelBuilder.Entity("Garage.Domain.ServicePrices.Entities.ServicePrice", b =>
                 {
                     b.HasOne("Garage.Domain.Services.Entities.Service", null)
@@ -2490,9 +3107,37 @@ namespace Garage.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.ExaminationManagement.Examinations.Examination", b =>
                 {
+                    b.Navigation("DashboardIndicatorsStageResult");
+
+                    b.Navigation("ExteriorBodyStageResult");
+
+                    b.Navigation("InteriorBodyStageResult");
+
+                    b.Navigation("InteriorDecorStageResult");
+
                     b.Navigation("Items");
 
                     b.Navigation("SensorStageResult");
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.DashboardIndicatorsStageResult", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorBodyStageResult", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.InteriorDecorStageResult", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.SensorStageResult", b =>
@@ -2510,6 +3155,11 @@ namespace Garage.Infrastructure.Migrations
             modelBuilder.Entity("Garage.Domain.MechIssueTypes.Entity.MechIssueType", b =>
                 {
                     b.Navigation("MechIssues");
+                });
+
+            modelBuilder.Entity("Garage.Domain.RoadTestIssues.Entity.RoadTestIssueType", b =>
+                {
+                    b.Navigation("RoadTestIssues");
                 });
 
             modelBuilder.Entity("Garage.Domain.Services.Entities.Service", b =>

@@ -24,6 +24,18 @@ public sealed class Examination : AggregateRoot
     private SensorStageResult? _sensorStageResult;
     public SensorStageResult? SensorStageResult => _sensorStageResult;
 
+    private DashboardIndicatorsStageResult? _dashboardIndicatorsStageResult;
+    public DashboardIndicatorsStageResult? DashboardIndicatorsStageResult => _dashboardIndicatorsStageResult;
+
+    private InteriorDecorStageResult? _interiorDecorStageResult;
+    public InteriorDecorStageResult? InteriorDecorStageResult => _interiorDecorStageResult;
+
+    private InteriorBodyStageResult? _interiorBodyStageResult;
+    public InteriorBodyStageResult? InteriorBodyStageResult => _interiorBodyStageResult;
+
+    private ExteriorBodyStageResult? _exteriorBodyStageResult;
+    public ExteriorBodyStageResult? ExteriorBodyStageResult => _exteriorBodyStageResult;
+
     private Examination() { }
 
     private Examination(
@@ -141,6 +153,97 @@ public sealed class Examination : AggregateRoot
 
         foreach (var issue in issues)
             _sensorStageResult.AddIssue(issue.IssueId, issue.Evaluation);
+    }
+
+    // ── Dashboard Indicators Stage ────────────────────────────────────────
+
+    public void SaveDashboardIndicatorsStage(
+        string? comments,
+        IEnumerable<(string Key, decimal? Value, bool NotApplicable)> indicators)
+    {
+        EnsureEditable();
+
+        if (_dashboardIndicatorsStageResult is null)
+        {
+            _dashboardIndicatorsStageResult = DashboardIndicatorsStageResult.Create(Id, comments);
+        }
+        else
+        {
+            _dashboardIndicatorsStageResult.Update(comments);
+            _dashboardIndicatorsStageResult.ClearItems();
+        }
+
+        foreach (var ind in indicators)
+            _dashboardIndicatorsStageResult.AddIndicator(ind.Key, ind.Value, ind.NotApplicable);
+    }
+
+    // ── Interior Decor Stage ───────────────────────────────────────────
+
+    public void SaveInteriorDecorStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid PartId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_interiorDecorStageResult is null)
+        {
+            _interiorDecorStageResult = InteriorDecorStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _interiorDecorStageResult.Update(noIssuesFound, comments);
+            _interiorDecorStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _interiorDecorStageResult.AddItem(item.PartId, item.IssueId);
+    }
+
+    // ── Interior Body Stage ─────────────────────────────────────────────
+
+    public void SaveInteriorBodyStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid PartId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_interiorBodyStageResult is null)
+        {
+            _interiorBodyStageResult = InteriorBodyStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _interiorBodyStageResult.Update(noIssuesFound, comments);
+            _interiorBodyStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _interiorBodyStageResult.AddItem(item.PartId, item.IssueId);
+    }
+
+    // ── Exterior Body Stage ─────────────────────────────────────────────
+
+    public void SaveExteriorBodyStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid PartId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_exteriorBodyStageResult is null)
+        {
+            _exteriorBodyStageResult = ExteriorBodyStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _exteriorBodyStageResult.Update(noIssuesFound, comments);
+            _exteriorBodyStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _exteriorBodyStageResult.AddItem(item.PartId, item.IssueId);
     }
 
     // ── Status transitions ──────────────────────────────────────────────

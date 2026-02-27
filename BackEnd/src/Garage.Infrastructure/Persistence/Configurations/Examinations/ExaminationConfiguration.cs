@@ -162,6 +162,30 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
             .HasForeignKey<SensorStageResult>(s => s.ExaminationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // ── Dashboard Indicators Stage Result ───────────────────────────────
+        b.HasOne(x => x.DashboardIndicatorsStageResult)
+            .WithOne()
+            .HasForeignKey<DashboardIndicatorsStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Interior Decor Stage Result ─────────────────────────────────────
+        b.HasOne(x => x.InteriorDecorStageResult)
+            .WithOne()
+            .HasForeignKey<InteriorDecorStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Interior Body Stage Result ──────────────────────────────────────
+        b.HasOne(x => x.InteriorBodyStageResult)
+            .WithOne()
+            .HasForeignKey<InteriorBodyStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Exterior Body Stage Result ──────────────────────────────────────
+        b.HasOne(x => x.ExteriorBodyStageResult)
+            .WithOne()
+            .HasForeignKey<ExteriorBodyStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // ── Audit ─────────────────────────────────────────────────────────────
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }
