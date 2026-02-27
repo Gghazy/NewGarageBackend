@@ -13,8 +13,8 @@ public sealed class GetInvoicesByExaminationQueryHandler(IReadRepository<Invoice
     {
         return await repo.Query()
             .Where(i => i.ExaminationId == request.ExaminationId)
-            .Select(InvoiceProjection.ToDto)
             .OrderByDescending(i => i.CreatedAtUtc)
+            .Select(InvoiceProjection.ToDto)
             .ToListAsync(ct);
     }
 }
