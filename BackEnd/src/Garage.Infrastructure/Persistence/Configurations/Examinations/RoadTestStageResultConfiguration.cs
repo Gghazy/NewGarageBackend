@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Garage.Infrastructure.Persistence.Configurations.Examinations;
 
-public sealed class MechanicalStageResultConfiguration : IEntityTypeConfiguration<MechanicalStageResult>
+public sealed class RoadTestStageResultConfiguration : IEntityTypeConfiguration<RoadTestStageResult>
 {
-    public void Configure(EntityTypeBuilder<MechanicalStageResult> b)
+    public void Configure(EntityTypeBuilder<RoadTestStageResult> b)
     {
-        b.ToTable("MechanicalStageResults");
+        b.ToTable("RoadTestStageResults");
 
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedNever();
@@ -20,12 +20,7 @@ public sealed class MechanicalStageResultConfiguration : IEntityTypeConfiguratio
 
         b.HasMany(x => x.Items)
             .WithOne()
-            .HasForeignKey("MechanicalStageResultId")
-            .OnDelete(DeleteBehavior.Cascade);
-
-        b.HasMany(x => x.IssueItems)
-            .WithOne()
-            .HasForeignKey("MechanicalStageResultId")
+            .HasForeignKey("RoadTestStageResultId")
             .OnDelete(DeleteBehavior.Cascade);
 
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");

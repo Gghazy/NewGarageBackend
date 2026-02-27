@@ -73,6 +73,12 @@
     "Deleted": "Mechanical part deleted successfully.",
     "NotFound": "Mechanical part not found."
   },
+  "MechIssue": {
+    "Created": "Mechanical issue created successfully.",
+    "Updated": "Mechanical issue updated successfully.",
+    "Deleted": "Mechanical issue deleted successfully.",
+    "NotFound": "Mechanical issue not found."
+  },
   "SensorIssue": {
     "Created": "Sensor issue created successfully.",
     "Updated": "Sensor issue updated successfully.",

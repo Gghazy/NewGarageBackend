@@ -35,6 +35,11 @@ public static class Permission
     public const string MechPartType_Update = "mechPartType.update";
     public const string MechPartType_Delete = "mechPartType.delete";
 
+    public const string MechIssue_Read   = "mechIssue.read";
+    public const string MechIssue_Create = "mechIssue.create";
+    public const string MechIssue_Update = "mechIssue.update";
+    public const string MechIssue_Delete = "mechIssue.delete";
+
     public const string InteriorIssue_Read   = "interiorIssue.read";
     public const string InteriorIssue_Create = "interiorIssue.create";
     public const string InteriorIssue_Update = "interiorIssue.update";
@@ -155,6 +160,7 @@ public static class Permission
     public const string Examination_Create = "examination.create";
     public const string Examination_Update = "examination.update";
     public const string Examination_Delete = "examination.delete";
+    public const string Examination_Start  = "examination.start";
 
     public const string Invoice_Read   = "invoice.read";
     public const string Invoice_Create = "invoice.create";
@@ -176,6 +182,7 @@ public static class Permission
         SensorIssue_Create, SensorIssue_Update, SensorIssue_Delete,SensorIssue_Read,
         MechPart_Read, MechPart_Create,MechPart_Update, MechPart_Delete,
         MechPartType_Read, MechPartType_Create,MechPartType_Update, MechPartType_Delete,
+        MechIssue_Read, MechIssue_Create,MechIssue_Update, MechIssue_Delete,
         InteriorIssue_Read, InteriorIssue_Create,InteriorIssue_Update, InteriorIssue_Delete,
         InteriorBodyIssue_Read, InteriorBodyIssue_Create,InteriorBodyIssue_Update, InteriorBodyIssue_Delete,
         ExteriorBodyIssue_Read, ExteriorBodyIssue_Create,ExteriorBodyIssue_Update, ExteriorBodyIssue_Delete,
@@ -197,7 +204,7 @@ public static class Permission
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
         Dashboard_Examinations, Dashboard_Revenue,
-        Examination_Read, Examination_Create, Examination_Update, Examination_Delete,
+        Examination_Read, Examination_Create, Examination_Update, Examination_Delete, Examination_Start,
         Invoice_Read, Invoice_Create, Invoice_Update, Invoice_Delete,
         PaymentMethod_Read, PaymentMethod_Create, PaymentMethod_Update, PaymentMethod_Delete
     ];

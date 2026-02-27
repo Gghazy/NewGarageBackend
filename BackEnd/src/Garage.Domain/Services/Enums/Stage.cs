@@ -38,8 +38,6 @@ namespace Garage.Domain.Services.Enums
         public static readonly Stage Tires = new(8, "Tires", "الإطارات");
 
         public static readonly Stage RoadTest = new(9, "RoadTest", "التجربة الميدانية");
-
-        public static readonly Stage Approval = new(10, "Approval", "الاعتماد");
     }
 
 }

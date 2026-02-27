@@ -45,6 +45,9 @@ public sealed class Examination : AggregateRoot
     private MechanicalStageResult? _mechanicalStageResult;
     public MechanicalStageResult? MechanicalStageResult => _mechanicalStageResult;
 
+    private RoadTestStageResult? _roadTestStageResult;
+    public RoadTestStageResult? RoadTestStageResult => _roadTestStageResult;
+
     private Examination() { }
 
     private Examination(
@@ -309,7 +312,8 @@ public sealed class Examination : AggregateRoot
     public void SaveMechanicalStage(
         bool noIssuesFound,
         string? comments,
-        IEnumerable<(Guid PartTypeId, Guid PartId)> items)
+        IEnumerable<(Guid PartTypeId, Guid PartId)> items,
+        IEnumerable<(Guid PartId, Guid IssueId)> issueItems)
     {
         EnsureEditable();
 
@@ -321,10 +325,37 @@ public sealed class Examination : AggregateRoot
         {
             _mechanicalStageResult.Update(noIssuesFound, comments);
             _mechanicalStageResult.ClearItems();
+            _mechanicalStageResult.ClearIssueItems();
         }
 
         foreach (var item in items)
             _mechanicalStageResult.AddItem(item.PartTypeId, item.PartId);
+
+        foreach (var ii in issueItems)
+            _mechanicalStageResult.AddIssueItem(ii.PartId, ii.IssueId);
+    }
+
+    // ── Road Test Stage ──────────────────────────────────────────────────
+
+    public void SaveRoadTestStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid IssueTypeId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_roadTestStageResult is null)
+        {
+            _roadTestStageResult = RoadTestStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _roadTestStageResult.Update(noIssuesFound, comments);
+            _roadTestStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _roadTestStageResult.AddItem(item.IssueTypeId, item.IssueId);
     }
 
     // ── Status transitions ──────────────────────────────────────────────

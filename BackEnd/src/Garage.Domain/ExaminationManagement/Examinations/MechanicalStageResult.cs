@@ -12,6 +12,9 @@ public sealed class MechanicalStageResult : Entity
     private readonly List<MechanicalStageResultItem> _items = new();
     public IReadOnlyCollection<MechanicalStageResultItem> Items => _items.AsReadOnly();
 
+    private readonly List<MechanicalStageResultIssueItem> _issueItems = new();
+    public IReadOnlyCollection<MechanicalStageResultIssueItem> IssueItems => _issueItems.AsReadOnly();
+
     private MechanicalStageResult() { }
 
     internal static MechanicalStageResult Create(
@@ -46,7 +49,19 @@ public sealed class MechanicalStageResult : Entity
         Comments = Normalize(comments);
     }
 
+    internal void AddIssueItem(Guid partId, Guid issueId)
+    {
+        if (partId == Guid.Empty)
+            throw new DomainException("Part is required.");
+        if (issueId == Guid.Empty)
+            throw new DomainException("Issue is required.");
+
+        _issueItems.Add(new MechanicalStageResultIssueItem(partId, issueId));
+    }
+
     internal void ClearItems() => _items.Clear();
+
+    internal void ClearIssueItems() => _issueItems.Clear();
 
     private static string? Normalize(string? v)
         => string.IsNullOrWhiteSpace(v) ? null : v.Trim();

@@ -4,34 +4,29 @@ using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Garage.Application.Examinations.Commands.SaveMechanicalStage;
+namespace Garage.Application.Examinations.Commands.SaveRoadTestStage;
 
-public sealed class SaveMechanicalStageHandler(
+public sealed class SaveRoadTestStageHandler(
     IRepository<Examination> examRepo,
     IUnitOfWork unitOfWork)
-    : BaseCommandHandler<SaveMechanicalStageCommand, Guid>
+    : BaseCommandHandler<SaveRoadTestStageCommand, Guid>
 {
-    public override async Task<Result<Guid>> Handle(SaveMechanicalStageCommand command, CancellationToken ct)
+    public override async Task<Result<Guid>> Handle(SaveRoadTestStageCommand command, CancellationToken ct)
     {
         var req = command.Request;
 
         var exam = await examRepo.QueryTracking()
-            .Include(x => x.MechanicalStageResult)
+            .Include(x => x.RoadTestStageResult)
                 .ThenInclude(s => s!.Items)
-            .Include(x => x.MechanicalStageResult)
-                .ThenInclude(s => s!.IssueItems)
             .FirstOrDefaultAsync(x => x.Id == command.ExaminationId, ct);
 
         if (exam is null)
             return Fail("Examination not found.");
 
         var items = req.Items
-            .Select(i => (i.PartTypeId, i.PartId));
+            .Select(i => (i.IssueTypeId, i.IssueId));
 
-        var issueItems = req.IssueItems
-            .Select(i => (i.PartId, i.IssueId));
-
-        exam.SaveMechanicalStage(req.NoIssuesFound, req.Comments, items, issueItems);
+        exam.SaveRoadTestStage(req.NoIssuesFound, req.Comments, items);
 
         await examRepo.UpdateAsync(exam, ct);
         await unitOfWork.SaveChangesAsync(ct);

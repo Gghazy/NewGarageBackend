@@ -24,6 +24,8 @@ using Garage.Application.Examinations.Commands.SaveAccessoryStage;
 using Garage.Application.Examinations.Queries.GetAccessoryStage;
 using Garage.Application.Examinations.Commands.SaveMechanicalStage;
 using Garage.Application.Examinations.Queries.GetMechanicalStage;
+using Garage.Application.Examinations.Commands.SaveRoadTestStage;
+using Garage.Application.Examinations.Queries.GetRoadTestStage;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -82,7 +84,7 @@ public class ExaminationsController : ApiControllerBase
 
 
     [HttpPost("{id:Guid}/start")]
-    [HasPermission(Permission.Examination_Update)]
+    [HasPermission(Permission.Examination_Start)]
     public async Task<IActionResult> Start(Guid id)
     {
         var result = await _mediator.Send(new StartExaminationCommand(id));
@@ -256,6 +258,22 @@ public class ExaminationsController : ApiControllerBase
     public async Task<IActionResult> GetMechanicalStage(Guid id)
     {
         var result = await _mediator.Send(new GetMechanicalStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/road-test")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveRoadTestStage(Guid id, SaveRoadTestStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveRoadTestStageCommand(id, request));
+        return HandleResult(result, "Examination.RoadTestStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/road-test")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetRoadTestStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetRoadTestStageQuery(id));
         return Success(result);
     }
 

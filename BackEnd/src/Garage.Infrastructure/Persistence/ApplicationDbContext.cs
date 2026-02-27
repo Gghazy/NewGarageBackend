@@ -19,6 +19,7 @@ using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
 using Garage.Domain.PaymentMethods.Entity;
+using Garage.Domain.MechIssues.Entity;
 using Garage.Domain.MechParts.Entities;
 using Garage.Domain.MechPartTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
@@ -74,6 +75,7 @@ public sealed class ApplicationDbContext
     public DbSet<SensorIssue> SensorIssues => Set<SensorIssue>();
     public DbSet<MechPart> MechParts => Set<MechPart>();
     public DbSet<MechPartType> MechPartTypes => Set<MechPartType>();
+    public DbSet<MechIssue> MechIssues => Set<MechIssue>();
     public DbSet<InteriorIssue> InteriorIssues => Set<InteriorIssue>();
     public DbSet<InteriorBodyIssue> InteriorBodyIssues => Set<InteriorBodyIssue>();
     public DbSet<ExteriorBodyIssue> ExteriorBodyIssues => Set<ExteriorBodyIssue>();
