@@ -21,6 +21,9 @@ public sealed class Examination : AggregateRoot
     private readonly List<ExaminationItem> _items = new();
     public IReadOnlyCollection<ExaminationItem> Items => _items.AsReadOnly();
 
+    private SensorStageResult? _sensorStageResult;
+    public SensorStageResult? SensorStageResult => _sensorStageResult;
+
     private Examination() { }
 
     private Examination(
@@ -108,6 +111,39 @@ public sealed class Examination : AggregateRoot
 
         _items.Remove(item);
     }
+
+    // ── Sensor Stage ─────────────────────────────────────────────────────
+
+    public void SaveSensorStage(
+        bool noIssuesFound,
+        int cylinderCount,
+        string? comments,
+        IEnumerable<(Guid IssueId, string Evaluation)> issues)
+    {
+        EnsureEditable();
+
+        if (noIssuesFound && issues.Any())
+            throw new DomainException("Cannot add issues when NoIssuesFound is true.");
+
+        if (_sensorStageResult is null)
+        {
+            _sensorStageResult = SensorStageResult.Create(
+                Id,
+                noIssuesFound,
+                cylinderCount,
+                comments);
+        }
+        else
+        {
+            _sensorStageResult.Update(noIssuesFound, cylinderCount, comments);
+            _sensorStageResult.ClearIssues();
+        }
+
+        foreach (var issue in issues)
+            _sensorStageResult.AddIssue(issue.IssueId, issue.Evaluation);
+    }
+
+    // ── Status transitions ──────────────────────────────────────────────
 
     public void Start()
     {

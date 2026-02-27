@@ -1,4 +1,5 @@
 using Domain.ExaminationManagement.Examinations;
+using Garage.Domain.ExaminationManagement.Examinations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -153,6 +154,12 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
         b.HasMany(x => x.Items)
             .WithOne()
             .HasForeignKey("ExaminationId")
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Sensor Stage Result ──────────────────────────────────────────────
+        b.HasOne(x => x.SensorStageResult)
+            .WithOne()
+            .HasForeignKey<SensorStageResult>(s => s.ExaminationId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // ── Audit ─────────────────────────────────────────────────────────────

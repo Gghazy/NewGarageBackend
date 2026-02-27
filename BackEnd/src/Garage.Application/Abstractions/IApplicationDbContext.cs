@@ -1,4 +1,5 @@
 ﻿using Domain.ExaminationManagement.Examinations;
+using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.AccessoryIssues.Entity;
 using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.Branches.Entities;
@@ -72,6 +73,7 @@ namespace Garage.Application.Abstractions
         #region Examinations
         DbSet<Vehicle>     Vehicles     { get; }
         DbSet<Examination> Examinations { get; }
+        DbSet<SensorStageResult> SensorStageResults { get; }
         #endregion
     }
 }

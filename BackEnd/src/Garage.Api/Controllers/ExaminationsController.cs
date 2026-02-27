@@ -7,7 +7,9 @@ using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
+using Garage.Application.Examinations.Queries.GetSensorStage;
 using Garage.Application.Examinations.Queries.GetWorkflow;
+using Garage.Application.Examinations.Commands.SaveSensorStage;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -112,6 +114,22 @@ public class ExaminationsController : ApiControllerBase
     {
         var result = await _mediator.Send(new GetExaminationWorkflowQuery(id));
         if (result is null) return NotFound();
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/sensors")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveSensorStage(Guid id, SaveSensorStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveSensorStageCommand(id, request));
+        return HandleResult(result, "Examination.SensorStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/sensors")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetSensorStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetSensorStageQuery(id));
         return Success(result);
     }
 

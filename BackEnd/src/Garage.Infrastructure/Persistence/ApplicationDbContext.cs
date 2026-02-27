@@ -1,5 +1,6 @@
 using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
+using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.AccessoryIssues.Entity;
 using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.InvoiceManagement.Invoices;
@@ -106,6 +107,7 @@ public sealed class ApplicationDbContext
     #region Examinations
     public DbSet<Vehicle>     Vehicles     => Set<Vehicle>();
     public DbSet<Examination> Examinations => Set<Examination>();
+    public DbSet<SensorStageResult> SensorStageResults => Set<SensorStageResult>();
     #endregion
 
     #region Invoices
