@@ -309,7 +309,7 @@ public sealed class Examination : AggregateRoot
     public void SaveMechanicalStage(
         bool noIssuesFound,
         string? comments,
-        IEnumerable<(Guid IssueTypeId, Guid IssueId)> items)
+        IEnumerable<(Guid PartTypeId, Guid PartId)> items)
     {
         EnsureEditable();
 
@@ -324,7 +324,7 @@ public sealed class Examination : AggregateRoot
         }
 
         foreach (var item in items)
-            _mechanicalStageResult.AddItem(item.IssueTypeId, item.IssueId);
+            _mechanicalStageResult.AddItem(item.PartTypeId, item.PartId);
     }
 
     // ── Status transitions ──────────────────────────────────────────────

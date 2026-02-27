@@ -1,6 +1,6 @@
 using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
-using Garage.Domain.MechIssues.Entities;
+using Garage.Domain.MechParts.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

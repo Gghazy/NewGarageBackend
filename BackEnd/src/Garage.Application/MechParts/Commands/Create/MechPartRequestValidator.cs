@@ -1,11 +1,11 @@
-namespace Garage.Application.MechIssues.Commands.Create;
+namespace Garage.Application.MechParts.Commands.Create;
 
 using FluentValidation;
-using Garage.Contracts.MechIssues;
+using Garage.Contracts.MechParts;
 
-public class MechIssueRequestValidator : AbstractValidator<MechIssueRequest>
+public class MechPartRequestValidator : AbstractValidator<MechPartRequest>
 {
-    public MechIssueRequestValidator()
+    public MechPartRequestValidator()
     {
         RuleFor(x => x.NameAr)
             .NotEmpty()
@@ -29,7 +29,7 @@ public class MechIssueRequestValidator : AbstractValidator<MechIssueRequest>
                 .WithErrorCode("Validation.InvalidFormat")
                 .WithMessage("Name (English) must not exceed 200 characters");
 
-        RuleFor(x => x.MechIssueTypeId)
+        RuleFor(x => x.MechPartTypeId)
             .NotEmpty()
                 .WithErrorCode("Validation.Required")
                 .WithMessage("Validation.Required");

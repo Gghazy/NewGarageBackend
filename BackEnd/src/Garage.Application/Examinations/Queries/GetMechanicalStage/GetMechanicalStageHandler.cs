@@ -17,7 +17,7 @@ public sealed class GetMechanicalStageHandler(IReadRepository<Examination> repo)
                 x.MechanicalStageResult.NoIssuesFound,
                 x.MechanicalStageResult.Comments,
                 x.MechanicalStageResult.Items.Select(i =>
-                    new MechanicalStageItemDto(i.MechIssueTypeId, i.MechIssueId)
+                    new MechanicalStageItemDto(i.MechPartTypeId, i.MechPartId)
                 ).ToList()
             ))
             .FirstOrDefaultAsync(ct);

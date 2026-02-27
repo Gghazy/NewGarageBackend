@@ -1,14 +1,14 @@
-using Garage.Domain.MechIssueTypes.Entity;
+using Garage.Domain.MechPartTypes.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Garage.Infrastructure.Persistence.Configurations.MechIssues;
+namespace Garage.Infrastructure.Persistence.Configurations.MechParts;
 
-public class MechIssueTypeConfiguration : IEntityTypeConfiguration<MechIssueType>
+public class MechPartTypeConfiguration : IEntityTypeConfiguration<MechPartType>
 {
-    public void Configure(EntityTypeBuilder<MechIssueType> b)
+    public void Configure(EntityTypeBuilder<MechPartType> b)
     {
-        b.ToTable("MechIssueTypes");
+        b.ToTable("MechPartTypes");
 
         b.HasKey(x => x.Id);
 
@@ -19,10 +19,9 @@ public class MechIssueTypeConfiguration : IEntityTypeConfiguration<MechIssueType
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
 
 
-        b.HasMany(x => x.MechIssues)
-             .WithOne(x => x.MechIssueType)
-             .HasForeignKey(x => x.MechIssueTypeId)
+        b.HasMany(x => x.MechParts)
+             .WithOne(x => x.MechPartType)
+             .HasForeignKey(x => x.MechPartTypeId)
              .OnDelete(DeleteBehavior.Restrict);
     }
 }
-

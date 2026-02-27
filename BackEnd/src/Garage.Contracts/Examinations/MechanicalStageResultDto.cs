@@ -5,4 +5,4 @@ public sealed record MechanicalStageResultDto(
     string? Comments,
     List<MechanicalStageItemDto> Items);
 
-public sealed record MechanicalStageItemDto(Guid IssueTypeId, Guid IssueId);
+public sealed record MechanicalStageItemDto(Guid PartTypeId, Guid PartId);

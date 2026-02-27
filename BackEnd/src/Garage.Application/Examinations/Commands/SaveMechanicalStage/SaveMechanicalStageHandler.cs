@@ -24,7 +24,7 @@ public sealed class SaveMechanicalStageHandler(
             return Fail("Examination not found.");
 
         var items = req.Items
-            .Select(i => (i.IssueTypeId, i.IssueId));
+            .Select(i => (i.PartTypeId, i.PartId));
 
         exam.SaveMechanicalStage(req.NoIssuesFound, req.Comments, items);
 

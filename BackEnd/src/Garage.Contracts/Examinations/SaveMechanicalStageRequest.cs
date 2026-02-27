@@ -5,4 +5,4 @@ public sealed record SaveMechanicalStageRequest(
     string? Comments,
     List<MechanicalStageItemRequest> Items);
 
-public sealed record MechanicalStageItemRequest(Guid IssueTypeId, Guid IssueId);
+public sealed record MechanicalStageItemRequest(Guid PartTypeId, Guid PartId);

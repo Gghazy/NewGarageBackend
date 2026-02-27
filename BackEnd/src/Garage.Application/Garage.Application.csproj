@@ -16,7 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lookup\Commands\Delete\" />
-    <Folder Include="MechIssues\Commands\Delete\" />
+    <Folder Include="MechParts\Commands\Delete\" />
     <Folder Include="Examinations\" />
   </ItemGroup>
 </Project>

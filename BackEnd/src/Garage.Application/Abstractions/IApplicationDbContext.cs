@@ -17,8 +17,8 @@ using Garage.Domain.InteriorBodyIssues.Entity;
 using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
 using Garage.Domain.PaymentMethods.Entity;
-using Garage.Domain.MechIssues.Entities;
-using Garage.Domain.MechIssueTypes.Entity;
+using Garage.Domain.MechParts.Entities;
+using Garage.Domain.MechPartTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
 using Garage.Domain.SensorIssues.Entities;
 using Garage.Domain.ServicePrices.Entities;
@@ -41,8 +41,8 @@ namespace Garage.Application.Abstractions
         #region Look Up Tables
         DbSet<Branch> Branches { get; }
         DbSet<SensorIssue> SensorIssues { get; }
-        DbSet<MechIssue> MechIssues { get; }
-        DbSet<MechIssueType> MechIssueTypes { get; }
+        DbSet<MechPart> MechParts { get; }
+        DbSet<MechPartType> MechPartTypes { get; }
         DbSet<InteriorIssue> InteriorIssues { get; }
         DbSet<InteriorBodyIssue> InteriorBodyIssues { get; }
         DbSet<ExteriorBodyIssue> ExteriorBodyIssues { get; }

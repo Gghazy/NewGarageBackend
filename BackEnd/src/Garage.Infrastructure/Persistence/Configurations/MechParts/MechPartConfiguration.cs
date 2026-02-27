@@ -1,14 +1,14 @@
-using Garage.Domain.MechIssues.Entities;
+using Garage.Domain.MechParts.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Garage.Infrastructure.Persistence.Configurations.MechIssues;
+namespace Garage.Infrastructure.Persistence.Configurations.MechParts;
 
-public class MechIssueConfiguration : IEntityTypeConfiguration<MechIssue>
+public class MechPartConfiguration : IEntityTypeConfiguration<MechPart>
 {
-    public void Configure(EntityTypeBuilder<MechIssue> b)
+    public void Configure(EntityTypeBuilder<MechPart> b)
     {
-        b.ToTable("MechIssues");
+        b.ToTable("MechParts");
 
         b.HasKey(x => x.Id);
 
@@ -21,4 +21,3 @@ public class MechIssueConfiguration : IEntityTypeConfiguration<MechIssue>
 
     }
 }
-

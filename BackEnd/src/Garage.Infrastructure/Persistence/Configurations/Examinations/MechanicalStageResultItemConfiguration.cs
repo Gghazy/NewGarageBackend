@@ -13,8 +13,8 @@ public sealed class MechanicalStageResultItemConfiguration : IEntityTypeConfigur
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedNever();
 
-        b.Property(x => x.MechIssueTypeId).IsRequired();
-        b.Property(x => x.MechIssueId).IsRequired();
+        b.Property(x => x.MechPartTypeId).IsRequired();
+        b.Property(x => x.MechPartId).IsRequired();
 
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }

@@ -1,22 +1,22 @@
 using Garage.Application.Abstractions;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
-using Garage.Domain.MechIssues.Entities;
+using Garage.Domain.MechParts.Entities;
 
-namespace Garage.Application.MechIssues.Commands.Delete;
+namespace Garage.Application.MechParts.Commands.Delete;
 
-public sealed class DeleteMechIssueHandler : BaseCommandHandler<DeleteMechIssueCommand, bool>
+public sealed class DeleteMechPartHandler : BaseCommandHandler<DeleteMechPartCommand, bool>
 {
-    private readonly IRepository<MechIssue> _repo;
+    private readonly IRepository<MechPart> _repo;
     private readonly IUnitOfWork _uow;
 
-    public DeleteMechIssueHandler(IRepository<MechIssue> repo, IUnitOfWork uow)
+    public DeleteMechPartHandler(IRepository<MechPart> repo, IUnitOfWork uow)
     {
         _repo = repo;
         _uow = uow;
     }
 
-    public override async Task<Result<bool>> Handle(DeleteMechIssueCommand request, CancellationToken ct)
+    public override async Task<Result<bool>> Handle(DeleteMechPartCommand request, CancellationToken ct)
     {
         var entity = await _repo.GetByIdAsync(request.Id, ct);
         if (entity is null)

@@ -67,11 +67,11 @@
     "Deleted": "Service deleted successfully.",
     "NotFound": "Service not found."
   },
-  "MechIssue": {
-    "Created": "Mechanical issue created successfully.",
-    "Updated": "Mechanical issue updated successfully.",
-    "Deleted": "Mechanical issue deleted successfully.",
-    "NotFound": "Mechanical issue not found."
+  "MechPart": {
+    "Created": "Mechanical part created successfully.",
+    "Updated": "Mechanical part updated successfully.",
+    "Deleted": "Mechanical part deleted successfully.",
+    "NotFound": "Mechanical part not found."
   },
   "SensorIssue": {
     "Created": "Sensor issue created successfully.",

@@ -30,14 +30,14 @@ public sealed class MechanicalStageResult : Entity
         };
     }
 
-    internal void AddItem(Guid issueTypeId, Guid issueId)
+    internal void AddItem(Guid partTypeId, Guid partId)
     {
-        if (issueTypeId == Guid.Empty)
-            throw new DomainException("Issue type is required.");
-        if (issueId == Guid.Empty)
-            throw new DomainException("Issue is required.");
+        if (partTypeId == Guid.Empty)
+            throw new DomainException("Part type is required.");
+        if (partId == Guid.Empty)
+            throw new DomainException("Part is required.");
 
-        _items.Add(new MechanicalStageResultItem(issueTypeId, issueId));
+        _items.Add(new MechanicalStageResultItem(partTypeId, partId));
     }
 
     internal void Update(bool noIssuesFound, string? comments)

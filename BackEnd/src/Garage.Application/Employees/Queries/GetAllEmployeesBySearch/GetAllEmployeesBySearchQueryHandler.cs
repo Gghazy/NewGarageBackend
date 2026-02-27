@@ -4,7 +4,7 @@ using Garage.Application.Abstractions;
 using Garage.Application.Common.Extensions;
 using Garage.Contracts.Common;
 using Garage.Contracts.Employees;
-using Garage.Contracts.MechIssues;
+using Garage.Contracts.MechParts;
 using Garage.Domain.Employees.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

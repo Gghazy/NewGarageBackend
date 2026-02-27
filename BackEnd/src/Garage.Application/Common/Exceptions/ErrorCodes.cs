@@ -68,9 +68,9 @@ public static class ErrorCodes
     public const string ServiceUpdated = "Service.Updated";
     public const string ServiceDeleted = "Service.Deleted";
 
-    // Mechanical Issue
-    public const string MechIssueNotFound = "MechIssue.NotFound";
-    public const string MechIssueCreated = "MechIssue.Created";
-    public const string MechIssueUpdated = "MechIssue.Updated";
-    public const string MechIssueDeleted = "MechIssue.Deleted";
+    // Mechanical Part
+    public const string MechPartNotFound = "MechPart.NotFound";
+    public const string MechPartCreated = "MechPart.Created";
+    public const string MechPartUpdated = "MechPart.Updated";
+    public const string MechPartDeleted = "MechPart.Deleted";
 }

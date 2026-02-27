@@ -24,16 +24,16 @@ public static class Permission
     public const string SensorIssue_Delete = "sensorIssue.delete";
 
 
-    public const string MechIssue_Read   = "mechIssue.read";
-    public const string MechIssue_Create = "mechIssue.create";
-    public const string MechIssue_Update = "mechIssue.update";
-    public const string MechIssue_Delete = "mechIssue.delete";
+    public const string MechPart_Read   = "mechPart.read";
+    public const string MechPart_Create = "mechPart.create";
+    public const string MechPart_Update = "mechPart.update";
+    public const string MechPart_Delete = "mechPart.delete";
 
 
-    public const string MechIssueType_Read   = "mechIssueType.read";
-    public const string MechIssueType_Create = "mechIssueType.create";
-    public const string MechIssueType_Update = "mechIssueType.update";
-    public const string MechIssueType_Delete = "mechIssueType.delete";
+    public const string MechPartType_Read   = "mechPartType.read";
+    public const string MechPartType_Create = "mechPartType.create";
+    public const string MechPartType_Update = "mechPartType.update";
+    public const string MechPartType_Delete = "mechPartType.delete";
 
     public const string InteriorIssue_Read   = "interiorIssue.read";
     public const string InteriorIssue_Create = "interiorIssue.create";
@@ -174,8 +174,8 @@ public static class Permission
         Branches_Read, Branches_Create, Branches_Update, Branches_Delete,
         Employees_Create, Employees_Read, Employees_Update, Employees_Delete,
         SensorIssue_Create, SensorIssue_Update, SensorIssue_Delete,SensorIssue_Read,
-        MechIssue_Read, MechIssue_Create,MechIssue_Update, MechIssue_Delete,
-        MechIssueType_Read, MechIssueType_Create,MechIssueType_Update, MechIssueType_Delete,
+        MechPart_Read, MechPart_Create,MechPart_Update, MechPart_Delete,
+        MechPartType_Read, MechPartType_Create,MechPartType_Update, MechPartType_Delete,
         InteriorIssue_Read, InteriorIssue_Create,InteriorIssue_Update, InteriorIssue_Delete,
         InteriorBodyIssue_Read, InteriorBodyIssue_Create,InteriorBodyIssue_Update, InteriorBodyIssue_Delete,
         ExteriorBodyIssue_Read, ExteriorBodyIssue_Create,ExteriorBodyIssue_Update, ExteriorBodyIssue_Delete,
