@@ -3,6 +3,7 @@ using Garage.Application.SensorIssues.Commands.Create;
 using Garage.Application.SensorIssues.Commands.Delete;
 using Garage.Application.SensorIssues.Commands.Update;
 using Garage.Application.SensorIssues.Queries.GetAll;
+using Garage.Application.SensorIssues.Queries.GetAllList;
 using Garage.Contracts.Common;
 using Garage.Contracts.SensorIssues;
 using Garage.Domain.Users.Permissions;
@@ -19,9 +20,17 @@ namespace Garage.Api.Controllers;
 [Authorize]
 public class SensorIssuesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
+    [HttpGet]
+    [HasPermission(Permission.SensorIssue_Read)]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await mediator.Send(new GetAllSensorIssuesQuery());
+        return Success(result);
+    }
+
     [HttpPost("pagination")]
     [HasPermission(Permission.SensorIssue_Read)]
-    public async Task<IActionResult> GetAll(SearchCriteria search)
+    public async Task<IActionResult> GetBySearch(SearchCriteria search)
     {
         var result = await mediator.Send(new GetSensorIssueQuery(search));
         return Success(result);
