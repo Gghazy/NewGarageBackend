@@ -186,6 +186,24 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
             .HasForeignKey<ExteriorBodyStageResult>(s => s.ExaminationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // ── Tire Stage Result ─────────────────────────────────────────────
+        b.HasOne(x => x.TireStageResult)
+            .WithOne()
+            .HasForeignKey<TireStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Accessory Stage Result ────────────────────────────────────────
+        b.HasOne(x => x.AccessoryStageResult)
+            .WithOne()
+            .HasForeignKey<AccessoryStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── Mechanical Stage Result ──────────────────────────────────────
+        b.HasOne(x => x.MechanicalStageResult)
+            .WithOne()
+            .HasForeignKey<MechanicalStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // ── Audit ─────────────────────────────────────────────────────────────
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }

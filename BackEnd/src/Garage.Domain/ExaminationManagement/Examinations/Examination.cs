@@ -36,6 +36,15 @@ public sealed class Examination : AggregateRoot
     private ExteriorBodyStageResult? _exteriorBodyStageResult;
     public ExteriorBodyStageResult? ExteriorBodyStageResult => _exteriorBodyStageResult;
 
+    private TireStageResult? _tireStageResult;
+    public TireStageResult? TireStageResult => _tireStageResult;
+
+    private AccessoryStageResult? _accessoryStageResult;
+    public AccessoryStageResult? AccessoryStageResult => _accessoryStageResult;
+
+    private MechanicalStageResult? _mechanicalStageResult;
+    public MechanicalStageResult? MechanicalStageResult => _mechanicalStageResult;
+
     private Examination() { }
 
     private Examination(
@@ -244,6 +253,78 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _exteriorBodyStageResult.AddItem(item.PartId, item.IssueId);
+    }
+
+    // ── Accessory Stage ──────────────────────────────────────────────────
+
+    public void SaveAccessoryStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid PartId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_accessoryStageResult is null)
+        {
+            _accessoryStageResult = AccessoryStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _accessoryStageResult.Update(noIssuesFound, comments);
+            _accessoryStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _accessoryStageResult.AddItem(item.PartId, item.IssueId);
+    }
+
+    // ── Tire Stage ────────────────────────────────────────────────────────
+
+    public void SaveTireStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(string Position, int? Year, int? Week, string? Condition)> items)
+    {
+        EnsureEditable();
+
+        if (_tireStageResult is null)
+        {
+            _tireStageResult = TireStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _tireStageResult.Update(noIssuesFound, comments);
+            _tireStageResult.ClearItems();
+        }
+
+        if (!noIssuesFound)
+        {
+            foreach (var item in items)
+                _tireStageResult.AddItem(item.Position, item.Year, item.Week, item.Condition);
+        }
+    }
+
+    // ── Mechanical Stage ────────────────────────────────────────────────
+
+    public void SaveMechanicalStage(
+        bool noIssuesFound,
+        string? comments,
+        IEnumerable<(Guid IssueTypeId, Guid IssueId)> items)
+    {
+        EnsureEditable();
+
+        if (_mechanicalStageResult is null)
+        {
+            _mechanicalStageResult = MechanicalStageResult.Create(Id, noIssuesFound, comments);
+        }
+        else
+        {
+            _mechanicalStageResult.Update(noIssuesFound, comments);
+            _mechanicalStageResult.ClearItems();
+        }
+
+        foreach (var item in items)
+            _mechanicalStageResult.AddItem(item.IssueTypeId, item.IssueId);
     }
 
     // ── Status transitions ──────────────────────────────────────────────

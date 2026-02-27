@@ -85,6 +85,11 @@ public static class Permission
     public const string ExteriorBodyPart_Update = "exteriorBodyPart.update";
     public const string ExteriorBodyPart_Delete = "exteriorBodyPart.delete";
 
+    public const string AccessoryPart_Read   = "accessoryPart.read";
+    public const string AccessoryPart_Create = "accessoryPart.create";
+    public const string AccessoryPart_Update = "accessoryPart.update";
+    public const string AccessoryPart_Delete = "accessoryPart.delete";
+
     public const string CarMark_Read   = "carMark.read";
     public const string CarMark_Create = "carMark.create";
     public const string CarMark_Update = "carMark.update";
@@ -181,6 +186,7 @@ public static class Permission
         InsideAndDecorPartIssue_Read, InsideAndDecorPartIssue_Create,InsideAndDecorPartIssue_Update, InsideAndDecorPartIssue_Delete,
         InteriorBodyPart_Read, InteriorBodyPart_Create,InteriorBodyPart_Update, InteriorBodyPart_Delete,
         ExteriorBodyPart_Read, ExteriorBodyPart_Create,ExteriorBodyPart_Update, ExteriorBodyPart_Delete,
+        AccessoryPart_Read, AccessoryPart_Create,AccessoryPart_Update, AccessoryPart_Delete,
         CarMark_Read, CarMark_Create,CarMark_Update, CarMark_Delete,
         Manufacturer_Read, Manufacturer_Create,Manufacturer_Update, Manufacturer_Delete,
         ServiceType_Read, ServiceType_Create,ServiceType_Update, ServiceType_Delete,

@@ -18,6 +18,12 @@ using Garage.Application.Examinations.Commands.SaveExteriorBodyStage;
 using Garage.Application.Examinations.Queries.GetInteriorDecorStage;
 using Garage.Application.Examinations.Queries.GetInteriorBodyStage;
 using Garage.Application.Examinations.Queries.GetExteriorBodyStage;
+using Garage.Application.Examinations.Commands.SaveTireStage;
+using Garage.Application.Examinations.Queries.GetTireStage;
+using Garage.Application.Examinations.Commands.SaveAccessoryStage;
+using Garage.Application.Examinations.Queries.GetAccessoryStage;
+using Garage.Application.Examinations.Commands.SaveMechanicalStage;
+using Garage.Application.Examinations.Queries.GetMechanicalStage;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -202,6 +208,54 @@ public class ExaminationsController : ApiControllerBase
     public async Task<IActionResult> GetExteriorBodyStage(Guid id)
     {
         var result = await _mediator.Send(new GetExteriorBodyStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/tires")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveTireStage(Guid id, SaveTireStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveTireStageCommand(id, request));
+        return HandleResult(result, "Examination.TireStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/tires")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetTireStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetTireStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/accessories")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveAccessoryStage(Guid id, SaveAccessoryStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveAccessoryStageCommand(id, request));
+        return HandleResult(result, "Examination.AccessoryStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/accessories")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetAccessoryStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetAccessoryStageQuery(id));
+        return Success(result);
+    }
+
+    [HttpPost("{id:Guid}/stages/mechanical")]
+    [HasPermission(Permission.Examination_Update)]
+    public async Task<IActionResult> SaveMechanicalStage(Guid id, SaveMechanicalStageRequest request)
+    {
+        var result = await _mediator.Send(new SaveMechanicalStageCommand(id, request));
+        return HandleResult(result, "Examination.MechanicalStageSaved");
+    }
+
+    [HttpGet("{id:Guid}/stages/mechanical")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetMechanicalStage(Guid id)
+    {
+        var result = await _mediator.Send(new GetMechanicalStageQuery(id));
         return Success(result);
     }
 
