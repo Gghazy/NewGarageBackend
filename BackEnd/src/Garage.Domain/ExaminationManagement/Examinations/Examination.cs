@@ -15,11 +15,13 @@ public sealed class Examination : AggregateRoot
 
     public bool HasWarranty { get; private set; }
     public bool HasPhotos   { get; private set; }
-    public string? MarketerCode { get; private set; }
     public string? Notes { get; private set; }
 
     private readonly List<ExaminationItem> _items = new();
     public IReadOnlyCollection<ExaminationItem> Items => _items.AsReadOnly();
+
+    private readonly List<ExaminationHistory> _history = new();
+    public IReadOnlyCollection<ExaminationHistory> History => _history.AsReadOnly();
 
     private SensorStageResult? _sensorStageResult;
     public SensorStageResult? SensorStageResult => _sensorStageResult;
@@ -56,8 +58,7 @@ public sealed class Examination : AggregateRoot
         VehicleSnapshot vehicle,
         ExaminationType type,
         bool hasWarranty,
-        bool hasPhotos,
-        string? marketerCode)
+        bool hasPhotos)
     {
         Client = client;
         Branch = branch;
@@ -66,9 +67,9 @@ public sealed class Examination : AggregateRoot
         Type        = type;
         HasWarranty = hasWarranty;
         HasPhotos   = hasPhotos;
-        MarketerCode = Normalize(marketerCode);
 
         Status = ExaminationStatus.Draft;
+        AddHistory(ExaminationHistoryAction.Created);
     }
 
     public static Examination Create(
@@ -77,23 +78,22 @@ public sealed class Examination : AggregateRoot
         VehicleSnapshot vehicle,
         ExaminationType type,
         bool hasWarranty,
-        bool hasPhotos,
-        string? marketerCode = null)
+        bool hasPhotos)
     {
         if (client.ClientId == Guid.Empty)  throw new DomainException("Client is required.");
 
-        return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos, marketerCode);
+        return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos);
     }
 
     public void SetNotes(string? notes) => Notes = Normalize(notes);
 
-    public void Update(bool hasWarranty, bool hasPhotos, string? marketerCode, string? notes)
+    public void Update(bool hasWarranty, bool hasPhotos, string? notes)
     {
         EnsureEditable();
         HasWarranty  = hasWarranty;
         HasPhotos    = hasPhotos;
-        MarketerCode = Normalize(marketerCode);
         Notes        = Normalize(notes);
+        AddHistory(ExaminationHistoryAction.Updated);
     }
 
     public void UpdateClientSnapshot(ClientReference clientRef)
@@ -165,6 +165,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var issue in issues)
             _sensorStageResult.AddIssue(issue.IssueId, issue.Evaluation);
+
+        AddHistory(ExaminationHistoryAction.SensorStageSaved);
     }
 
     // ── Dashboard Indicators Stage ────────────────────────────────────────
@@ -187,6 +189,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var ind in indicators)
             _dashboardIndicatorsStageResult.AddIndicator(ind.Key, ind.Value, ind.NotApplicable);
+
+        AddHistory(ExaminationHistoryAction.DashboardIndicatorsStageSaved);
     }
 
     // ── Interior Decor Stage ───────────────────────────────────────────
@@ -210,6 +214,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _interiorDecorStageResult.AddItem(item.PartId, item.IssueId);
+
+        AddHistory(ExaminationHistoryAction.InteriorDecorStageSaved);
     }
 
     // ── Interior Body Stage ─────────────────────────────────────────────
@@ -233,6 +239,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _interiorBodyStageResult.AddItem(item.PartId, item.IssueId);
+
+        AddHistory(ExaminationHistoryAction.InteriorBodyStageSaved);
     }
 
     // ── Exterior Body Stage ─────────────────────────────────────────────
@@ -256,6 +264,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _exteriorBodyStageResult.AddItem(item.PartId, item.IssueId);
+
+        AddHistory(ExaminationHistoryAction.ExteriorBodyStageSaved);
     }
 
     // ── Accessory Stage ──────────────────────────────────────────────────
@@ -279,6 +289,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _accessoryStageResult.AddItem(item.PartId, item.IssueId);
+
+        AddHistory(ExaminationHistoryAction.AccessoryStageSaved);
     }
 
     // ── Tire Stage ────────────────────────────────────────────────────────
@@ -305,6 +317,8 @@ public sealed class Examination : AggregateRoot
             foreach (var item in items)
                 _tireStageResult.AddItem(item.Position, item.Year, item.Week, item.Condition);
         }
+
+        AddHistory(ExaminationHistoryAction.TireStageSaved);
     }
 
     // ── Mechanical Stage ────────────────────────────────────────────────
@@ -333,6 +347,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var ii in issueItems)
             _mechanicalStageResult.AddIssueItem(ii.PartId, ii.IssueId);
+
+        AddHistory(ExaminationHistoryAction.MechanicalStageSaved);
     }
 
     // ── Road Test Stage ──────────────────────────────────────────────────
@@ -356,6 +372,8 @@ public sealed class Examination : AggregateRoot
 
         foreach (var item in items)
             _roadTestStageResult.AddItem(item.IssueTypeId, item.IssueId);
+
+        AddHistory(ExaminationHistoryAction.RoadTestStageSaved);
     }
 
     // ── Status transitions ──────────────────────────────────────────────
@@ -367,6 +385,7 @@ public sealed class Examination : AggregateRoot
             throw new DomainException("Cannot start examination without items.");
 
         Status = ExaminationStatus.Pending;
+        AddHistory(ExaminationHistoryAction.Started);
     }
 
     public void BeginWork()
@@ -375,6 +394,7 @@ public sealed class Examination : AggregateRoot
             throw new DomainException("Only Pending examination can begin work.");
 
         Status = ExaminationStatus.InProgress;
+        AddHistory(ExaminationHistoryAction.BeganWork);
     }
 
     public void Complete()
@@ -383,6 +403,7 @@ public sealed class Examination : AggregateRoot
             throw new DomainException("Only InProgress examination can be completed.");
 
         Status = ExaminationStatus.Completed;
+        AddHistory(ExaminationHistoryAction.Completed);
     }
 
     public void Deliver()
@@ -391,6 +412,7 @@ public sealed class Examination : AggregateRoot
             throw new DomainException("Only Completed examination can be delivered.");
 
         Status = ExaminationStatus.Delivered;
+        AddHistory(ExaminationHistoryAction.Delivered);
     }
 
     public void Reopen()
@@ -399,6 +421,7 @@ public sealed class Examination : AggregateRoot
             throw new DomainException("Only Completed or Delivered examination can be reopened.");
 
         Status = ExaminationStatus.InProgress;
+        AddHistory(ExaminationHistoryAction.Reopened);
     }
 
     public void Cancel(string? reason = null)
@@ -408,6 +431,17 @@ public sealed class Examination : AggregateRoot
 
         Status = ExaminationStatus.Cancelled;
         Notes = Normalize(reason);
+        AddHistory(ExaminationHistoryAction.Cancelled, reason);
+    }
+
+    public void MarkDeleted()
+    {
+        AddHistory(ExaminationHistoryAction.Deleted);
+    }
+
+    private void AddHistory(ExaminationHistoryAction action, string? details = null)
+    {
+        _history.Add(new ExaminationHistory(Id, action, details));
     }
 
     private void EnsureEditable()

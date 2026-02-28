@@ -17,6 +17,11 @@ public class CarMarkConfiguration : IEntityTypeConfiguration<CarMark>
         b.Property(x => x.NameAr).IsRequired().HasMaxLength(200);
         b.Property(x => x.NameEn).IsRequired().HasMaxLength(200);
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
+
+        b.HasOne(x => x.Manufacturer)
+            .WithMany()
+            .HasForeignKey(x => x.ManufacturerId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

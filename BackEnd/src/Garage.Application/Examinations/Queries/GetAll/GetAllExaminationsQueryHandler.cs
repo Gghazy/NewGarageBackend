@@ -19,8 +19,7 @@ public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> 
                 !string.IsNullOrWhiteSpace(search.TextSearch),
                 e => e.Client.NameAr.Contains(search.TextSearch!)   ||
                      e.Client.NameEn.Contains(search.TextSearch!)   ||
-                     e.Client.PhoneNumber.Contains(search.TextSearch!) ||
-                     (e.MarketerCode != null && e.MarketerCode.Contains(search.TextSearch!)))
+                     e.Client.PhoneNumber.Contains(search.TextSearch!))
             .Select(ExaminationProjection.ToDto);
 
         return await query.ToQueryResult(

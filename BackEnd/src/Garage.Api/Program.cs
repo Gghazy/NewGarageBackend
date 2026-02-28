@@ -23,6 +23,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --------------------------- Services ---------------------------
 builder.Services.AddControllers()
+               .AddJsonOptions(o =>
+               {
+                   o.JsonSerializerOptions.Converters.Add(new Garage.Api.Converters.UtcDateTimeJsonConverter());
+               })
                .AddDataAnnotationsLocalization();
 
 builder.Services.AddEndpointsApiExplorer();

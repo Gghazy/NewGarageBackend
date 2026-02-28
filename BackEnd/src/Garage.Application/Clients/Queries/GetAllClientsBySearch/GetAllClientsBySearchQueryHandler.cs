@@ -14,8 +14,19 @@ public class GetAllClientsBySearchQueryHandler(IApplicationDbContext _dbContext)
 {
     public async Task<QueryResult<ClientDto>> Handle(GetAllClientsBySearchQuery command, CancellationToken ct)
     {
+        var clients = _dbContext.Clients.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(command.Search.TextSearch))
+        {
+            var term = command.Search.TextSearch.Trim();
+            clients = clients.Where(c =>
+                c.NameAr.Contains(term) ||
+                c.NameEn.Contains(term) ||
+                c.PhoneNumber.Contains(term));
+        }
+
         var query =
-    from c in _dbContext.Clients.AsNoTracking()
+    from c in clients
     join u in _dbContext.Users.AsNoTracking() on c.UserId equals u.Id
     join cr0 in _dbContext.ClientResources.AsNoTracking() on c.ResourceId equals cr0.Id into crJoin
     from cr in crJoin.DefaultIfEmpty()

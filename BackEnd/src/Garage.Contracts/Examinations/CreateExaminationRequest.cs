@@ -35,7 +35,6 @@ public sealed record CreateExaminationRequest(
     // ── Examination meta ─────────────────────────────────────────────────────
     string  Type,           // "Regular" | "Warranty" | "PrePurchase"
     bool    HasWarranty,
-    string? MarketerCode,
     string? Notes,
 
     // ── Vehicle ───────────────────────────────────────────────────────────────

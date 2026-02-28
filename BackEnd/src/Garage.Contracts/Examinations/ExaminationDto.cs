@@ -39,7 +39,6 @@ public sealed record ExaminationDto(
     // ── Examination meta ──────────────────────────────────────────────────────
     bool    HasWarranty,
     bool    HasPhotos,
-    string? MarketerCode,
     string? Notes,
 
     // ── Items ─────────────────────────────────────────────────────────────────

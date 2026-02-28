@@ -129,6 +129,12 @@
     "MechanicalStageSaved": "Mechanical stage saved successfully.",
     "RoadTestStageSaved": "Road test stage saved successfully."
   },
+  "CarMark": {
+    "Created": "Car mark created successfully.",
+    "Updated": "Car mark updated successfully.",
+    "Deleted": "Car mark deleted successfully.",
+    "NotFound": "Car mark not found."
+  },
   "Report": {
     "Title": "Examination Report",
     "ExamInfo": "Examination Info",

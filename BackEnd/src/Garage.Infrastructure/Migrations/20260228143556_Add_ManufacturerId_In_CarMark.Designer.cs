@@ -4,6 +4,7 @@ using Garage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228143556_Add_ManufacturerId_In_CarMark")]
+    partial class Add_ManufacturerId_In_CarMark
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,6 +52,10 @@ namespace Garage.Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("MarketerCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
@@ -748,51 +755,6 @@ namespace Garage.Infrastructure.Migrations
                     b.HasIndex("DashboardIndicatorsStageResultId");
 
                     b.ToTable("DashboardIndicatorsStageResultItems", (string)null);
-                });
-
-            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExaminationHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid>("ExaminationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExaminationId");
-
-                    b.ToTable("ExaminationHistory", (string)null);
                 });
 
             modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", b =>
@@ -3120,15 +3082,6 @@ namespace Garage.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExaminationHistory", b =>
-                {
-                    b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
-                        .WithMany("History")
-                        .HasForeignKey("ExaminationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Garage.Domain.ExaminationManagement.Examinations.ExteriorBodyStageResult", b =>
                 {
                     b.HasOne("Domain.ExaminationManagement.Examinations.Examination", null)
@@ -3752,8 +3705,6 @@ namespace Garage.Infrastructure.Migrations
                     b.Navigation("DashboardIndicatorsStageResult");
 
                     b.Navigation("ExteriorBodyStageResult");
-
-                    b.Navigation("History");
 
                     b.Navigation("InteriorBodyStageResult");
 

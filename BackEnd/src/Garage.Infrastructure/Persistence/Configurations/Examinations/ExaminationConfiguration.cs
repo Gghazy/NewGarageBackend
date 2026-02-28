@@ -21,7 +21,6 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
         // ── Flags ─────────────────────────────────────────────────────────────
         b.Property(x => x.HasWarranty).IsRequired();
         b.Property(x => x.HasPhotos).IsRequired();
-        b.Property(x => x.MarketerCode).HasMaxLength(50).IsRequired(false);
         b.Property(x => x.Notes).HasMaxLength(1000).IsRequired(false);
 
         // ── Client reference (owned) ──────────────────────────────────────────
@@ -208,6 +207,12 @@ public sealed class ExaminationConfiguration : IEntityTypeConfiguration<Examinat
         b.HasOne(x => x.RoadTestStageResult)
             .WithOne()
             .HasForeignKey<RoadTestStageResult>(s => s.ExaminationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ── History ─────────────────────────────────────────────────────────
+        b.HasMany(x => x.History)
+            .WithOne()
+            .HasForeignKey(h => h.ExaminationId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // ── Audit ─────────────────────────────────────────────────────────────

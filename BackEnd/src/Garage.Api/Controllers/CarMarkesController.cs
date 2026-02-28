@@ -1,11 +1,12 @@
 using Garage.Api.Controllers.Common;
-using Garage.Application.Lookup.Commands.Create;
+using Garage.Application.CarMarks.Commands.Create;
+using Garage.Application.CarMarks.Commands.Update;
+using Garage.Application.CarMarks.Queries.GetAll;
+using Garage.Application.CarMarks.Queries.GetAllPagination;
+using Garage.Application.CarMarks.Queries.GetByManufacturer;
 using Garage.Application.Lookup.Commands.Delete;
-using Garage.Application.Lookup.Commands.Update;
-using Garage.Application.Lookup.Queries.GetAll;
-using Garage.Application.Lookup.Queries.GetAllPagination;
+using Garage.Contracts.CarMarks;
 using Garage.Contracts.Common;
-using Garage.Contracts.Lookup;
 using Garage.Domain.CarMarkes.Entity;
 using Garage.Domain.Users.Permissions;
 using Garage.Infrastructure.Authorization;
@@ -25,7 +26,7 @@ public class CarMarkesController(IMediator mediator, IStringLocalizer localizer)
     [HasPermission(Permission.CarMark_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
-        var result = await mediator.Send(new GetAllPaginationQuery<CarMark>(search));
+        var result = await mediator.Send(new GetAllCarMarksPaginationQuery(search));
         return Success(result);
     }
 
@@ -33,24 +34,32 @@ public class CarMarkesController(IMediator mediator, IStringLocalizer localizer)
     [HasPermission(Permission.CarMark_Read)]
     public async Task<IActionResult> GetAll()
     {
-        var result = await mediator.Send(new GetAllLookupQuery<CarMark>());
+        var result = await mediator.Send(new GetAllCarMarksQuery());
+        return Success(result);
+    }
+
+    [HttpGet("by-manufacturer/{manufacturerId:Guid}")]
+    [HasPermission(Permission.CarMark_Read)]
+    public async Task<IActionResult> GetByManufacturer(Guid manufacturerId)
+    {
+        var result = await mediator.Send(new GetCarMarksByManufacturerQuery(manufacturerId));
         return Success(result);
     }
 
     [HttpPost]
     [HasPermission(Permission.CarMark_Create)]
-    public async Task<IActionResult> Create(LookupRequest req)
+    public async Task<IActionResult> Create(CarMarkRequest req)
     {
-        var result = await mediator.Send(new CreateLookupCommand<CarMark>(req));
-        return Success(result);
+        var result = await mediator.Send(new CreateCarMarkCommand(req));
+        return HandleResult(result, "CarMark.Created");
     }
 
     [HttpPut("{id:Guid}")]
     [HasPermission(Permission.CarMark_Update)]
-    public async Task<IActionResult> Update(Guid id, LookupRequest req)
+    public async Task<IActionResult> Update(Guid id, CarMarkRequest req)
     {
-        var updated = await mediator.Send(new UpdateLookupCommand<CarMark>(id, req));
-        return updated ? NoContent() : NotFound();
+        var updated = await mediator.Send(new UpdateCarMarkCommand(id, req));
+        return updated ? SuccessMessage("CarMark.Updated") : NotFound();
     }
 
     [HttpDelete("{id:Guid}")]
@@ -58,6 +67,6 @@ public class CarMarkesController(IMediator mediator, IStringLocalizer localizer)
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await mediator.Send(new DeleteLookupCommand<CarMark>(id));
-        return HandleResult(result, "Lookup.Deleted");
+        return HandleResult(result, "CarMark.Deleted");
     }
 }

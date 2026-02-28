@@ -16,6 +16,7 @@ public class DeleteExaminationHandler(
         if (entity is null)
             return Fail(NotFoundError);
 
+        entity.MarkDeleted();
         await repository.SoftDeleteAsync(entity, ct: ct);
         await unitOfWork.SaveChangesAsync(ct);
 

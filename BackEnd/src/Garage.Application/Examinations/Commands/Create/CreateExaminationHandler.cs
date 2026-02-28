@@ -142,8 +142,7 @@ public sealed class CreateExaminationHandler(
                 vehicle:      vehicleSnapshot,
                 type:         examinationType,
                 hasWarranty:  req.HasWarranty,
-                hasPhotos:    false,
-                marketerCode: req.MarketerCode);
+                hasPhotos:    false);
 
             if (!string.IsNullOrWhiteSpace(req.Notes))
                 examination.SetNotes(req.Notes);

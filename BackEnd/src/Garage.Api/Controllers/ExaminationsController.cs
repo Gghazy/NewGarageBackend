@@ -6,6 +6,7 @@ using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
 using Garage.Application.Examinations.Queries.CanComplete;
+using Garage.Application.Examinations.Queries.GetHistory;
 using Garage.Application.Examinations.Queries.GetReport;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
@@ -171,6 +172,14 @@ public class ExaminationsController : ApiControllerBase
     {
         var result = await _mediator.Send(new DeleteExaminationCommand(id));
         return HandleResult(result, "Examination.Deleted");
+    }
+
+    [HttpGet("{id:Guid}/history")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetHistory(Guid id)
+    {
+        var result = await _mediator.Send(new GetExaminationHistoryQuery(id));
+        return Success(result);
     }
 
     [HttpGet("{id:Guid}/workflow")]

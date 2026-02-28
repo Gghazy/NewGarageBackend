@@ -40,7 +40,6 @@ public static class ExaminationProjection
             // Meta
             e.HasWarranty,
             e.HasPhotos,
-            e.MarketerCode,
             e.Notes,
             // Items
             e.Items.Select(i => new ExaminationItemDto(

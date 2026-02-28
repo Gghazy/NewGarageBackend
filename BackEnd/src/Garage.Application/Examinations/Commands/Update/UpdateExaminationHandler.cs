@@ -188,7 +188,7 @@ public sealed class UpdateExaminationHandler(
                 PhoneNumber: client.PhoneNumber,
                 Email:       req.ClientEmail);
 
-            examination.Update(req.HasWarranty, false, req.MarketerCode, req.Notes);
+            examination.Update(req.HasWarranty, false, req.Notes);
             examination.UpdateClientSnapshot(clientRef);
             examination.UpdateVehicleSnapshot(vehicleSnapshot);
 
