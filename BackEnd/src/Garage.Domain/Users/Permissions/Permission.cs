@@ -161,6 +161,10 @@ public static class Permission
     public const string Examination_Update = "examination.update";
     public const string Examination_Delete = "examination.delete";
     public const string Examination_Start  = "examination.start";
+    public const string Examination_Cancel = "examination.cancel";
+    public const string Examination_Deliver = "examination.deliver";
+    public const string Examination_Report = "examination.report";
+    public const string Examination_Reopen = "examination.reopen";
 
     public const string Invoice_Read   = "invoice.read";
     public const string Invoice_Create = "invoice.create";
@@ -204,7 +208,7 @@ public static class Permission
         Client_Read, Client_Create,Client_Update, Client_Delete,
         ClientResource_Read, ClientResource_Create,ClientResource_Update, ClientResource_Delete,
         Dashboard_Examinations, Dashboard_Revenue,
-        Examination_Read, Examination_Create, Examination_Update, Examination_Delete, Examination_Start,
+        Examination_Read, Examination_Create, Examination_Update, Examination_Delete, Examination_Start, Examination_Deliver, Examination_Cancel, Examination_Report, Examination_Reopen,
         Invoice_Read, Invoice_Create, Invoice_Update, Invoice_Delete,
         PaymentMethod_Read, PaymentMethod_Create, PaymentMethod_Update, PaymentMethod_Delete
     ];

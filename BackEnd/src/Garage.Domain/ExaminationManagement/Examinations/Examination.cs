@@ -393,6 +393,14 @@ public sealed class Examination : AggregateRoot
         Status = ExaminationStatus.Delivered;
     }
 
+    public void Reopen()
+    {
+        if (Status != ExaminationStatus.Completed && Status != ExaminationStatus.Delivered)
+            throw new DomainException("Only Completed or Delivered examination can be reopened.");
+
+        Status = ExaminationStatus.InProgress;
+    }
+
     public void Cancel(string? reason = null)
     {
         if (Status == ExaminationStatus.Delivered)

@@ -107,5 +107,26 @@
     "Created": "Terms and conditions updated successfully.",
     "Updated": "Terms and conditions updated successfully.",
     "NotFound": "Terms and conditions not found."
+  },
+  "Examination": {
+    "Created": "Examination created successfully.",
+    "Updated": "Examination updated successfully.",
+    "Deleted": "Examination deleted successfully.",
+    "Started": "Examination started successfully.",
+    "BeganWork": "Examination work began successfully.",
+    "Completed": "Examination completed successfully.",
+    "Delivered": "Examination delivered successfully.",
+    "Cancelled": "Examination cancelled successfully.",
+    "Reopened": "Examination reopened successfully.",
+    "NotFound": "Examination not found.",
+    "SensorStageSaved": "Sensor stage saved successfully.",
+    "DashboardIndicatorsStageSaved": "Dashboard indicators stage saved successfully.",
+    "InteriorDecorStageSaved": "Interior decor stage saved successfully.",
+    "InteriorBodyStageSaved": "Interior body stage saved successfully.",
+    "ExteriorBodyStageSaved": "Exterior body stage saved successfully.",
+    "TireStageSaved": "Tire stage saved successfully.",
+    "AccessoryStageSaved": "Accessory stage saved successfully.",
+    "MechanicalStageSaved": "Mechanical stage saved successfully.",
+    "RoadTestStageSaved": "Road test stage saved successfully."
   }
 }

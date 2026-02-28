@@ -5,6 +5,7 @@ using Garage.Application.Examinations.Commands.Delete;
 using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
+using Garage.Application.Examinations.Queries.CanComplete;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
 using Garage.Application.Examinations.Queries.GetSensorStage;
@@ -66,6 +67,14 @@ public class ExaminationsController : ApiControllerBase
         if (result is null) return NotFound();
         return Success(result);
     }
+
+    [HttpGet("{id:Guid}/can-complete")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> CanComplete(Guid id)
+    {
+        var result = await _mediator.Send(new CanCompleteExaminationQuery(id));
+        return Success(result);
+    }
     [HttpPost]
     [HasPermission(Permission.Examination_Create)]
     public async Task<IActionResult> Create(CreateExaminationRequest request)
@@ -91,6 +100,14 @@ public class ExaminationsController : ApiControllerBase
         return HandleResult(result, "Examination.Started");
     }
 
+    [HttpPost("{id:Guid}/begin-work")]
+    [HasPermission(Permission.Examination_Start)]
+    public async Task<IActionResult> BeginWork(Guid id)
+    {
+        var result = await _mediator.Send(new BeginWorkExaminationCommand(id));
+        return HandleResult(result, "Examination.BeganWork");
+    }
+
     [HttpPost("{id:Guid}/complete")]
     [HasPermission(Permission.Examination_Update)]
     public async Task<IActionResult> Complete(Guid id)
@@ -100,15 +117,23 @@ public class ExaminationsController : ApiControllerBase
     }
 
     [HttpPost("{id:Guid}/deliver")]
-    [HasPermission(Permission.Examination_Update)]
+    [HasPermission(Permission.Examination_Deliver)]
     public async Task<IActionResult> Deliver(Guid id)
     {
         var result = await _mediator.Send(new DeliverExaminationCommand(id));
         return HandleResult(result, "Examination.Delivered");
     }
 
+    [HttpPost("{id:Guid}/reopen")]
+    [HasPermission(Permission.Examination_Reopen)]
+    public async Task<IActionResult> Reopen(Guid id)
+    {
+        var result = await _mediator.Send(new ReopenExaminationCommand(id));
+        return HandleResult(result, "Examination.Reopened");
+    }
+
     [HttpPost("{id:Guid}/cancel")]
-    [HasPermission(Permission.Examination_Update)]
+    [HasPermission(Permission.Examination_Cancel)]
     public async Task<IActionResult> Cancel(Guid id, [FromBody] string? reason = null)
     {
         var result = await _mediator.Send(new CancelExaminationCommand(id, reason));
