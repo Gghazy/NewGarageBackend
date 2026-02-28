@@ -2,6 +2,7 @@ using Domain.ExaminationManagement.Examinations;
 using Garage.Application.Abstractions;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.AccessoryIssues.Entity;
+using Garage.Domain.AccessoryParts.Entity;
 using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.Branches.Entities;
@@ -80,6 +81,7 @@ public sealed class ApplicationDbContext
     public DbSet<InteriorBodyIssue> InteriorBodyIssues => Set<InteriorBodyIssue>();
     public DbSet<ExteriorBodyIssue> ExteriorBodyIssues => Set<ExteriorBodyIssue>();
     public DbSet<AccessoryIssue> AccessoryIssues => Set<AccessoryIssue>();
+    public DbSet<AccessoryPart> AccessoryParts => Set<AccessoryPart>();
     public DbSet<RoadTestIssue> RoadTestIssues => Set<RoadTestIssue>();
     public DbSet<RoadTestIssueType> RoadTestIssueTypes => Set<RoadTestIssueType>();
     public DbSet<InsideAndDecorPart> InsideAndDecorParts => Set<InsideAndDecorPart>();

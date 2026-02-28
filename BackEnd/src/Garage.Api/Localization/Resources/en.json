@@ -128,5 +128,74 @@
     "AccessoryStageSaved": "Accessory stage saved successfully.",
     "MechanicalStageSaved": "Mechanical stage saved successfully.",
     "RoadTestStageSaved": "Road test stage saved successfully."
+  },
+  "Report": {
+    "Title": "Examination Report",
+    "ExamInfo": "Examination Info",
+    "Services": "Services",
+    "NoIssues": "No Issues Found",
+    "Comments": "Comments",
+    "Client": "Client",
+    "CarMark": "Car Mark",
+    "Plate": "Plate",
+    "Year": "Year",
+    "Color": "Color",
+    "Mileage": "Mileage",
+    "VIN": "VIN",
+    "Branch": "Branch",
+    "Notes": "Notes",
+    "Service": "Service",
+    "Qty": "Qty",
+    "IssueCode": "Issue Code",
+    "Description": "Description",
+    "Evaluation": "Evaluation",
+    "Indicator": "Indicator",
+    "Status": "Status",
+    "NA": "N/A",
+    "Part": "Part",
+    "Issue": "Issue",
+    "PartType": "Part Type",
+    "PartName": "Part Name",
+    "Issues": "Issues",
+    "IssueType": "Issue Type",
+    "Position": "Position",
+    "TireYear": "Tire Year",
+    "TireWeek": "Week",
+    "TireCondition": "Condition",
+    "CylinderCount": "Cylinder Count",
+    "Stages": {
+      "Sensors": "Sensors",
+      "DashboardIndicators": "Dashboard Indicators",
+      "InteriorBody": "Interior Body",
+      "ExteriorBody": "Exterior Body",
+      "InteriorDecor": "Interior & Decor",
+      "Accessories": "Accessories",
+      "Mechanical": "Mechanical",
+      "Tires": "Tires",
+      "RoadTest": "Road Test"
+    },
+    "Indicators": {
+      "ect": "Temperature (ECT °C)",
+      "batteryVoltage": "Battery Voltage BV",
+      "oilPressure": "Oil Pump Pressure (KPA)",
+      "transmissionTemp": "Transmission Temp"
+    },
+    "TirePositions": {
+      "FrontRight": "Front Right",
+      "FrontLeft": "Front Left",
+      "RearRight": "Rear Right",
+      "RearLeft": "Rear Left",
+      "Spare": "Spare"
+    },
+    "TireConditions": {
+      "Good": "Good",
+      "Average": "Average",
+      "Bad": "Bad",
+      "NeedsReplacement": "Needs Replacement"
+    },
+    "Evaluations": {
+      "active": "Active",
+      "stored": "Stored"
+    }
   }
 }

@@ -1,6 +1,7 @@
 ﻿using Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.AccessoryIssues.Entity;
+using Garage.Domain.AccessoryParts.Entity;
 using Garage.Domain.ExaminationManagement.Vehicles;
 using Garage.Domain.Branches.Entities;
 using Garage.Domain.CarMarkes.Entity;
@@ -49,6 +50,7 @@ namespace Garage.Application.Abstractions
         DbSet<InteriorBodyIssue> InteriorBodyIssues { get; }
         DbSet<ExteriorBodyIssue> ExteriorBodyIssues { get; }
         DbSet<AccessoryIssue> AccessoryIssues { get; }
+        DbSet<AccessoryPart> AccessoryParts { get; }
         DbSet<RoadTestIssue> RoadTestIssues { get; }
         DbSet<RoadTestIssueType> RoadTestIssueTypes { get; }
         DbSet<InsideAndDecorPart> InsideAndDecorParts { get; }

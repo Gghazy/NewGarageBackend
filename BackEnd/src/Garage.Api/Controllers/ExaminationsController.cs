@@ -6,6 +6,7 @@ using Garage.Application.Examinations.Commands.Update;
 using Garage.Application.Examinations.Queries.GetAll;
 using Garage.Application.Examinations.Queries.GetById;
 using Garage.Application.Examinations.Queries.CanComplete;
+using Garage.Application.Examinations.Queries.GetReport;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
 using Garage.Application.Examinations.Queries.GetSensorStage;
@@ -27,6 +28,7 @@ using Garage.Application.Examinations.Commands.SaveMechanicalStage;
 using Garage.Application.Examinations.Queries.GetMechanicalStage;
 using Garage.Application.Examinations.Commands.SaveRoadTestStage;
 using Garage.Application.Examinations.Queries.GetRoadTestStage;
+using Garage.Application.Abstractions;
 using Garage.Contracts.Common;
 using Garage.Contracts.Examinations;
 using Garage.Domain.Users.Permissions;
@@ -44,11 +46,13 @@ namespace Garage.Api.Controllers;
 public class ExaminationsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IExaminationReportPdfService _pdfService;
 
-    public ExaminationsController(IMediator mediator, IStringLocalizer localizer)
+    public ExaminationsController(IMediator mediator, IStringLocalizer localizer, IExaminationReportPdfService pdfService)
         : base(localizer)
     {
         _mediator = mediator;
+        _pdfService = pdfService;
     }
 
     [HttpPost("pagination")]
@@ -75,6 +79,26 @@ public class ExaminationsController : ApiControllerBase
         var result = await _mediator.Send(new CanCompleteExaminationQuery(id));
         return Success(result);
     }
+
+    [HttpGet("{id:Guid}/report-data")]
+    [HasPermission(Permission.Examination_Report)]
+    public async Task<IActionResult> GetReportData(Guid id)
+    {
+        var result = await _mediator.Send(new GetExaminationReportQuery(id));
+        if (result is null) return NotFound();
+        return Success(result);
+    }
+
+    [HttpGet("{id:Guid}/report-pdf")]
+    [HasPermission(Permission.Examination_Report)]
+    public async Task<IActionResult> GetReportPdf(Guid id)
+    {
+        var report = await _mediator.Send(new GetExaminationReportQuery(id));
+        if (report is null) return NotFound();
+        var bytes = _pdfService.Generate(report);
+        return File(bytes, "application/pdf", $"examination-report-{id}.pdf");
+    }
+
     [HttpPost]
     [HasPermission(Permission.Examination_Create)]
     public async Task<IActionResult> Create(CreateExaminationRequest request)

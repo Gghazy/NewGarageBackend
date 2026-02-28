@@ -9,6 +9,7 @@ using Garage.Infrastructure.Auth;
 using Garage.Infrastructure.Auth.Entities;
 using Garage.Infrastructure.Authorization;
 using Garage.Infrastructure.Persistence;
+using Garage.Infrastructure.Reporting;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -62,6 +63,10 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped(typeof(ILookupRepository<>), typeof(LookupRepository<>));
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+
+        // PDF reporting
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+        services.AddScoped<IExaminationReportPdfService, ExaminationReportPdfService>();
 
         return services;
     }

@@ -128,5 +128,74 @@
     "AccessoryStageSaved": "تم حفظ مرحلة الإكسسوارات بنجاح.",
     "MechanicalStageSaved": "تم حفظ المرحلة الميكانيكية بنجاح.",
     "RoadTestStageSaved": "تم حفظ مرحلة تجربة الطريق بنجاح."
+  },
+  "Report": {
+    "Title": "تقرير الفحص",
+    "ExamInfo": "معلومات الفحص",
+    "Services": "الخدمات",
+    "NoIssues": "لا توجد أعطال",
+    "Comments": "تعليقات",
+    "Client": "العميل",
+    "CarMark": "الماركة",
+    "Plate": "اللوحة",
+    "Year": "السنة",
+    "Color": "اللون",
+    "Mileage": "العداد",
+    "VIN": "رقم الهيكل",
+    "Branch": "الفرع",
+    "Notes": "ملاحظات",
+    "Service": "الخدمة",
+    "Qty": "الكمية",
+    "IssueCode": "رمز المشكلة",
+    "Description": "الوصف",
+    "Evaluation": "التقييم",
+    "Indicator": "المؤشر",
+    "Status": "الحالة",
+    "NA": "لايوجد",
+    "Part": "الجزء",
+    "Issue": "العطل",
+    "PartType": "نوع القطعة",
+    "PartName": "اسم القطعة",
+    "Issues": "نوع العطل",
+    "IssueType": "نوع العطل",
+    "Position": "الموقع",
+    "TireYear": "سنة الإطار",
+    "TireWeek": "أسبوع الإنتاج",
+    "TireCondition": "حالة الإطار",
+    "CylinderCount": "عدد السلندر",
+    "Stages": {
+      "Sensors": "الحساسات",
+      "DashboardIndicators": "مؤشرات لوحة القيادة",
+      "InteriorBody": "الهيكل الداخلي",
+      "ExteriorBody": "الهيكل الخارجي",
+      "InteriorDecor": "الداخلية والديكور",
+      "Accessories": "الإكسسوارات",
+      "Mechanical": "الميكانيكا",
+      "Tires": "الإطارات",
+      "RoadTest": "تجربة الطريق"
+    },
+    "Indicators": {
+      "ect": "الحرارة (ECT °C)",
+      "batteryVoltage": "جهد البطارية BV",
+      "oilPressure": "ضغط طرمبة الزيت (KPA)",
+      "transmissionTemp": "حرارة ناقل الحركة"
+    },
+    "TirePositions": {
+      "FrontRight": "أمامي أيمن",
+      "FrontLeft": "أمامي أيسر",
+      "RearRight": "خلفي أيمن",
+      "RearLeft": "خلفي أيسر",
+      "Spare": "احتياطي"
+    },
+    "TireConditions": {
+      "Good": "جيد",
+      "Average": "متوسط",
+      "Bad": "سيء",
+      "NeedsReplacement": "يحتاج استبدال"
+    },
+    "Evaluations": {
+      "active": "نشط",
+      "stored": "محفوظ"
+    }
   }
 }
