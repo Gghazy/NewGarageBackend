@@ -43,8 +43,12 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
 
-        // Authorization handler
+        // Authorization handlers
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, AnyPermissionAuthorizationHandler>();
+
+        // Custom policy provider (handles both perm: and perm-any: policies)
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
         // Register permission-based policies (perm:<permission>)
         services.AddAuthorization(options =>

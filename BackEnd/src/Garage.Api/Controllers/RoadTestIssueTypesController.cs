@@ -23,7 +23,7 @@ public class RoadTestIssueTypesController(IMediator mediator, IStringLocalizer l
     : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.RoadTestIssueType_Read)]
+    [HasAnyPermission(Permission.RoadTestIssueType_Read, Permission.Examination_Read, Permission.RoadTestIssue_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<RoadTestIssueType>(search));
@@ -31,7 +31,7 @@ public class RoadTestIssueTypesController(IMediator mediator, IStringLocalizer l
     }
 
     [HttpGet]
-    [HasPermission(Permission.RoadTestIssueType_Read)]
+    [HasAnyPermission(Permission.RoadTestIssueType_Read, Permission.Examination_Read, Permission.RoadTestIssue_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<RoadTestIssueType>());

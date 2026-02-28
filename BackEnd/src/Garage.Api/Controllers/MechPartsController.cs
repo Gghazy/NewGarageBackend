@@ -3,6 +3,7 @@ using Garage.Application.MechParts.Commands.Create;
 using Garage.Application.MechParts.Commands.Delete;
 using Garage.Application.MechParts.Commands.Update;
 using Garage.Application.MechParts.Queries.GetAll;
+using Garage.Application.MechParts.Queries.GetAllList;
 using Garage.Contracts.Common;
 using Garage.Contracts.MechParts;
 using Garage.Domain.Users.Permissions;
@@ -20,10 +21,18 @@ namespace Garage.Api.Controllers;
 public class MechPartsController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.MechPart_Read)]
+    [HasAnyPermission(Permission.MechPart_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetMechPartQuery(search));
+        return Success(result);
+    }
+
+    [HttpGet]
+    [HasAnyPermission(Permission.MechPart_Read, Permission.Examination_Read)]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await mediator.Send(new GetAllMechPartsQuery());
         return Success(result);
     }
 

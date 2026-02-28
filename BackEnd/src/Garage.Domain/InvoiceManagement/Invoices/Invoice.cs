@@ -31,6 +31,9 @@ public sealed class Invoice : AggregateRoot
     private readonly List<InvoicePayment> _payments = new();
     public IReadOnlyCollection<InvoicePayment> Payments => _payments.AsReadOnly();
 
+    private readonly List<InvoiceHistory> _history = new();
+    public IReadOnlyCollection<InvoiceHistory> History => _history.AsReadOnly();
+
     private Invoice() { }
 
     private Invoice(
@@ -61,6 +64,7 @@ public sealed class Invoice : AggregateRoot
 
         var invoice = new Invoice(client, branch, currency);
         invoice.ExaminationId = examinationId;
+        invoice.AddHistory(InvoiceHistoryAction.Created);
         return invoice;
     }
 
@@ -85,6 +89,7 @@ public sealed class Invoice : AggregateRoot
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
         refund.AddItem("Refund", 1, refundAmount);
+        refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
         return refund;
     }
@@ -112,6 +117,7 @@ public sealed class Invoice : AggregateRoot
         var refund = new Invoice(client, branch, original.TotalPrice.Currency);
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
+        refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
         return refund;
     }
@@ -136,6 +142,7 @@ public sealed class Invoice : AggregateRoot
         var adjustment = new Invoice(client, branch, original.TotalPrice.Currency);
         adjustment.Type = InvoiceType.Adjustment;
         adjustment.OriginalInvoiceId = original.Id;
+        adjustment.AddHistory(InvoiceHistoryAction.Created);
 
         return adjustment;
     }
@@ -152,6 +159,7 @@ public sealed class Invoice : AggregateRoot
 
         DiscountAmount = discount;
         RecalculateTotal();
+        AddHistory(InvoiceHistoryAction.DiscountSet, $"{discount.Amount} {discount.Currency}");
     }
 
     public void Update(string? notes, DateTime? dueDate)
@@ -159,6 +167,7 @@ public sealed class Invoice : AggregateRoot
         EnsureEditable();
         Notes   = Normalize(notes);
         DueDate = dueDate;
+        AddHistory(InvoiceHistoryAction.Updated);
     }
 
     public void UpdateClientSnapshot(ClientReference clientRef)
@@ -187,6 +196,7 @@ public sealed class Invoice : AggregateRoot
 
         _items.Add(new InvoiceItem(description, quantity, unitPrice, serviceId, serviceNameAr, serviceNameEn));
         RecalculateTotal();
+        AddHistory(InvoiceHistoryAction.ItemAdded, description);
     }
 
     public void RemoveItem(Guid itemId)
@@ -198,6 +208,7 @@ public sealed class Invoice : AggregateRoot
 
         _items.Remove(item);
         RecalculateTotal();
+        AddHistory(InvoiceHistoryAction.ItemRemoved);
     }
 
     public void UpdateItem(Guid itemId, string description, int quantity, Money unitPrice)
@@ -209,6 +220,7 @@ public sealed class Invoice : AggregateRoot
 
         item.Update(description, quantity, unitPrice);
         RecalculateTotal();
+        AddHistory(InvoiceHistoryAction.ItemUpdated, description);
     }
 
     public void AddPayment(Money amount, Guid methodId, string methodNameAr, string methodNameEn, string? notes)
@@ -218,6 +230,7 @@ public sealed class Invoice : AggregateRoot
 
         _payments.Add(new InvoicePayment(amount, methodId, methodNameAr, methodNameEn, PaymentType.Payment, notes));
         UpdatePaymentStatus();
+        AddHistory(InvoiceHistoryAction.PaymentAdded, $"{amount.Amount} {amount.Currency}");
     }
 
     public void AddRefund(Money amount, Guid methodId, string methodNameAr, string methodNameEn, string? notes)
@@ -237,6 +250,7 @@ public sealed class Invoice : AggregateRoot
 
         _payments.Add(new InvoicePayment(amount, methodId, methodNameAr, methodNameEn, PaymentType.Refund, notes));
         UpdatePaymentStatus();
+        AddHistory(InvoiceHistoryAction.RefundAdded, $"{amount.Amount} {amount.Currency}");
     }
 
     public void SetInvoiceNumber(string invoiceNumber)
@@ -257,6 +271,7 @@ public sealed class Invoice : AggregateRoot
         Status = InvoiceStatus.Cancelled;
         if (!string.IsNullOrWhiteSpace(reason))
             Notes = Normalize(reason);
+        AddHistory(InvoiceHistoryAction.Cancelled, reason);
     }
 
     private void UpdatePaymentStatus()
@@ -317,6 +332,11 @@ public sealed class Invoice : AggregateRoot
         var afterDiscount = total.Amount - DiscountAmount.Amount;
         TaxAmount    = Money.CreateAllowNegative(Math.Round(afterDiscount * TaxRate, 2), total.Currency);
         TotalWithTax = Money.CreateAllowNegative(Math.Round(afterDiscount + TaxAmount.Amount, 2), total.Currency);
+    }
+
+    private void AddHistory(InvoiceHistoryAction action, string? details = null)
+    {
+        _history.Add(new InvoiceHistory(Id, action, details));
     }
 
     private static string? Normalize(string? v)

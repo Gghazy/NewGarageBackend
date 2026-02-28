@@ -25,7 +25,21 @@ public sealed class GetAllCarMarksPaginationHandler(IReadRepository<CarMark> rep
                 cm.Manufacturer.NameEn.Contains(term));
         }
 
-        var result = await query
+        // Sort on entity before projecting (EF Core can't translate sorting on constructed DTOs)
+        var sort = request.Search.Sort?.Trim().ToLowerInvariant();
+        query = sort switch
+        {
+            "manufacturernamear" => request.Search.Desc ? query.OrderByDescending(cm => cm.Manufacturer.NameAr) : query.OrderBy(cm => cm.Manufacturer.NameAr),
+            "manufacturernameen" => request.Search.Desc ? query.OrderByDescending(cm => cm.Manufacturer.NameEn) : query.OrderBy(cm => cm.Manufacturer.NameEn),
+            "nameen" => request.Search.Desc ? query.OrderByDescending(cm => cm.NameEn) : query.OrderBy(cm => cm.NameEn),
+            _ => request.Search.Desc ? query.OrderByDescending(cm => cm.NameAr) : query.OrderBy(cm => cm.NameAr),
+        };
+
+        var count = await query.CountAsync(ct);
+
+        var items = await query
+            .Skip((request.Search.CurrentPage - 1) * request.Search.ItemsPerPage)
+            .Take(request.Search.ItemsPerPage)
             .Select(cm => new CarMarkDto(
                 cm.Id,
                 cm.NameAr,
@@ -33,13 +47,8 @@ public sealed class GetAllCarMarksPaginationHandler(IReadRepository<CarMark> rep
                 cm.ManufacturerId,
                 cm.Manufacturer.NameAr,
                 cm.Manufacturer.NameEn))
-            .ToQueryResult(
-                request.Search.CurrentPage,
-                request.Search.ItemsPerPage,
-                sort: request.Search.Sort,
-                descending: request.Search.Desc,
-                ct: ct);
+            .ToListAsync(ct);
 
-        return result;
+        return new QueryResult<CarMarkDto>(items: items, totalCount: count, pageNumber: request.Search.CurrentPage, pageSize: request.Search.ItemsPerPage);
     }
 }

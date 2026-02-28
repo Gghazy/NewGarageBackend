@@ -30,12 +30,13 @@ public sealed class UpdateEmployeeCommandHandler : BaseCommandHandler<UpdateEmpl
     public override async Task<Result<bool>> Handle(UpdateEmployeeCommand command, CancellationToken ct)
     {
         var employee = await _empRepository.QueryTracking()
+            .Include(x => x.Branches)
             .FirstOrDefaultAsync(x => x.Id == command.Id, ct);
 
         if (employee is null)
             return Fail(NotFoundError);
 
-        employee.Update(command.Request.NameAr, command.Request.NameEn, command.Request.BranchId);
+        employee.Update(command.Request.NameAr, command.Request.NameEn, command.Request.BranchIds);
         await _unitOfWork.SaveChangesAsync(ct);
 
         var user = await _userManager.FindByIdAsync(employee.UserId.ToString());

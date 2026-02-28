@@ -32,7 +32,7 @@ public class BranchesController : ApiControllerBase
     /// Gets all branches
     /// </summary>
     [HttpGet]
-    [HasPermission(Permission.Branches_Read)]
+    [HasAnyPermission(Permission.Branches_Read, Permission.Examination_Read, Permission.Employees_Read)]
     public async Task<IActionResult> GetAll()
     {
         var branches = await _mediator.Send(new GetAllBranchesQuery());
@@ -43,7 +43,7 @@ public class BranchesController : ApiControllerBase
     /// Searches branches with pagination
     /// </summary>
     [HttpPost("pagination")]
-    [HasPermission(Permission.Branches_Read)]
+    [HasAnyPermission(Permission.Branches_Read, Permission.Examination_Read, Permission.Employees_Read)]
     public async Task<IActionResult> Search(SearchCriteria search)
     {
         var result = await _mediator.Send(new GetAllBranchesBySearchQuery(search));

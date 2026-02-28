@@ -1,30 +1,39 @@
-﻿using Garage.Domain.Common.Primitives;
+using Garage.Domain.Common.Primitives;
 
+namespace Garage.Domain.Employees.Entities;
 
-namespace Garage.Domain.Employees.Entities
+public class Employee : AggregateRoot
 {
-    public class Employee:AggregateRoot
+    public Guid UserId { get; private set; }
+    public string NameAr { get; private set; }
+    public string NameEn { get; private set; }
+
+    private readonly List<EmployeeBranch> _branches = new();
+    public IReadOnlyCollection<EmployeeBranch> Branches => _branches.AsReadOnly();
+
+    private Employee() { }
+
+    public Employee(Guid userId, string nameAr, string nameEn, List<Guid> branchIds)
     {
-        public Guid UserId { get; private set; }       
-        public string NameAr { get; private set; }
-        public string NameEn { get; private set; }
-        public Guid BranchId { get; set; }
+        UserId = userId;
+        NameAr = nameAr;
+        NameEn = nameEn;
+        SetBranches(branchIds);
+    }
 
-        private Employee() { }
+    public void Update(string nameAr, string nameEn, List<Guid> branchIds)
+    {
+        NameAr = nameAr;
+        NameEn = nameEn;
+        SetBranches(branchIds);
+    }
 
-        public Employee( Guid userId, string nameAr, string nameEn,Guid branchId)
+    private void SetBranches(List<Guid> branchIds)
+    {
+        _branches.Clear();
+        foreach (var branchId in branchIds.Distinct())
         {
-            UserId = userId;
-            NameAr = nameAr;
-            NameEn = nameEn;
-            BranchId = branchId;
-        }
-
-        public void Update(string nameAr, string nameEn, Guid branchId)
-        {
-            NameAr = nameAr;
-            NameEn = nameEn;
-            BranchId = branchId;
+            _branches.Add(new EmployeeBranch(Id, branchId));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Garage.Api.Controllers;
 public class InteriorIssuesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.InteriorIssue_Read)]
+    [HasAnyPermission(Permission.InteriorIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<InteriorIssue>(search));
@@ -30,7 +30,7 @@ public class InteriorIssuesController(IMediator mediator, IStringLocalizer local
     }
 
     [HttpGet]
-    [HasPermission(Permission.InteriorIssue_Read)]
+    [HasAnyPermission(Permission.InteriorIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<InteriorIssue>());

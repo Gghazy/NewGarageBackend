@@ -23,7 +23,7 @@ public class InsideAndDecorPartIssuesController(IMediator mediator, IStringLocal
     : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.InsideAndDecorPartIssue_Read)]
+    [HasAnyPermission(Permission.InsideAndDecorPartIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<InsideAndDecorPartIssue>(search));
@@ -31,7 +31,7 @@ public class InsideAndDecorPartIssuesController(IMediator mediator, IStringLocal
     }
 
     [HttpGet]
-    [HasPermission(Permission.InsideAndDecorPartIssue_Read)]
+    [HasAnyPermission(Permission.InsideAndDecorPartIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<InsideAndDecorPartIssue>());

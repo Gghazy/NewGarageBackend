@@ -23,7 +23,7 @@ public class InteriorBodyPartsController(IMediator mediator, IStringLocalizer lo
     : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.InteriorBodyPart_Read)]
+    [HasAnyPermission(Permission.InteriorBodyPart_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<InteriorBodyPart>(search));
@@ -31,7 +31,7 @@ public class InteriorBodyPartsController(IMediator mediator, IStringLocalizer lo
     }
 
     [HttpGet]
-    [HasPermission(Permission.InteriorBodyPart_Read)]
+    [HasAnyPermission(Permission.InteriorBodyPart_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<InteriorBodyPart>());

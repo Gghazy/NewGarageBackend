@@ -41,7 +41,7 @@ public class ClientsController : ApiControllerBase
     /// Searches clients with pagination
     /// </summary>
     [HttpPost("pagination")]
-    [HasPermission(Permission.Client_Read)]
+    [HasAnyPermission(Permission.Client_Read, Permission.Examination_Read)]
     public async Task<IActionResult> Search(SearchCriteria search)
     {
         var result = await _mediator.Send(new GetAllClientsBySearchQuery(search));

@@ -149,6 +149,12 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasForeignKey("InvoiceId")
             .OnDelete(DeleteBehavior.Cascade);
 
+        // -- History --------------------------------------------------------------
+        b.HasMany(x => x.History)
+            .WithOne()
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // -- Audit ----------------------------------------------------------------
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }

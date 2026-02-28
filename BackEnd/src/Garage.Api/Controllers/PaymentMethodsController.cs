@@ -22,7 +22,7 @@ namespace Garage.Api.Controllers;
 public class PaymentMethodsController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.PaymentMethod_Read)]
+    [HasAnyPermission(Permission.PaymentMethod_Read, Permission.Invoice_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<PaymentMethodLookup>(search));
@@ -30,7 +30,7 @@ public class PaymentMethodsController(IMediator mediator, IStringLocalizer local
     }
 
     [HttpGet]
-    [HasPermission(Permission.PaymentMethod_Read)]
+    [HasAnyPermission(Permission.PaymentMethod_Read, Permission.Invoice_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<PaymentMethodLookup>());

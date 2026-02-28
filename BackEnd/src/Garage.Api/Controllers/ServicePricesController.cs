@@ -20,7 +20,7 @@ namespace Garage.Api.Controllers;
 public class ServicePricesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.ServicePrice_Read)]
+    [HasAnyPermission(Permission.ServicePrice_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll([FromBody] ServicePriceFilterDto search, CancellationToken ct)
     {
         var result = await mediator.Send(new GetAllServicePriceBySearchQuery(search), ct);

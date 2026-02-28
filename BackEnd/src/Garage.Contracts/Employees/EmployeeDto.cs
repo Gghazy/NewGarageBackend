@@ -1,4 +1,4 @@
-﻿namespace Garage.Contracts.Employees;
+namespace Garage.Contracts.Employees;
 
 public record EmployeeDto(
     Guid Id,
@@ -8,9 +8,6 @@ public record EmployeeDto(
     Guid RoleId,
     string RoleName,
     string PhoneNumber,
-    Guid BranchId,
-    string BranchNameEn,
-    string BranchNameAr,
+    List<EmployeeBranchDto> Branches,
     bool IsActive,
-    string Email
-    );
+    string Email);

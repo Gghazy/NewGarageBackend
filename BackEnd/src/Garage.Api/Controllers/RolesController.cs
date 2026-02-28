@@ -34,7 +34,7 @@ namespace Garage.Api.Controllers
         }
 
         [HttpGet]
-        [HasPermission(Permission.Roles_Read)]
+        [HasAnyPermission(Permission.Roles_Read, Permission.Employees_Read)]
         public async Task<IActionResult> GetAll()
         {
             var roles = await _mediator.Send(new GetAllRolesQuery());

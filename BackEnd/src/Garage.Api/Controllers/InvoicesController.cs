@@ -10,6 +10,7 @@ using Garage.Application.Invoices.Commands.Update;
 using Garage.Application.Invoices.Queries.GetAll;
 using Garage.Application.Invoices.Queries.GetByExamination;
 using Garage.Application.Invoices.Queries.GetById;
+using Garage.Application.Invoices.Queries.GetHistory;
 using Garage.Application.Invoices.Queries.GetRevenue;
 using Garage.Contracts.Common;
 using Garage.Contracts.Invoices;
@@ -53,7 +54,7 @@ public class InvoicesController : ApiControllerBase
     }
 
     [HttpGet("by-examination/{examinationId:Guid}")]
-    [HasPermission(Permission.Invoice_Read)]
+    [HasAnyPermission(Permission.Invoice_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetByExamination(Guid examinationId)
     {
         var result = await _mediator.Send(new GetInvoicesByExaminationQuery(examinationId));
@@ -69,7 +70,7 @@ public class InvoicesController : ApiControllerBase
     }
 
     [HttpPost("from-examination/{examinationId:Guid}")]
-    [HasPermission(Permission.Invoice_Create)]
+    [HasAnyPermission(Permission.Invoice_Create, Permission.Examination_Create)]
     public async Task<IActionResult> CreateFromExamination(Guid examinationId)
     {
         var result = await _mediator.Send(new CreateInvoiceFromExaminationCommand(examinationId));
@@ -129,6 +130,14 @@ public class InvoicesController : ApiControllerBase
     public async Task<IActionResult> GetRevenue([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
     {
         var result = await _mediator.Send(new GetRevenueQuery(from, to, branchId));
+        return Success(result);
+    }
+
+    [HttpGet("{id:Guid}/history")]
+    [HasPermission(Permission.Invoice_Read)]
+    public async Task<IActionResult> GetHistory(Guid id)
+    {
+        var result = await _mediator.Send(new GetInvoiceHistoryQuery(id));
         return Success(result);
     }
 

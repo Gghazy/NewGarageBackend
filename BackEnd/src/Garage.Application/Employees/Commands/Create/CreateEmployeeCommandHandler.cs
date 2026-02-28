@@ -54,7 +54,7 @@ public class CreateEmployeeCommandHandler : BaseCommandHandler<CreateEmployeeCom
             user.Id,
             command.Request.NameAr,
             command.Request.NameEn,
-            command.Request.BranchId
+            command.Request.BranchIds
         );
 
         await _repository.AddAsync(employee, ct);

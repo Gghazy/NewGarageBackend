@@ -23,7 +23,7 @@ public class AccessoryPartsController(IMediator mediator, IStringLocalizer local
     : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.AccessoryPart_Read)]
+    [HasAnyPermission(Permission.AccessoryPart_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllPaginationQuery<AccessoryPart>(search));
@@ -31,7 +31,7 @@ public class AccessoryPartsController(IMediator mediator, IStringLocalizer local
     }
 
     [HttpGet]
-    [HasPermission(Permission.AccessoryPart_Read)]
+    [HasAnyPermission(Permission.AccessoryPart_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllLookupQuery<AccessoryPart>());

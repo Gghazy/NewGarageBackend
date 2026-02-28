@@ -23,7 +23,7 @@ namespace Garage.Api.Controllers;
 public class CarMarkesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.CarMark_Read)]
+    [HasAnyPermission(Permission.CarMark_Read, Permission.Examination_Read, Permission.ServicePrice_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetAllCarMarksPaginationQuery(search));
@@ -31,7 +31,7 @@ public class CarMarkesController(IMediator mediator, IStringLocalizer localizer)
     }
 
     [HttpGet]
-    [HasPermission(Permission.CarMark_Read)]
+    [HasAnyPermission(Permission.CarMark_Read, Permission.Examination_Read, Permission.ServicePrice_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllCarMarksQuery());
@@ -39,7 +39,7 @@ public class CarMarkesController(IMediator mediator, IStringLocalizer localizer)
     }
 
     [HttpGet("by-manufacturer/{manufacturerId:Guid}")]
-    [HasPermission(Permission.CarMark_Read)]
+    [HasAnyPermission(Permission.CarMark_Read, Permission.Examination_Read, Permission.ServicePrice_Read)]
     public async Task<IActionResult> GetByManufacturer(Guid manufacturerId)
     {
         var result = await mediator.Send(new GetCarMarksByManufacturerQuery(manufacturerId));

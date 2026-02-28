@@ -3,6 +3,7 @@ using Garage.Application.RoadTestIssues.Commands.Create;
 using Garage.Application.RoadTestIssues.Commands.Delete;
 using Garage.Application.RoadTestIssues.Commands.Update;
 using Garage.Application.RoadTestIssues.Queries.GetAll;
+using Garage.Application.RoadTestIssues.Queries.GetAllList;
 using Garage.Contracts.Common;
 using Garage.Contracts.RoadTestIssues;
 using Garage.Domain.Users.Permissions;
@@ -20,10 +21,18 @@ namespace Garage.Api.Controllers;
 public class RoadTestIssuesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpPost("pagination")]
-    [HasPermission(Permission.RoadTestIssue_Read)]
+    [HasAnyPermission(Permission.RoadTestIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll(SearchCriteria search)
     {
         var result = await mediator.Send(new GetRoadTestIssueQuery(search));
+        return Success(result);
+    }
+
+    [HttpGet]
+    [HasAnyPermission(Permission.RoadTestIssue_Read, Permission.Examination_Read)]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await mediator.Send(new GetAllRoadTestIssuesQuery());
         return Success(result);
     }
 

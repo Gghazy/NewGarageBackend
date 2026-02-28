@@ -21,7 +21,7 @@ namespace Garage.Api.Controllers;
 public class SensorIssuesController(IMediator mediator, IStringLocalizer localizer) : ApiControllerBase(localizer)
 {
     [HttpGet]
-    [HasPermission(Permission.SensorIssue_Read)]
+    [HasAnyPermission(Permission.SensorIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAll()
     {
         var result = await mediator.Send(new GetAllSensorIssuesQuery());
@@ -29,7 +29,7 @@ public class SensorIssuesController(IMediator mediator, IStringLocalizer localiz
     }
 
     [HttpPost("pagination")]
-    [HasPermission(Permission.SensorIssue_Read)]
+    [HasAnyPermission(Permission.SensorIssue_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetBySearch(SearchCriteria search)
     {
         var result = await mediator.Send(new GetSensorIssueQuery(search));

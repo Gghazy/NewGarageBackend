@@ -57,7 +57,7 @@ public sealed class ServicesController : ApiControllerBase
     /// Gets all services with pagination
     /// </summary>
     [HttpPost("pagination")]
-    [HasPermission(Permission.Service_Read)]
+    [HasAnyPermission(Permission.Service_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetAllPaginated([FromBody] SearchCriteria search, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllServiceBySearchQuery(search), ct);

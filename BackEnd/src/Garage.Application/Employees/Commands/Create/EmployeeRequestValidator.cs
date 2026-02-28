@@ -50,7 +50,12 @@ public class EmployeeRequestValidator : AbstractValidator<EmployeeRequest>
                 .WithErrorCode("Validation.InvalidEmail")
                 .WithMessage("Validation.InvalidEmail");
 
-        RuleFor(x => x.BranchId)
+        RuleFor(x => x.BranchIds)
+            .NotEmpty()
+                .WithErrorCode("Validation.Required")
+                .WithMessage("Validation.Required");
+
+        RuleForEach(x => x.BranchIds)
             .NotEmpty()
                 .WithErrorCode("Validation.Required")
                 .WithMessage("Validation.Required");
