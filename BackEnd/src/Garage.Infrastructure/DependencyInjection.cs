@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<InvoiceNumberGenerator>();
         services.AddScoped<InvoiceSyncService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IBranchAccessService, BranchAccessService>();
         services.AddScoped(typeof(ILookupRepository<>), typeof(LookupRepository<>));
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 

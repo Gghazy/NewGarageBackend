@@ -11,16 +11,16 @@ public class LoginHandler : BaseQueryHandler<LoginQuery, Result<LoginResponse>>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
-    private readonly IReadRepository<Employee> _employeeRepository;
+    private readonly IApplicationDbContext _db;
 
     public LoginHandler(
         IIdentityService identityService,
         IJwtTokenService jwtTokenService,
-        IReadRepository<Employee> employeeRepository)
+        IApplicationDbContext db)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
-        _employeeRepository = employeeRepository;
+        _db = db;
     }
 
     public override async Task<Result<LoginResponse>> Handle(LoginQuery request, CancellationToken ct)
@@ -30,9 +30,17 @@ public class LoginHandler : BaseQueryHandler<LoginQuery, Result<LoginResponse>>
         if (!validationResult.Succeeded)
             return Result<LoginResponse>.Fail("Invalid credentials");
 
-        // Get employee information
-        var employee = await _employeeRepository.Query()
-            .FirstOrDefaultAsync(e => e.UserId == validationResult.UserId, ct);
+        // Get employee information with branches
+        var employee = await _db.Employees
+            .AsNoTracking()
+            .Where(e => e.UserId == validationResult.UserId)
+            .Select(e => new
+            {
+                e.NameAr,
+                e.NameEn,
+                BranchIds = e.Branches.Select(b => b.BranchId).ToList()
+            })
+            .FirstOrDefaultAsync(ct);
 
         // Create JWT token
         var (token, expiration) = _jwtTokenService.CreateToken(
@@ -40,7 +48,8 @@ public class LoginHandler : BaseQueryHandler<LoginQuery, Result<LoginResponse>>
             employee?.NameAr ?? validationResult.Email,
             employee?.NameEn ?? validationResult.Email,
             validationResult.Email,
-            validationResult.claims
+            validationResult.claims,
+            employee?.BranchIds
         );
 
         return Result<LoginResponse>.Ok(new LoginResponse(token, expiration));

@@ -7,14 +7,18 @@ using Garage.Contracts.Examinations;
 
 namespace Garage.Application.Examinations.Queries.GetAll;
 
-public sealed class GetAllExaminationsQueryHandler(IReadRepository<Examination> repo)
+public sealed class GetAllExaminationsQueryHandler(
+    IReadRepository<Examination> repo,
+    IBranchAccessService branchAccess)
     : BaseQueryHandler<GetAllExaminationsQuery, QueryResult<ExaminationDto>>
 {
     public override async Task<QueryResult<ExaminationDto>> Handle(GetAllExaminationsQuery request, CancellationToken ct)
     {
         var search = request.Search;
+        var branchIds = await branchAccess.GetAccessibleBranchIdsAsync(ct);
 
         var query = repo.Query()
+            .WhereBranchAccessible(branchIds)
             .WhereIf(
                 !string.IsNullOrWhiteSpace(search.TextSearch),
                 e => e.Client.NameAr.Contains(search.TextSearch!)   ||

@@ -1,4 +1,5 @@
 using Garage.Application.Abstractions;
+using Garage.Application.Common.Extensions;
 using Garage.Domain.InvoiceManagement.Invoices;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,15 @@ public sealed record RevenueDto(
 
 public sealed record GetRevenueQuery(DateTime? From, DateTime? To, Guid? BranchId) : IRequest<RevenueDto>;
 
-public sealed class GetRevenueHandler(IReadRepository<Invoice> invoiceRepo)
+public sealed class GetRevenueHandler(
+    IReadRepository<Invoice> invoiceRepo,
+    IBranchAccessService branchAccess)
     : IRequestHandler<GetRevenueQuery, RevenueDto>
 {
     public async Task<RevenueDto> Handle(GetRevenueQuery request, CancellationToken ct)
     {
+        var accessibleBranches = await branchAccess.GetAccessibleBranchIdsAsync(ct);
+
         var query = invoiceRepo.Query()
             .Where(i => i.Status != InvoiceStatus.Cancelled && i.Status != InvoiceStatus.Draft);
 
@@ -27,6 +32,8 @@ public sealed class GetRevenueHandler(IReadRepository<Invoice> invoiceRepo)
             query = query.Where(i => i.CreatedAtUtc >= request.From.Value);
         if (request.To.HasValue)
             query = query.Where(i => i.CreatedAtUtc < request.To.Value.AddDays(1));
+
+        query = query.WhereBranchAccessible(accessibleBranches);
         if (request.BranchId.HasValue)
             query = query.Where(i => i.Branch.BranchId == request.BranchId.Value);
 
