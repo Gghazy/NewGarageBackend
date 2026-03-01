@@ -1,5 +1,4 @@
 using Garage.Domain.InsideAndDecorParts.Entity;
-using Garage.Domain.InteriorIssues.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

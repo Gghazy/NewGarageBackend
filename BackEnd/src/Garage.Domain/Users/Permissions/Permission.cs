@@ -40,11 +40,6 @@ public static class Permission
     public const string MechIssue_Update = "mechIssue.update";
     public const string MechIssue_Delete = "mechIssue.delete";
 
-    public const string InteriorIssue_Read   = "interiorIssue.read";
-    public const string InteriorIssue_Create = "interiorIssue.create";
-    public const string InteriorIssue_Update = "interiorIssue.update";
-    public const string InteriorIssue_Delete = "interiorIssue.delete";
-
     public const string InteriorBodyIssue_Read   = "interiorBodyIssue.read";
     public const string InteriorBodyIssue_Create = "interiorBodyIssue.create";
     public const string InteriorBodyIssue_Update = "interiorBodyIssue.update";
@@ -187,7 +182,6 @@ public static class Permission
         MechPart_Read, MechPart_Create,MechPart_Update, MechPart_Delete,
         MechPartType_Read, MechPartType_Create,MechPartType_Update, MechPartType_Delete,
         MechIssue_Read, MechIssue_Create,MechIssue_Update, MechIssue_Delete,
-        InteriorIssue_Read, InteriorIssue_Create,InteriorIssue_Update, InteriorIssue_Delete,
         InteriorBodyIssue_Read, InteriorBodyIssue_Create,InteriorBodyIssue_Update, InteriorBodyIssue_Delete,
         ExteriorBodyIssue_Read, ExteriorBodyIssue_Create,ExteriorBodyIssue_Update, ExteriorBodyIssue_Delete,
         AccessoryIssue_Read, AccessoryIssue_Create,AccessoryIssue_Update, AccessoryIssue_Delete,

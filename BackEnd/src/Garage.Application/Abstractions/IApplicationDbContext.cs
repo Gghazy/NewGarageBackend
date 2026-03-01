@@ -15,7 +15,6 @@ using Garage.Domain.InsideAndDecorPartIssues.Entity;
 using Garage.Domain.InteriorBodyParts.Entity;
 using Garage.Domain.ExteriorBodyParts.Entity;
 using Garage.Domain.InteriorBodyIssues.Entity;
-using Garage.Domain.InteriorIssues.Entity;
 using Garage.Domain.Manufacturers.Entity;
 using Garage.Domain.PaymentMethods.Entity;
 using Garage.Domain.MechIssues.Entity;
@@ -46,7 +45,6 @@ namespace Garage.Application.Abstractions
         DbSet<MechPart> MechParts { get; }
         DbSet<MechPartType> MechPartTypes { get; }
         DbSet<MechIssue> MechIssues { get; }
-        DbSet<InteriorIssue> InteriorIssues { get; }
         DbSet<InteriorBodyIssue> InteriorBodyIssues { get; }
         DbSet<ExteriorBodyIssue> ExteriorBodyIssues { get; }
         DbSet<AccessoryIssue> AccessoryIssues { get; }
