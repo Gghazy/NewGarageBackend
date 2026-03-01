@@ -36,12 +36,16 @@ public sealed class UpdateEmployeeCommandHandler : BaseCommandHandler<UpdateEmpl
         if (employee is null)
             return Fail(NotFoundError);
 
-        employee.Update(command.Request.NameAr, command.Request.NameEn, command.Request.BranchIds);
-        await _unitOfWork.SaveChangesAsync(ct);
-
         var user = await _userManager.FindByIdAsync(employee.UserId.ToString());
         if (user is null)
             return Fail("User not found");
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+        if (userRoles.Any(r => r is "Admin" or "Manager"))
+            return Fail("This employee is protected and cannot be modified");
+
+        employee.Update(command.Request.NameAr, command.Request.NameEn, command.Request.BranchIds);
+        await _unitOfWork.SaveChangesAsync(ct);
 
         bool needUpdate = false;
 

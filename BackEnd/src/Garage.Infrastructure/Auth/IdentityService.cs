@@ -44,5 +44,59 @@ public class IdentityService(UserManager<AppUser> userManager, RoleManager<AppRo
         await userManager.SetLockoutEnabledAsync(user, true);
         await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
     }
+
+    public async Task<(bool Succeeded, string? Error)> UpdateEmailAndPhoneAsync(
+        Guid userId, string email, string phoneNumber, CancellationToken ct = default)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return (false, "User not found");
+
+        if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
+        {
+            var existing = await userManager.FindByEmailAsync(email);
+            if (existing is not null && existing.Id != userId)
+                return (false, "Email is already in use");
+
+            user.Email = email;
+            user.NormalizedEmail = email.ToUpperInvariant();
+            user.UserName = email;
+            user.NormalizedUserName = email.ToUpperInvariant();
+        }
+
+        user.PhoneNumber = phoneNumber;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        return (true, null);
+    }
+
+    public async Task<(bool Succeeded, string? Error)> ChangePasswordAsync(
+        Guid userId, string currentPassword, string newPassword, CancellationToken ct = default)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return (false, "User not found");
+
+        var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        return (true, null);
+    }
+
+    public async Task<IList<Claim>?> GetUserClaimsAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return null;
+
+        var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+        if (userRole is null) return null;
+
+        var role = await roleManager.FindByNameAsync(userRole);
+        if (role is null) return null;
+
+        return await roleManager.GetClaimsAsync(role);
+    }
 }
 

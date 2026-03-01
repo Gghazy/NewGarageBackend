@@ -11,11 +11,14 @@ public class GetAllEmployeesBySearchQueryHandler(IApplicationDbContext _context)
 {
     public async Task<QueryResult<EmployeeDto>> Handle(GetAllEmployeesBySearchQuery request, CancellationToken ct)
     {
+        var protectedRoles = new[] { "Admin", "Manager" };
+
         var baseQuery =
             from e in _context.Employees.AsNoTracking()
             join u in _context.Users.AsNoTracking() on e.UserId equals u.Id
             join ur in _context.UserRoles.AsNoTracking() on u.Id equals ur.UserId
             join r in _context.Roles.AsNoTracking() on ur.RoleId equals r.Id
+            where !protectedRoles.Contains(r.Name)
             select new
             {
                 e.Id,

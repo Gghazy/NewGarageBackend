@@ -28,6 +28,12 @@ public class Employee : AggregateRoot
         SetBranches(branchIds);
     }
 
+    public void UpdateName(string nameAr, string nameEn)
+    {
+        NameAr = nameAr;
+        NameEn = nameEn;
+    }
+
     private void SetBranches(List<Guid> branchIds)
     {
         _branches.Clear();

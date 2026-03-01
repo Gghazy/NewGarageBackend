@@ -1,5 +1,6 @@
 using Garage.Api.Controllers.Common;
-using Garage.Application.Roles.Commands;
+using Garage.Application.Roles.Commands.Create;
+using Garage.Application.Roles.Commands.Update;
 using Garage.Application.Roles.Queries.GetAllRoles;
 using Garage.Application.Roles.Queries.GetRoleById;
 using Garage.Contracts.Roles;
@@ -27,10 +28,18 @@ namespace Garage.Api.Controllers
 
         [HttpPost]
         [HasPermission(Permission.Roles_Create)]
-        public async Task<IActionResult> Create(UpsertRoleRequest req)
+        public async Task<IActionResult> Create(CreateRoleRequest req)
         {
-            var result = await _mediator.Send(new UpsertRoleWithPermissionsCommand(req));
-            return Success(result);
+            var result = await _mediator.Send(new CreateRoleCommand(req));
+            return HandleResult(result);
+        }
+
+        [HttpPut("{id:guid}")]
+        [HasPermission(Permission.Roles_Update)]
+        public async Task<IActionResult> Update(Guid id, UpdateRoleRequest req)
+        {
+            var result = await _mediator.Send(new UpdateRoleCommand(id, req));
+            return HandleResult(result);
         }
 
         [HttpGet]

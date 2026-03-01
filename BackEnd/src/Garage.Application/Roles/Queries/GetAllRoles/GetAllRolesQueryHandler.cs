@@ -13,7 +13,7 @@ namespace Garage.Application.Roles.Queries.GetAllRoles
         {
             var roles = await _roleManager.Roles
              .AsNoTracking()
-             .Where(x=>x.Name!="Admin")
+             .Where(x => x.Name != "Admin" && x.Name != "Manager")
              .OrderBy(r => r.Name)             
              .Select(r => new RoleDto(r.Id, r.Name!)) 
              .ToListAsync(ct);
