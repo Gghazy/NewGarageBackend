@@ -24,6 +24,7 @@ using Garage.Domain.RoadTestIssues.Entity;
 using Garage.Domain.SensorIssues.Entities;
 using Garage.Domain.ServicePrices.Entities;
 using Garage.Domain.Services.Entities;
+using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.Terms.Entity;
 using Garage.Infrastructure.Auth.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -87,6 +88,10 @@ namespace Garage.Application.Abstractions
         DbSet<InteriorDecorStageResult> InteriorDecorStageResults { get; }
         DbSet<InteriorBodyStageResult> InteriorBodyStageResults { get; }
         DbSet<ExteriorBodyStageResult> ExteriorBodyStageResults { get; }
+        #endregion
+
+        #region Invoices
+        DbSet<Invoice> Invoices { get; }
         #endregion
     }
 }

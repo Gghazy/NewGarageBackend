@@ -4,6 +4,7 @@ using Garage.Contracts.Clients;
 using Garage.Contracts.Common;
 
 using Garage.Domain.Clients.Entities;
+using Garage.Domain.InvoiceManagement.Invoices;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,7 +54,15 @@ public class GetAllClientsBySearchQueryHandler(IApplicationDbContext _dbContext)
         company != null ? company.Address.CountrySubentity : null,
         company != null ? company.Address.CountryCode : null,
         company != null ? company.Address.BuildingNumber : null,
-        company != null ? company.Address.CitySubdivisionName : null
+        company != null ? company.Address.CitySubdivisionName : null,
+        // Stats
+        _dbContext.Examinations.Count(e => e.Client.ClientId == c.Id && !e.IsDeleted),
+        _dbContext.Invoices
+            .Where(i => i.Client.ClientId == c.Id
+                     && i.Type == InvoiceType.Invoice
+                     && i.Status != InvoiceStatus.Cancelled
+                     && !i.IsDeleted)
+            .Sum(i => (decimal?)i.TotalWithTax.Amount) ?? 0m
     );
 
         return await query.ToQueryResult(command.Search.CurrentPage, command.Search.ItemsPerPage, ct: ct);

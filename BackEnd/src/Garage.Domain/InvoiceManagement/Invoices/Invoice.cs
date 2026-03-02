@@ -289,9 +289,7 @@ public sealed class Invoice : AggregateRoot
 
         if (totalRefunded > 0 && totalRefunded >= totalPaid)
             Status = InvoiceStatus.Refunded;
-        else if (totalRefunded > 0)
-            Status = InvoiceStatus.PartiallyRefunded;
-        else if (netPaid >= TotalWithTax.Amount)
+        else if (totalPaid >= TotalWithTax.Amount)
             Status = InvoiceStatus.Paid;
         else
             Status = InvoiceStatus.Issued;

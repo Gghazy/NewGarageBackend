@@ -25,6 +25,9 @@ public record ClientDto(
     string? CountrySubentity,
     string? CountryCode,
     string? BuildingNumber,
-    string? CitySubdivisionName
+    string? CitySubdivisionName,
+    // Stats
+    int ExaminationCount,
+    decimal TotalRevenue
    );
 

@@ -43,9 +43,7 @@ public static class IdentitySeeder
 
             // Create Employee record
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var firstBranch = await db.Branches.FirstOrDefaultAsync();
-            var branchIds = firstBranch is not null ? new List<Guid> { firstBranch.Id } : new List<Guid>();
-            var employee = new Employee(manager.Id, "مدير النظام", "System Manager", branchIds);
+            var employee = new Employee(manager.Id, "مدير النظام", "System Manager", new List<Guid>());
             db.Employees.Add(employee);
             await db.SaveChangesAsync();
         }

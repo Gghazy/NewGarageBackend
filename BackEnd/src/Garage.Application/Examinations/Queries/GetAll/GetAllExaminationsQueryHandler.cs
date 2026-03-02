@@ -24,6 +24,12 @@ public sealed class GetAllExaminationsQueryHandler(
                 e => e.Client.NameAr.Contains(search.TextSearch!)   ||
                      e.Client.NameEn.Contains(search.TextSearch!)   ||
                      e.Client.PhoneNumber.Contains(search.TextSearch!))
+            .WhereIf(search.DateFrom.HasValue,
+                e => e.CreatedAtUtc >= search.DateFrom!.Value.Date)
+            .WhereIf(search.DateTo.HasValue,
+                e => e.CreatedAtUtc < search.DateTo!.Value.Date.AddDays(1))
+            .WhereIf(search.BranchId.HasValue,
+                e => e.Branch.BranchId == search.BranchId!.Value)
             .Select(ExaminationProjection.ToDto);
 
         return await query.ToQueryResult(

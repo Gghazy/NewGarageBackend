@@ -13,6 +13,9 @@ namespace Garage.Contracts.Common
         public string? TextSearch { get; set; }
         public string? Sort { get; set; }
         public bool Desc { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+        public Guid? BranchId { get; set; }
     }
 }
 

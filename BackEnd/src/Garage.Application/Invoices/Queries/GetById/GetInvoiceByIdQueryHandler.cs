@@ -18,8 +18,13 @@ public sealed class GetInvoiceByIdQueryHandler(IReadRepository<Invoice> repo)
 
         if (invoice is null) return null;
 
+        // Determine the root (parent) invoice ID for the chain
+        var rootId = invoice.OriginalInvoiceId ?? invoice.Id;
+
+        // Fetch all invoices in the chain (parent + children) including the current one
         var relatedInvoices = await repo.Query()
-            .Where(r => r.OriginalInvoiceId == request.Id)
+            .Where(r => r.Id == rootId || r.OriginalInvoiceId == rootId)
+            .OrderBy(r => r.CreatedAtUtc)
             .Select(InvoiceProjection.ToRelatedDto)
             .ToListAsync(ct);
 
