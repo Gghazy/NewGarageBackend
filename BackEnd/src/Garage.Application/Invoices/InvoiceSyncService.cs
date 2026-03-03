@@ -48,11 +48,11 @@ public sealed class InvoiceSyncService(
         foreach (var examItem in examItems)
         {
             var unitPrice = ResolveUnitPrice(examItem.Service.ServiceId, overridePrices, priceMap);
+            var lineTotal = Money.Create(unitPrice.Amount * examItem.Quantity, unitPrice.Currency);
 
             invoice.AddItem(
                 description:   examItem.Service.NameEn,
-                quantity:      examItem.Quantity,
-                unitPrice:     unitPrice,
+                unitPrice:     lineTotal,
                 serviceId:     examItem.Service.ServiceId,
                 serviceNameAr: examItem.Service.NameAr,
                 serviceNameEn: examItem.Service.NameEn);
@@ -182,34 +182,35 @@ public sealed class InvoiceSyncService(
             .Select(i => i.Service.ServiceId)
             .ToHashSet();
 
-        var adjustmentItems = new List<(string desc, int qty, Money unitPrice, Guid serviceId, string nameAr, string nameEn)>();
-        var refundItems = new List<(string desc, int qty, Money unitPrice, Guid? serviceId, string? nameAr, string? nameEn)>();
+        var adjustmentItems = new List<(string desc, Money price, Guid serviceId, string nameAr, string nameEn)>();
+        var refundItems = new List<(string desc, Money price, Guid? serviceId, string? nameAr, string? nameEn)>();
 
         // 1. Added or changed services
         foreach (var examItem in exam.Items)
         {
             var svcId = examItem.Service.ServiceId;
             var newUnitPrice = ResolveUnitPrice(svcId, overridePrices, priceMap);
+            var newTotal = newUnitPrice.Amount * examItem.Quantity;
 
             if (!oldItemsByService.ContainsKey(svcId))
             {
                 // New service → full amount is increase
-                adjustmentItems.Add((examItem.Service.NameEn, examItem.Quantity, newUnitPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                var lineTotal = Money.Create(newTotal, newUnitPrice.Currency);
+                adjustmentItems.Add((examItem.Service.NameEn, lineTotal, svcId, examItem.Service.NameAr, examItem.Service.NameEn));
             }
             else
             {
                 var oldItem = oldItemsByService[svcId];
-                var diff = (newUnitPrice.Amount * examItem.Quantity) - oldItem.TotalPrice.Amount;
+                var diff = newTotal - oldItem.TotalPrice.Amount;
 
                 if (diff > 0.001m)
                 {
-                    var diffPerUnit = Money.Create(Math.Round(diff / examItem.Quantity, 2));
-                    adjustmentItems.Add((examItem.Service.NameEn, examItem.Quantity, diffPerUnit, svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                    adjustmentItems.Add((examItem.Service.NameEn, Money.Create(Math.Round(diff, 2)), svcId, examItem.Service.NameAr, examItem.Service.NameEn));
                 }
                 else if (diff < -0.001m)
                 {
-                    var diffPerUnit = Money.Create(Math.Round(Math.Abs(diff) / examItem.Quantity, 2));
-                    refundItems.Add((examItem.Service.NameEn, examItem.Quantity, diffPerUnit.Negate(), svcId, examItem.Service.NameAr, examItem.Service.NameEn));
+                    var refundAmount = Money.Create(Math.Round(Math.Abs(diff), 2));
+                    refundItems.Add((examItem.Service.NameEn, refundAmount.Negate(), svcId, examItem.Service.NameAr, examItem.Service.NameEn));
                 }
             }
         }
@@ -219,7 +220,7 @@ public sealed class InvoiceSyncService(
         {
             if (oldItem.ServiceId.HasValue && !newServiceIds.Contains(oldItem.ServiceId.Value))
             {
-                refundItems.Add((oldItem.Description, oldItem.Quantity, oldItem.UnitPrice.Negate(), oldItem.ServiceId, oldItem.ServiceNameAr, oldItem.ServiceNameEn));
+                refundItems.Add((oldItem.Description, oldItem.TotalPrice.Negate(), oldItem.ServiceId, oldItem.ServiceNameAr, oldItem.ServiceNameEn));
             }
         }
 
@@ -228,7 +229,7 @@ public sealed class InvoiceSyncService(
         {
             var adjustment = Invoice.CreateAdjustment(invoice);
             foreach (var item in adjustmentItems)
-                adjustment.AddItem(item.desc, item.qty, item.unitPrice, item.serviceId, item.nameAr, item.nameEn);
+                adjustment.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn);
 
             var adjNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Adjustment, ct);
             adjustment.SetInvoiceNumber(adjNumber);
@@ -241,7 +242,7 @@ public sealed class InvoiceSyncService(
         {
             var refundInvoice = Invoice.CreateEmptyRefundInvoice(invoice);
             foreach (var item in refundItems)
-                refundInvoice.AddItem(item.desc, item.qty, item.unitPrice, item.serviceId, item.nameAr, item.nameEn);
+                refundInvoice.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn);
 
             var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
             refundInvoice.SetInvoiceNumber(refNumber);

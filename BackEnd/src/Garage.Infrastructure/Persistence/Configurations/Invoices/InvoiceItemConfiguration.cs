@@ -14,7 +14,6 @@ public sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceI
         b.Property(x => x.Id).ValueGeneratedNever();
 
         b.Property(x => x.Description).HasMaxLength(500).IsRequired();
-        b.Property(x => x.Quantity).IsRequired();
 
         b.OwnsOne(x => x.UnitPrice, m =>
         {

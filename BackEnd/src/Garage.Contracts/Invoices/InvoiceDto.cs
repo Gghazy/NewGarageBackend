@@ -51,7 +51,6 @@ public sealed record InvoiceDto(
 public sealed record InvoiceItemDto(
     Guid    Id,
     string  Description,
-    int     Quantity,
     decimal UnitPrice,
     decimal TotalPrice,
     string  Currency,

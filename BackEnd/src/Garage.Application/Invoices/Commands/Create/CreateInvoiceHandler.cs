@@ -59,26 +59,35 @@ public sealed class CreateInvoiceHandler(
         if (req.DueDate.HasValue)
             invoice.SetDueDate(req.DueDate);
 
-        // -- 3. Add items ---------------------------------------------------------
+        // -- 3. Batch-load services then add items ---------------------------------
+
+        var serviceIds = req.Items
+            .Where(i => i.ServiceId.HasValue && i.ServiceId.Value != Guid.Empty)
+            .Select(i => i.ServiceId!.Value)
+            .Distinct()
+            .ToList();
+
+        var services = serviceIds.Count > 0
+            ? await serviceRepo.Query()
+                .Where(s => serviceIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, ct)
+            : new Dictionary<Guid, Service>();
 
         foreach (var item in req.Items)
         {
             string? serviceNameAr = null;
             string? serviceNameEn = null;
 
-            if (item.ServiceId.HasValue && item.ServiceId.Value != Guid.Empty)
+            if (item.ServiceId.HasValue
+                && item.ServiceId.Value != Guid.Empty
+                && services.TryGetValue(item.ServiceId.Value, out var service))
             {
-                var service = await serviceRepo.GetByIdAsync(item.ServiceId.Value, ct);
-                if (service is not null)
-                {
-                    serviceNameAr = service.NameAr;
-                    serviceNameEn = service.NameEn;
-                }
+                serviceNameAr = service.NameAr;
+                serviceNameEn = service.NameEn;
             }
 
             invoice.AddItem(
                 item.Description,
-                item.Quantity,
                 Money.Create(item.UnitPrice),
                 item.ServiceId,
                 serviceNameAr,

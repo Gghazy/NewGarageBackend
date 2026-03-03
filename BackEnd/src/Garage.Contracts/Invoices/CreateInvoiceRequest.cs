@@ -18,7 +18,6 @@ public sealed record CreateInvoiceRequest(
 
 public sealed record InvoiceItemRequest(
     string  Description,
-    int     Quantity,
     decimal UnitPrice,
     Guid?   ServiceId
 );

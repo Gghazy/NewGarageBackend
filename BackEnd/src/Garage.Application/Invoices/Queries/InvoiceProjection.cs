@@ -44,7 +44,6 @@ public static class InvoiceProjection
             i.Items.Select(item => new InvoiceItemDto(
                 item.Id,
                 item.Description,
-                item.Quantity,
                 item.UnitPrice.Amount,
                 item.TotalPrice.Amount,
                 item.UnitPrice.Currency,

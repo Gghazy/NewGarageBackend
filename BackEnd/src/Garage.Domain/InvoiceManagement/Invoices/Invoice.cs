@@ -34,6 +34,12 @@ public sealed class Invoice : AggregateRoot
     private readonly List<InvoiceHistory> _history = new();
     public IReadOnlyCollection<InvoiceHistory> History => _history.AsReadOnly();
 
+    public decimal TotalPaid => _payments
+        .Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount);
+    public decimal TotalRefunded => _payments
+        .Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount);
+    public decimal Balance => TotalWithTax.Amount - TotalPaid + TotalRefunded;
+
     private Invoice() { }
 
     private Invoice(
@@ -88,7 +94,7 @@ public sealed class Invoice : AggregateRoot
         var refund = new Invoice(client, branch, refundAmount.Currency);
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
-        refund.AddItem("Refund", 1, refundAmount);
+        refund.AddItem("Refund", refundAmount);
         refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
         return refund;
@@ -184,17 +190,15 @@ public sealed class Invoice : AggregateRoot
         Branch = branchRef;
     }
 
-    public void AddItem(string description, int quantity, Money unitPrice,
+    public void AddItem(string description, Money unitPrice,
         Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null)
     {
         EnsureItemsEditable();
 
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("Item description is required.");
-        if (quantity <= 0)
-            throw new DomainException("Quantity must be greater than zero.");
 
-        _items.Add(new InvoiceItem(description, quantity, unitPrice, serviceId, serviceNameAr, serviceNameEn));
+        _items.Add(new InvoiceItem(description, unitPrice, serviceId, serviceNameAr, serviceNameEn));
         RecalculateTotal();
         AddHistory(InvoiceHistoryAction.ItemAdded, description);
     }
@@ -211,14 +215,14 @@ public sealed class Invoice : AggregateRoot
         AddHistory(InvoiceHistoryAction.ItemRemoved);
     }
 
-    public void UpdateItem(Guid itemId, string description, int quantity, Money unitPrice)
+    public void UpdateItem(Guid itemId, string description, Money unitPrice)
     {
         EnsureItemsEditable();
 
         var item = _items.FirstOrDefault(x => x.Id == itemId)
                    ?? throw new DomainException("Item not found.");
 
-        item.Update(description, quantity, unitPrice);
+        item.Update(description, unitPrice);
         RecalculateTotal();
         AddHistory(InvoiceHistoryAction.ItemUpdated, description);
     }
@@ -238,14 +242,7 @@ public sealed class Invoice : AggregateRoot
         if (Status == InvoiceStatus.Cancelled)
             throw new DomainException("Cannot add refund to a cancelled invoice.");
 
-        var totalPaid = _payments
-            .Where(p => p.Type == PaymentType.Payment)
-            .Sum(p => p.Amount.Amount);
-        var totalRefunded = _payments
-            .Where(p => p.Type == PaymentType.Refund)
-            .Sum(p => p.Amount.Amount);
-
-        if (amount.Amount > totalPaid - totalRefunded)
+        if (amount.Amount > TotalPaid - TotalRefunded)
             throw new DomainException("Refund amount exceeds paid amount.");
 
         _payments.Add(new InvoicePayment(amount, methodId, methodNameAr, methodNameEn, PaymentType.Refund, notes));
@@ -261,6 +258,14 @@ public sealed class Invoice : AggregateRoot
             throw new DomainException("Invoice number is required.");
 
         InvoiceNumber = invoiceNumber;
+    }
+
+    public void EnsureDeletable()
+    {
+        if (Status == InvoiceStatus.Paid)
+            throw new DomainException("Paid invoices cannot be deleted.");
+        if (Status == InvoiceStatus.Cancelled)
+            throw new DomainException("Cancelled invoices cannot be deleted.");
     }
 
     public void Cancel(string? reason = null)
@@ -279,17 +284,9 @@ public sealed class Invoice : AggregateRoot
         if (Status == InvoiceStatus.Cancelled)
             return;
 
-        var totalPaid = _payments
-            .Where(p => p.Type == PaymentType.Payment)
-            .Sum(p => p.Amount.Amount);
-        var totalRefunded = _payments
-            .Where(p => p.Type == PaymentType.Refund)
-            .Sum(p => p.Amount.Amount);
-        var netPaid = totalPaid - totalRefunded;
-
-        if (totalRefunded > 0 && totalRefunded >= totalPaid)
+        if (TotalRefunded > 0 && TotalRefunded >= TotalPaid)
             Status = InvoiceStatus.Refunded;
-        else if (totalPaid >= TotalWithTax.Amount)
+        else if (TotalPaid >= TotalWithTax.Amount)
             Status = InvoiceStatus.Paid;
         else
             Status = InvoiceStatus.Issued;
