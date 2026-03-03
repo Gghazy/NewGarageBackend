@@ -94,6 +94,7 @@ public sealed class Invoice : AggregateRoot
         var refund = new Invoice(client, branch, refundAmount.Currency);
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
+        refund.ExaminationId = original.ExaminationId;
         refund.AddItem("Refund", refundAmount);
         refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
@@ -123,6 +124,7 @@ public sealed class Invoice : AggregateRoot
         var refund = new Invoice(client, branch, original.TotalPrice.Currency);
         refund.Type = InvoiceType.Refund;
         refund.OriginalInvoiceId = original.Id;
+        refund.ExaminationId = original.ExaminationId;
         refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
         return refund;
@@ -148,6 +150,7 @@ public sealed class Invoice : AggregateRoot
         var adjustment = new Invoice(client, branch, original.TotalPrice.Currency);
         adjustment.Type = InvoiceType.Adjustment;
         adjustment.OriginalInvoiceId = original.Id;
+        adjustment.ExaminationId = original.ExaminationId;
         adjustment.AddHistory(InvoiceHistoryAction.Created);
 
         return adjustment;
