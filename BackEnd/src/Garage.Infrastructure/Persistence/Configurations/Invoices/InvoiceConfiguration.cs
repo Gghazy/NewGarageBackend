@@ -23,7 +23,7 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         // -- Examination link -----------------------------------------------------
         b.Property(x => x.ExaminationId).IsRequired(false);
-        b.HasIndex(x => x.ExaminationId).IsUnique().HasFilter("[ExaminationId] IS NOT NULL");
+        b.HasIndex(x => x.ExaminationId);
 
         // -- Original invoice link (for refunds) ---------------------------------
         b.Property(x => x.OriginalInvoiceId).IsRequired(false);
