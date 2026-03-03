@@ -56,7 +56,8 @@ public sealed record InvoiceItemDto(
     string  Currency,
     Guid?   ServiceId,
     string? ServiceNameAr,
-    string? ServiceNameEn
+    string? ServiceNameEn,
+    decimal AdjustmentAmount
 );
 
 public sealed record InvoicePaymentDto(

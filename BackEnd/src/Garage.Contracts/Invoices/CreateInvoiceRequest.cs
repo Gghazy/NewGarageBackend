@@ -19,5 +19,6 @@ public sealed record CreateInvoiceRequest(
 public sealed record InvoiceItemRequest(
     string  Description,
     decimal UnitPrice,
-    Guid?   ServiceId
+    Guid?   ServiceId,
+    decimal AdjustmentAmount = 0
 );

@@ -194,14 +194,15 @@ public sealed class Invoice : AggregateRoot
     }
 
     public void AddItem(string description, Money unitPrice,
-        Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null)
+        Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null,
+        decimal adjustmentAmount = 0)
     {
         EnsureItemsEditable();
 
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("Item description is required.");
 
-        _items.Add(new InvoiceItem(description, unitPrice, serviceId, serviceNameAr, serviceNameEn));
+        _items.Add(new InvoiceItem(description, unitPrice, serviceId, serviceNameAr, serviceNameEn, adjustmentAmount));
         RecalculateTotal();
         AddHistory(InvoiceHistoryAction.ItemAdded, description);
     }
@@ -218,14 +219,14 @@ public sealed class Invoice : AggregateRoot
         AddHistory(InvoiceHistoryAction.ItemRemoved);
     }
 
-    public void UpdateItem(Guid itemId, string description, Money unitPrice)
+    public void UpdateItem(Guid itemId, string description, Money unitPrice, decimal adjustmentAmount = 0)
     {
         EnsureItemsEditable();
 
         var item = _items.FirstOrDefault(x => x.Id == itemId)
                    ?? throw new DomainException("Item not found.");
 
-        item.Update(description, unitPrice);
+        item.Update(description, unitPrice, adjustmentAmount);
         RecalculateTotal();
         AddHistory(InvoiceHistoryAction.ItemUpdated, description);
     }

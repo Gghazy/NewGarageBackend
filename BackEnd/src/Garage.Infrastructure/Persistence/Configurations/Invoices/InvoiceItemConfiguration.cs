@@ -45,6 +45,10 @@ public sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceI
         b.Property(x => x.ServiceNameAr).HasMaxLength(200).IsRequired(false);
         b.Property(x => x.ServiceNameEn).HasMaxLength(200).IsRequired(false);
 
+        b.Property(x => x.AdjustmentAmount)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m);
+
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }
 }
