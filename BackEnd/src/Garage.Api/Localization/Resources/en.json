@@ -129,6 +129,15 @@
     "MechanicalStageSaved": "Mechanical stage saved successfully.",
     "RoadTestStageSaved": "Road test stage saved successfully."
   },
+  "Booking": {
+    "Created": "Booking created successfully.",
+    "Updated": "Booking updated successfully.",
+    "Deleted": "Booking deleted successfully.",
+    "Confirmed": "Booking confirmed successfully.",
+    "Cancelled": "Booking cancelled successfully.",
+    "Converted": "Booking converted to examination successfully.",
+    "NotFound": "Booking not found."
+  },
   "CarMark": {
     "Created": "Car mark created successfully.",
     "Updated": "Car mark updated successfully.",

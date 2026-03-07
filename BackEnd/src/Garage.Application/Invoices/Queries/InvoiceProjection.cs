@@ -35,11 +35,6 @@ public static class InvoiceProjection
             i.TaxAmount.Amount,
             i.TotalWithTax.Amount,
             i.TotalPrice.Currency,
-            i.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount),
-            i.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
-            i.TotalWithTax.Amount
-                - i.Payments.Where(p => p.Type == PaymentType.Payment).Sum(p => p.Amount.Amount)
-                + i.Payments.Where(p => p.Type == PaymentType.Refund).Sum(p => p.Amount.Amount),
             // Items
             i.Items.Select(item => new InvoiceItemDto(
                 item.Id,
@@ -64,20 +59,7 @@ public static class InvoiceProjection
                 p.Notes,
                 p.CreatedAtUtc
             )).ToList(),
-            // Related invoices (populated separately in GetById)
-            new List<RelatedInvoiceDto>(),
             // CreatedAt
             i.CreatedAtUtc
-        );
-
-    public static readonly Expression<Func<Invoice, RelatedInvoiceDto>> ToRelatedDto =
-        r => new RelatedInvoiceDto(
-            r.Id,
-            r.InvoiceNumber,
-            r.Type.ToString(),
-            r.Status.ToString(),
-            r.TotalWithTax.Amount,
-            r.TotalPrice.Currency,
-            r.CreatedAtUtc
         );
 }

@@ -2878,7 +2878,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("ExaminationId");
 
-                            b1.ToTable("Examinations");
+                            b1.ToTable("Examinations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ExaminationId");
@@ -2918,7 +2918,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("ExaminationId");
 
-                            b1.ToTable("Examinations");
+                            b1.ToTable("Examinations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ExaminationId");
@@ -2997,7 +2997,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("ExaminationId");
 
-                            b1.ToTable("Examinations");
+                            b1.ToTable("Examinations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ExaminationId");
@@ -3019,7 +3019,7 @@ namespace Garage.Infrastructure.Migrations
 
                                     b2.HasKey("VehicleSnapshotExaminationId");
 
-                                    b2.ToTable("Examinations");
+                                    b2.ToTable("Examinations", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("VehicleSnapshotExaminationId");
@@ -3069,7 +3069,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("ExaminationItemId");
 
-                            b1.ToTable("ExaminationItems");
+                            b1.ToTable("ExaminationItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ExaminationItemId");
@@ -3098,7 +3098,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("PaymentId");
 
-                            b1.ToTable("ExaminationPayments");
+                            b1.ToTable("ExaminationPayments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PaymentId");
@@ -3323,7 +3323,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicles");
+                            b1.ToTable("Vehicles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
@@ -3357,7 +3357,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3397,7 +3397,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3420,7 +3420,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3443,7 +3443,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3466,7 +3466,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3489,7 +3489,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceId");
 
-                            b1.ToTable("Invoices");
+                            b1.ToTable("Invoices", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceId");
@@ -3547,7 +3547,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceItemId");
 
-                            b1.ToTable("InvoiceItems");
+                            b1.ToTable("InvoiceItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceItemId");
@@ -3570,7 +3570,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoiceItemId");
 
-                            b1.ToTable("InvoiceItems");
+                            b1.ToTable("InvoiceItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceItemId");
@@ -3607,7 +3607,7 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("InvoicePaymentId");
 
-                            b1.ToTable("InvoicePayments");
+                            b1.ToTable("InvoicePayments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("InvoicePaymentId");
@@ -3712,31 +3712,6 @@ namespace Garage.Infrastructure.Migrations
 
             modelBuilder.Entity("Garage.Domain.Clients.Entities.CompanyClient", b =>
                 {
-                    b.OwnsOne("Garage.Domain.Clients.ValueObjects.CompanyIdentity", "Identity", b1 =>
-                        {
-                            b1.Property<Guid>("CompanyClientId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("CommercialRegister")
-                                .IsRequired()
-                                .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
-                                .HasColumnName("CommercialRegister");
-
-                            b1.Property<string>("TaxNumber")
-                                .IsRequired()
-                                .HasMaxLength(30)
-                                .HasColumnType("nvarchar(30)")
-                                .HasColumnName("TaxNumber");
-
-                            b1.HasKey("CompanyClientId");
-
-                            b1.ToTable("Clients");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CompanyClientId");
-                        });
-
                     b.OwnsOne("Garage.Domain.Shared.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("CompanyClientId")
@@ -3789,7 +3764,32 @@ namespace Garage.Infrastructure.Migrations
 
                             b1.HasKey("CompanyClientId");
 
-                            b1.ToTable("Clients");
+                            b1.ToTable("Clients", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyClientId");
+                        });
+
+                    b.OwnsOne("Garage.Domain.Clients.ValueObjects.CompanyIdentity", "Identity", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyClientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("CommercialRegister")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("CommercialRegister");
+
+                            b1.Property<string>("TaxNumber")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("nvarchar(30)")
+                                .HasColumnName("TaxNumber");
+
+                            b1.HasKey("CompanyClientId");
+
+                            b1.ToTable("Clients", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CompanyClientId");

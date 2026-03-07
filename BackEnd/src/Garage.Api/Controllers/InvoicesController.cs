@@ -3,13 +3,13 @@ using Garage.Application.Invoices.Commands.AddPayment;
 using Garage.Application.Invoices.Commands.ChangeStatus;
 using Garage.Application.Invoices.Commands.Create;
 using Garage.Application.Invoices.Commands.CreateFromExamination;
-using Garage.Application.Invoices.Commands.Delete;
 using Garage.Application.Invoices.Commands.RefundPayment;
 using Garage.Application.Invoices.Commands.SetDiscount;
 using Garage.Application.Invoices.Commands.Update;
 using Garage.Application.Invoices.Queries.GetAll;
 using Garage.Application.Invoices.Queries.GetByExamination;
 using Garage.Application.Invoices.Queries.GetById;
+using Garage.Application.Invoices.Queries.GetConsolidated;
 using Garage.Application.Invoices.Queries.GetHistory;
 using Garage.Application.Invoices.Queries.GetRevenue;
 using Garage.Application.Abstractions;
@@ -62,6 +62,15 @@ public class InvoicesController : ApiControllerBase
         return Success(result);
     }
 
+    [HttpGet("consolidated/{examinationId:Guid}")]
+    [HasAnyPermission(Permission.Invoice_Read, Permission.Examination_Read)]
+    public async Task<IActionResult> GetConsolidated(Guid examinationId)
+    {
+        var result = await _mediator.Send(new GetConsolidatedByExaminationQuery(examinationId));
+        if (result is null) return NotFound();
+        return Success(result);
+    }
+
     [HttpPost]
     [HasPermission(Permission.Invoice_Create)]
     public async Task<IActionResult> Create(CreateInvoiceRequest request)
@@ -92,14 +101,6 @@ public class InvoicesController : ApiControllerBase
     {
         var result = await _mediator.Send(new CancelInvoiceCommand(id, reason));
         return HandleResult(result, "Invoice.Cancelled");
-    }
-
-    [HttpDelete("{id:Guid}")]
-    [HasPermission(Permission.Invoice_Delete)]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var result = await _mediator.Send(new DeleteInvoiceCommand(id));
-        return HandleResult(result, "Invoice.Deleted");
     }
 
     [HttpPut("{id:Guid}/discount")]

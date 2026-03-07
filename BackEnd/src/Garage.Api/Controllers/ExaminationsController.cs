@@ -159,9 +159,9 @@ public class ExaminationsController : ApiControllerBase
 
     [HttpPost("{id:Guid}/cancel")]
     [HasPermission(Permission.Examination_Cancel)]
-    public async Task<IActionResult> Cancel(Guid id, [FromBody] string? reason = null)
+    public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelRequest? body = null)
     {
-        var result = await _mediator.Send(new CancelExaminationCommand(id, reason));
+        var result = await _mediator.Send(new CancelExaminationCommand(id, body?.Reason));
         return HandleResult(result, "Examination.Cancelled");
     }
 
@@ -351,3 +351,5 @@ public class ExaminationsController : ApiControllerBase
         return Success(result);
     }
 }
+
+public sealed record CancelRequest(string? Reason = null);

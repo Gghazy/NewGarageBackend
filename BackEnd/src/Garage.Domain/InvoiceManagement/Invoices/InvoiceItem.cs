@@ -23,7 +23,9 @@ public sealed class InvoiceItem : Entity
     {
         Description      = description;
         UnitPrice        = unitPrice;
-        TotalPrice       = Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
+        TotalPrice       = adjustmentAmount != 0
+            ? Money.CreateAllowNegative(adjustmentAmount, unitPrice.Currency)
+            : Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
         ServiceId        = serviceId;
         ServiceNameAr    = serviceNameAr;
         ServiceNameEn    = serviceNameEn;
@@ -34,7 +36,9 @@ public sealed class InvoiceItem : Entity
     {
         Description      = description;
         UnitPrice        = unitPrice;
-        TotalPrice       = Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
+        TotalPrice       = adjustmentAmount != 0
+            ? Money.CreateAllowNegative(adjustmentAmount, unitPrice.Currency)
+            : Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
         AdjustmentAmount = adjustmentAmount;
     }
 

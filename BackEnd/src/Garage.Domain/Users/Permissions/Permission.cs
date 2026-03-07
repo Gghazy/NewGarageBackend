@@ -171,6 +171,12 @@ public static class Permission
     public const string PaymentMethod_Update = "paymentMethod.update";
     public const string PaymentMethod_Delete = "paymentMethod.delete";
 
+    public const string Booking_Read    = "booking.read";
+    public const string Booking_Create  = "booking.create";
+    public const string Booking_Update  = "booking.update";
+    public const string Booking_Delete  = "booking.delete";
+    public const string Booking_Convert = "booking.convert";
+
     public static readonly string[] All =
     [
         Users_Read, Users_Create, Users_Update, Users_Delete,
@@ -204,7 +210,8 @@ public static class Permission
         Dashboard_Examinations, Dashboard_Revenue,
         Examination_Read, Examination_Create, Examination_Update, Examination_Delete, Examination_Start, Examination_Deliver, Examination_Cancel, Examination_Report, Examination_Reopen,
         Invoice_Read, Invoice_Create, Invoice_Update, Invoice_Delete,
-        PaymentMethod_Read, PaymentMethod_Create, PaymentMethod_Update, PaymentMethod_Delete
+        PaymentMethod_Read, PaymentMethod_Create, PaymentMethod_Update, PaymentMethod_Delete,
+        Booking_Read, Booking_Create, Booking_Update, Booking_Delete, Booking_Convert
     ];
 }
 

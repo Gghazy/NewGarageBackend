@@ -78,11 +78,17 @@ public sealed class Examination : AggregateRoot
         VehicleSnapshot vehicle,
         ExaminationType type,
         bool hasWarranty,
-        bool hasPhotos)
+        bool hasPhotos,
+        bool startAfterSave = false)
     {
         if (client.ClientId == Guid.Empty)  throw new DomainException("Client is required.");
 
-        return new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos);
+        var exam = new Examination(client, branch, vehicle, type, hasWarranty, hasPhotos);
+
+        if (startAfterSave)
+            exam.Activate();
+
+        return exam;
     }
 
     public void SetNotes(string? notes) => Notes = Normalize(notes);
@@ -386,6 +392,16 @@ public sealed class Examination : AggregateRoot
 
         Status = ExaminationStatus.Pending;
         AddHistory(ExaminationHistoryAction.Started);
+    }
+
+    /// <summary>
+    /// Transitions Draft → Pending without recording a separate "Started" history entry.
+    /// Used when activation happens as part of create/update (the caller already records Created/Updated).
+    /// </summary>
+    public void Activate()
+    {
+        EnsureDraft();
+        Status = ExaminationStatus.Pending;
     }
 
     public void BeginWork()

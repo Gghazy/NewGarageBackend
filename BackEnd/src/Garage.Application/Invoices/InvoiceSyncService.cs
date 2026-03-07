@@ -206,13 +206,14 @@ public sealed class InvoiceSyncService(
                 if (diff > 0.001m)
                 {
                     var rounded = Math.Round(diff, 2);
-                    adjustmentItems.Add((examItem.Service.NameEn, Money.Create(rounded), svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
+                    var newPrice = Money.Create(newTotal, newUnitPrice.Currency);
+                    adjustmentItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
                 }
                 else if (diff < -0.001m)
                 {
                     var rounded = Math.Round(Math.Abs(diff), 2);
-                    var refundAmount = Money.Create(rounded);
-                    refundItems.Add((examItem.Service.NameEn, refundAmount, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
+                    var newPrice = Money.Create(newTotal, newUnitPrice.Currency);
+                    refundItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
                 }
             }
         }
@@ -246,17 +247,13 @@ public sealed class InvoiceSyncService(
             foreach (var item in refundItems)
                 refundInvoice.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn, item.adjustmentAmount);
 
+            refundInvoice.MarkAsRefunded();
+
             var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
             refundInvoice.SetInvoiceNumber(refNumber);
 
             await invoiceRepo.AddAsync(refundInvoice, ct);
             await unitOfWork.SaveChangesAsync(ct);
-
-            // Auto-refund on original since it's Paid
-            var refundAmount = Money.Create(Math.Abs(refundInvoice.TotalWithTax.Amount), refundInvoice.TotalWithTax.Currency);
-            var defaultMethod = (await methodRepo.GetAllAsync(ct)).FirstOrDefault()
-                ?? throw new InvalidOperationException("No payment methods configured.");
-            invoice.AddRefund(refundAmount, defaultMethod.Id, defaultMethod.NameAr, defaultMethod.NameEn, "Auto-refund due to service changes");
         }
     }
 }

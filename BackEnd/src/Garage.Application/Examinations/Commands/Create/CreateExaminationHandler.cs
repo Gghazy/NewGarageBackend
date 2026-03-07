@@ -137,12 +137,13 @@ public sealed class CreateExaminationHandler(
 
             // 4b. Examination ─────────────────────────────────────────────────
             var examination = Examination.Create(
-                client:       clientRef,
-                branch:       branchRef,
-                vehicle:      vehicleSnapshot,
-                type:         examinationType,
-                hasWarranty:  req.HasWarranty,
-                hasPhotos:    false);
+                client:         clientRef,
+                branch:         branchRef,
+                vehicle:        vehicleSnapshot,
+                type:           examinationType,
+                hasWarranty:    req.HasWarranty,
+                hasPhotos:      false,
+                startAfterSave: req.StartAfterSave);
 
             if (!string.IsNullOrWhiteSpace(req.Notes))
                 examination.SetNotes(req.Notes);
@@ -150,10 +151,6 @@ public sealed class CreateExaminationHandler(
             // 4c. Items (operational only – no pricing) ────────────────────
             if (hasItems && servicesList is not null)
                 ExaminationService.AddItems(examination, req, servicesList);
-
-            // 4c-2. Start if requested ───────────────────────────────────
-            if (req.StartAfterSave)
-                examination.Start();
 
             await examinationRepo.AddAsync(examination, ct);
             await unitOfWork.SaveChangesAsync(ct);

@@ -16,6 +16,8 @@ namespace Garage.Contracts.Common
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public Guid? BranchId { get; set; }
+        public string? Status { get; set; }
+        public string? InvoiceType { get; set; }
     }
 }
 

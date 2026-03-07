@@ -18,7 +18,6 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
         var timeStr = inv.CreatedAtUtc.ToString("hh:mm tt", culture);
 
         var itemsRows = BuildItemsRows(inv.Items, isAr);
-        var paymentsRows = BuildPaymentsRows(inv.Payments, isAr, culture);
 
         var statusClass = inv.Status switch
         {
@@ -97,25 +96,7 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
         <div class='box'><span class='lbl'>{t["discount"]}</span><div class='val text-danger'>{inv.DiscountAmount:F2}</div></div>
         <div class='box'><span class='lbl'>{t["tax"]} ({inv.TaxRate * 100:F0}%)</span><div class='val'>{inv.TaxAmount:F2}</div></div>
         <div class='box' style='background:#f5f5f5'><span class='lbl'>{t["totalWithTax"]}</span><div class='val'>{inv.TotalWithTax:F2} {E(inv.Currency)}</div></div>
-        <div class='box'><span class='lbl'>{t["totalPaid"]}</span><div class='val text-success'>{inv.TotalPaid:F2}</div></div>
-        <div class='box'><span class='lbl'>{t["balance"]}</span><div class='val {(inv.Balance > 0 ? "text-danger" : "text-success")}'>{inv.Balance:F2} {E(inv.Currency)}</div></div>
     </div>");
-
-        if (inv.Payments.Count > 0)
-        {
-            sb.Append($@"
-    <div class='section-title'>{t["payments"]}</div>
-    <table>
-        <thead><tr>
-            <th style='width:36px'>#</th>
-            <th>{t["paymentDate"]}</th>
-            <th>{t["paymentType"]}</th>
-            <th>{t["amount"]}</th>
-            <th>{t["method"]}</th>
-        </tr></thead>
-        <tbody>{paymentsRows}</tbody>
-    </table>");
-        }
 
         sb.Append(@"
 </body>
@@ -144,26 +125,6 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
         return sb.ToString();
     }
 
-    private static string BuildPaymentsRows(List<InvoicePaymentDto> payments, bool isAr, CultureInfo culture)
-    {
-        var sb = new StringBuilder();
-        for (var i = 0; i < payments.Count; i++)
-        {
-            var p = payments[i];
-            var methodName = isAr ? p.MethodNameAr : p.MethodNameEn;
-            var dateStr = p.CreatedAtUtc.ToString("dd/MM/yyyy", culture);
-            sb.Append($@"
-            <tr>
-                <td style='text-align:center'>{i + 1}</td>
-                <td>{dateStr}</td>
-                <td style='text-align:center'>{E(p.Type)}</td>
-                <td style='text-align:center'>{p.Amount:F2} {E(p.Currency)}</td>
-                <td>{E(methodName)}</td>
-            </tr>");
-        }
-        return sb.ToString();
-    }
-
     private static Dictionary<string, string> GetLabels(bool isAr) => isAr
         ? new Dictionary<string, string>
         {
@@ -181,13 +142,6 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
             ["discount"]      = "الخصم",
             ["tax"]           = "الضريبة",
             ["totalWithTax"]  = "الإجمالي شامل الضريبة",
-            ["totalPaid"]     = "المدفوع",
-            ["balance"]       = "الرصيد",
-            ["payments"]      = "المدفوعات",
-            ["paymentDate"]   = "التاريخ",
-            ["paymentType"]   = "النوع",
-            ["amount"]        = "المبلغ",
-            ["method"]        = "الطريقة",
         }
         : new Dictionary<string, string>
         {
@@ -205,13 +159,6 @@ public sealed class InvoiceHtmlRenderer : IInvoiceHtmlRenderer
             ["discount"]      = "Discount",
             ["tax"]           = "Tax",
             ["totalWithTax"]  = "Total with Tax",
-            ["totalPaid"]     = "Total Paid",
-            ["balance"]       = "Balance",
-            ["payments"]      = "Payments",
-            ["paymentDate"]   = "Date",
-            ["paymentType"]   = "Type",
-            ["amount"]        = "Amount",
-            ["method"]        = "Method",
         };
 
     private static string E(string? value) => WebUtility.HtmlEncode(value ?? "");

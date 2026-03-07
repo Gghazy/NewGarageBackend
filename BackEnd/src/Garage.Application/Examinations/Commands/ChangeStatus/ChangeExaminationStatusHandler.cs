@@ -3,7 +3,6 @@ using Garage.Application.Abstractions;
 using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
 using Garage.Application.Invoices;
-using Garage.Domain.ExaminationManagement.Shared;
 using Garage.Domain.InvoiceManagement.Invoices;
 using Microsoft.EntityFrameworkCore;
 
@@ -113,8 +112,8 @@ public sealed class ReopenExaminationHandler(
 public sealed class CancelExaminationHandler(
     IRepository<Examination> repo,
     IRepository<Invoice> invoiceRepo,
-    InvoiceNumberGenerator invoiceNumberGenerator,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    InvoiceNumberGenerator invoiceNumberGenerator)
     : BaseCommandHandler<CancelExaminationCommand, Guid>
 {
     public override async Task<Result<Guid>> Handle(CancelExaminationCommand command, CancellationToken ct)
@@ -127,52 +126,35 @@ public sealed class CancelExaminationHandler(
         try   { examination.Cancel(command.Reason); }
         catch (Exception ex) { return Fail(ex.Message); }
 
-        await CreateRefundIfPaid(examination.Id, ct);
+        var invoices = await invoiceRepo.QueryTracking()
+            .Include(i => i.Items)
+            .Where(i => i.ExaminationId == examination.Id
+                     && i.Status != InvoiceStatus.Cancelled
+                     && i.Type == InvoiceType.Invoice)
+            .ToListAsync(ct);
+
+        foreach (var invoice in invoices)
+        {
+            if (invoice.Status == InvoiceStatus.Paid)
+            {
+                // Create refund invoice for paid invoices, keep original status as-is
+                var refund = Invoice.CreateEmptyRefundInvoice(invoice);
+                foreach (var item in invoice.Items)
+                    refund.AddItem(item.Description, item.TotalPrice, item.ServiceId, item.ServiceNameAr, item.ServiceNameEn, item.TotalPrice.Amount);
+
+                refund.MarkAsRefunded();
+
+                var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
+                refund.SetInvoiceNumber(refNumber);
+                await invoiceRepo.AddAsync(refund, ct);
+            }
+            else
+            {
+                invoice.ForceCancel(command.Reason);
+            }
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
         return Ok(examination.Id);
-    }
-
-    private async Task CreateRefundIfPaid(Guid examinationId, CancellationToken ct)
-    {
-        // Find the original invoice for this examination
-        var originalInvoice = await invoiceRepo.QueryTracking()
-            .FirstOrDefaultAsync(i => i.ExaminationId == examinationId
-                                   && i.Type == InvoiceType.Invoice
-                                   && i.Status != InvoiceStatus.Cancelled, ct);
-
-        if (originalInvoice is null || originalInvoice.Status != InvoiceStatus.Paid)
-            return;
-
-        // Find related adjustment and refund invoices
-        var relatedInvoices = await invoiceRepo.QueryTracking()
-            .Where(i => i.OriginalInvoiceId == originalInvoice.Id
-                     && i.Status != InvoiceStatus.Cancelled)
-            .ToListAsync(ct);
-
-        // Calculate net amount to refund
-        var netRefund = originalInvoice.TotalWithTax.Amount;
-
-        // Add paid adjustment invoices (additional charges the customer paid)
-        netRefund += relatedInvoices
-            .Where(i => i.Type == InvoiceType.Adjustment && i.Status == InvoiceStatus.Paid)
-            .Sum(i => i.TotalWithTax.Amount);
-
-        // Subtract existing refund invoices (already refunded amounts)
-        netRefund -= relatedInvoices
-            .Where(i => i.Type == InvoiceType.Refund)
-            .Sum(i => Math.Abs(i.TotalWithTax.Amount));
-
-        if (netRefund <= 0) return;
-
-        // Create refund invoice
-        var refundInvoice = Invoice.CreateRefundInvoice(
-            originalInvoice,
-            Money.Create(netRefund, originalInvoice.TotalWithTax.Currency));
-
-        var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
-        refundInvoice.SetInvoiceNumber(refNumber);
-
-        await invoiceRepo.AddAsync(refundInvoice, ct);
     }
 }

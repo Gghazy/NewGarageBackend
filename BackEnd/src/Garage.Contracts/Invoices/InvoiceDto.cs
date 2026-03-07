@@ -32,9 +32,6 @@ public sealed record InvoiceDto(
     decimal TaxAmount,
     decimal TotalWithTax,
     string  Currency,
-    decimal TotalPaid,
-    decimal TotalRefunded,
-    decimal Balance,
 
     // -- Items ----------------------------------------------------------------
     List<InvoiceItemDto> Items,
@@ -42,22 +39,7 @@ public sealed record InvoiceDto(
     // -- Payments -------------------------------------------------------------
     List<InvoicePaymentDto> Payments,
 
-    // -- Related invoices (Refund / Adjustment linked to this one) ----------
-    List<RelatedInvoiceDto> RelatedInvoices,
-
     DateTime CreatedAtUtc
-);
-
-public sealed record InvoiceItemDto(
-    Guid    Id,
-    string  Description,
-    decimal UnitPrice,
-    decimal TotalPrice,
-    string  Currency,
-    Guid?   ServiceId,
-    string? ServiceNameAr,
-    string? ServiceNameEn,
-    decimal AdjustmentAmount
 );
 
 public sealed record InvoicePaymentDto(
@@ -72,12 +54,14 @@ public sealed record InvoicePaymentDto(
     DateTime CreatedAtUtc
 );
 
-public sealed record RelatedInvoiceDto(
+public sealed record InvoiceItemDto(
     Guid    Id,
-    string? InvoiceNumber,
-    string  Type,
-    string  Status,
-    decimal TotalWithTax,
+    string  Description,
+    decimal UnitPrice,
+    decimal TotalPrice,
     string  Currency,
-    DateTime CreatedAtUtc
+    Guid?   ServiceId,
+    string? ServiceNameAr,
+    string? ServiceNameEn,
+    decimal AdjustmentAmount
 );

@@ -32,7 +32,6 @@ public sealed class UpdateExaminationHandler(
     public override async Task<Result<Guid>> Handle(UpdateExaminationCommand command, CancellationToken ct)
     {
         var req = command.Request;
-        var isDraft = !req.StartAfterSave;
 
         // ── 1. Load examination ───────────────────────────────────────────────
         var examination = await examinationRepo.QueryTracking()
@@ -41,6 +40,9 @@ public sealed class UpdateExaminationHandler(
 
         if (examination is null)
             return Fail("Examination not found.");
+
+        // Draft save only allowed when examination is still Draft
+        var isDraft = !req.StartAfterSave && examination.Status == ExaminationStatus.Draft;
 
         // ── 2. Conditional lookups (skip for draft when data is empty) ────────
 
@@ -213,9 +215,9 @@ public sealed class UpdateExaminationHandler(
                 itemsReplaced = true;
             }
 
-            // 5d-2. Start if requested ───────────────────────────────────
+            // 5d-2. Activate if requested (Draft → Pending, no extra history entry)
             if (req.StartAfterSave && examination.Status == ExaminationStatus.Draft)
-                examination.Start();
+                examination.Activate();
 
             await unitOfWork.SaveChangesAsync(ct);
 
@@ -239,7 +241,11 @@ public sealed class UpdateExaminationHandler(
         catch (Exception ex)
         {
             await tx.RollbackAsync(ct);
-            return Fail($"Failed to update examination: {ex.Message}");
+            var innerMsg = ex.InnerException?.Message;
+            var msg = string.IsNullOrEmpty(innerMsg)
+                ? ex.Message
+                : $"{ex.Message} → {innerMsg}";
+            return Fail($"Failed to update examination: {msg}");
         }
     }
 }

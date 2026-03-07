@@ -18,8 +18,21 @@ public sealed class GetAllInvoicesQueryHandler(
         var search = request.Search;
         var branchIds = await branchAccess.GetAccessibleBranchIdsAsync(ct);
 
+        // Parse optional filters
+        InvoiceType? typeFilter = null;
+        if (!string.IsNullOrWhiteSpace(search.InvoiceType)
+            && Enum.TryParse<InvoiceType>(search.InvoiceType, true, out var parsedType))
+            typeFilter = parsedType;
+
+        InvoiceStatus? statusFilter = null;
+        if (!string.IsNullOrWhiteSpace(search.Status)
+            && Enum.TryParse<InvoiceStatus>(search.Status, true, out var parsedStatus))
+            statusFilter = parsedStatus;
+
         var query = repo.Query()
-            .Where(i => i.Type == InvoiceType.Invoice)
+            .WhereIf(typeFilter.HasValue, i => i.Type == typeFilter!.Value)
+            .WhereIf(!typeFilter.HasValue && !statusFilter.HasValue, i => i.Type == InvoiceType.Invoice)
+            .WhereIf(statusFilter.HasValue, i => i.Status == statusFilter!.Value)
             .WhereBranchAccessible(branchIds)
             .WhereIf(
                 !string.IsNullOrWhiteSpace(search.TextSearch),
@@ -35,46 +48,9 @@ public sealed class GetAllInvoicesQueryHandler(
                 i => i.Branch.BranchId == search.BranchId!.Value)
             .Select(InvoiceProjection.ToDto);
 
-        var result = await query.ToQueryResult(
+        return await query.ToQueryResult(
             search.CurrentPage,
             search.ItemsPerPage,
             ct: ct);
-
-        // Adjust TotalWithTax and Balance for invoices that have refund children
-        var parentIds = result.Items.Select(i => i.Id).ToList();
-        if (parentIds.Count > 0)
-        {
-            var refundTotals = await repo.Query()
-                .Where(i => i.OriginalInvoiceId != null
-                         && parentIds.Contains(i.OriginalInvoiceId!.Value)
-                         && i.Type == InvoiceType.Refund
-                         && i.Status != InvoiceStatus.Cancelled)
-                .GroupBy(i => i.OriginalInvoiceId!.Value)
-                .Select(g => new
-                {
-                    ParentId = g.Key,
-                    RefundTotal = g.Sum(i => i.TotalWithTax.Amount)
-                })
-                .ToListAsync(ct);
-
-            if (refundTotals.Count > 0)
-            {
-                var refundMap = refundTotals.ToDictionary(r => r.ParentId, r => r.RefundTotal);
-                var updatedItems = result.Items.Select(item =>
-                {
-                    if (refundMap.TryGetValue(item.Id, out var refundTotal))
-                    {
-                        var netTotal = item.TotalWithTax - refundTotal;
-                        var netBalance = netTotal - item.TotalPaid;
-                        return item with { TotalWithTax = netTotal, Balance = netBalance };
-                    }
-                    return item;
-                }).ToList();
-
-                result.AddItems(updatedItems);
-            }
-        }
-
-        return result;
     }
 }

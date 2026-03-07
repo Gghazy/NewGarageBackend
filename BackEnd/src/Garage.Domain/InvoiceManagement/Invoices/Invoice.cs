@@ -96,6 +96,7 @@ public sealed class Invoice : AggregateRoot
         refund.OriginalInvoiceId = original.Id;
         refund.ExaminationId = original.ExaminationId;
         refund.AddItem("Refund", refundAmount);
+        refund.Status = InvoiceStatus.Refunded;
         refund.AddHistory(InvoiceHistoryAction.RefundInvoiceCreated);
 
         return refund;
@@ -272,10 +273,32 @@ public sealed class Invoice : AggregateRoot
             throw new DomainException("Cancelled invoices cannot be deleted.");
     }
 
+    public void MarkAsRefunded()
+    {
+        if (Type != InvoiceType.Refund)
+            throw new DomainException("Only refund invoices can be marked as refunded.");
+
+        Status = InvoiceStatus.Refunded;
+    }
+
     public void Cancel(string? reason = null)
     {
         if (Status == InvoiceStatus.Paid)
             throw new DomainException("Paid invoice cannot be cancelled.");
+
+        Status = InvoiceStatus.Cancelled;
+        if (!string.IsNullOrWhiteSpace(reason))
+            Notes = Normalize(reason);
+        AddHistory(InvoiceHistoryAction.Cancelled, reason);
+    }
+
+    /// <summary>
+    /// Force-cancel regardless of current status. Used when the parent examination is cancelled.
+    /// </summary>
+    public void ForceCancel(string? reason = null)
+    {
+        if (Status == InvoiceStatus.Cancelled)
+            return;
 
         Status = InvoiceStatus.Cancelled;
         if (!string.IsNullOrWhiteSpace(reason))
@@ -288,9 +311,11 @@ public sealed class Invoice : AggregateRoot
         if (Status == InvoiceStatus.Cancelled)
             return;
 
+        var netPaid = TotalPaid - TotalRefunded;
+
         if (TotalRefunded > 0 && TotalRefunded >= TotalPaid)
             Status = InvoiceStatus.Refunded;
-        else if (TotalPaid >= TotalWithTax.Amount)
+        else if (netPaid >= TotalWithTax.Amount)
             Status = InvoiceStatus.Paid;
         else
             Status = InvoiceStatus.Issued;

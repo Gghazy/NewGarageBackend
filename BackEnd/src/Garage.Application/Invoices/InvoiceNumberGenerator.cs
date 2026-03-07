@@ -17,7 +17,7 @@ public sealed class InvoiceNumberGenerator(IReadRepository<Invoice> repo)
         };
         var prefix = $"{tag}-{year}-";
 
-        var lastNumber = await repo.Query()
+        var lastNumber = await repo.QueryIncludingDeleted()
             .Where(i => i.InvoiceNumber != null && i.InvoiceNumber.StartsWith(prefix))
             .Select(i => i.InvoiceNumber!)
             .OrderByDescending(n => n)
