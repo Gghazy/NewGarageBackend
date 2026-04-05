@@ -15,6 +15,7 @@ public sealed class DeleteBookingHandler(
         var booking = await bookingRepo.GetByIdAsync(command.Id, ct);
         if (booking is null) return Fail(NotFoundError);
 
+        booking.MarkDeleted();
         await bookingRepo.SoftDeleteAsync(booking, ct: ct);
         await unitOfWork.SaveChangesAsync(ct);
 

@@ -4,7 +4,9 @@ using Garage.Application.Bookings.Commands.Convert;
 using Garage.Application.Bookings.Commands.Create;
 using Garage.Application.Bookings.Commands.Delete;
 using Garage.Application.Bookings.Commands.Update;
+using Garage.Application.Bookings.Queries.GetByExaminationId;
 using Garage.Application.Bookings.Queries.GetById;
+using Garage.Application.Bookings.Queries.GetHistory;
 using Garage.Application.Bookings.Queries.Search;
 using Garage.Contracts.Bookings;
 using Garage.Contracts.Common;
@@ -93,5 +95,22 @@ public class BookingsController : ApiControllerBase
     {
         var result = await _mediator.Send(new ConvertBookingCommand(id));
         return HandleResult(result, "Booking.Converted");
+    }
+
+    [HttpGet("{id:Guid}/history")]
+    [HasPermission(Permission.Booking_Read)]
+    public async Task<IActionResult> GetHistory(Guid id)
+    {
+        var result = await _mediator.Send(new GetBookingHistoryQuery(id));
+        return Success(result);
+    }
+
+    [HttpGet("by-examination/{examinationId:Guid}")]
+    [HasPermission(Permission.Booking_Read)]
+    public async Task<IActionResult> GetByExaminationId(Guid examinationId)
+    {
+        var result = await _mediator.Send(new GetBookingByExaminationIdQuery(examinationId));
+        if (result is null) return NotFound();
+        return Success(result);
     }
 }

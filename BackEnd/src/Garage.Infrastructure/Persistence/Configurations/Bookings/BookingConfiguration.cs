@@ -47,6 +47,11 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
 
+        b.HasMany(x => x.History)
+            .WithOne()
+            .HasForeignKey(x => x.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         b.HasQueryFilter(x => !x.IsDeleted);
     }
 }

@@ -34,6 +34,9 @@ public sealed class Booking : AggregateRoot
     public BookingStatus Status { get; private set; }
     public Guid? ConvertedExaminationId { get; private set; }
 
+    private readonly List<BookingHistory> _history = new();
+    public IReadOnlyCollection<BookingHistory> History => _history.AsReadOnly();
+
     private Booking() { }
 
     public static Booking Create(
@@ -50,7 +53,7 @@ public sealed class Booking : AggregateRoot
         if (manufacturerId == Guid.Empty) throw new DomainException("Manufacturer is required.");
         if (carMarkId == Guid.Empty) throw new DomainException("Car mark is required.");
 
-        return new Booking
+        var booking = new Booking
         {
             ClientId = clientId,
             ClientNameAr = clientNameAr,
@@ -73,6 +76,8 @@ public sealed class Booking : AggregateRoot
             Notes = notes?.Trim(),
             Status = BookingStatus.Pending
         };
+        booking.AddHistory(BookingHistoryAction.Created);
+        return booking;
     }
 
     public void Update(
@@ -110,6 +115,7 @@ public sealed class Booking : AggregateRoot
         ExaminationTime = examinationTime;
         Location = location?.Trim();
         Notes = notes?.Trim();
+        AddHistory(BookingHistoryAction.Updated);
     }
 
     public void Confirm()
@@ -117,21 +123,34 @@ public sealed class Booking : AggregateRoot
         if (Status != BookingStatus.Pending)
             throw new DomainException("Only pending bookings can be confirmed.");
         Status = BookingStatus.Confirmed;
+        AddHistory(BookingHistoryAction.Confirmed);
     }
 
     public void MarkConverted(Guid examinationId)
     {
-        if (Status != BookingStatus.Pending && Status != BookingStatus.Confirmed)
-            throw new DomainException("Only pending or confirmed bookings can be converted.");
+        if (Status != BookingStatus.Confirmed)
+            throw new DomainException("Only confirmed bookings can be converted.");
         Status = BookingStatus.Converted;
         ConvertedExaminationId = examinationId;
+        AddHistory(BookingHistoryAction.Converted, $"ExaminationId: {examinationId}");
     }
 
     public void Cancel()
     {
-        if (Status == BookingStatus.Converted)
-            throw new DomainException("Converted bookings cannot be cancelled.");
+        if (Status != BookingStatus.Pending && Status != BookingStatus.Confirmed)
+            throw new DomainException("Only pending or confirmed bookings can be cancelled.");
         Status = BookingStatus.Cancelled;
+        AddHistory(BookingHistoryAction.Cancelled);
+    }
+
+    public void MarkDeleted()
+    {
+        AddHistory(BookingHistoryAction.Deleted);
+    }
+
+    private void AddHistory(BookingHistoryAction action, string? details = null)
+    {
+        _history.Add(new BookingHistory(Id, action, details));
     }
 
     private void EnsureEditable()

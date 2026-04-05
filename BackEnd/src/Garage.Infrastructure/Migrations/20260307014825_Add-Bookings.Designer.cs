@@ -4,6 +4,7 @@ using Garage.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307014825_Add-Bookings")]
+    partial class AddBookings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -375,51 +378,6 @@ namespace Garage.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bookings", (string)null);
-                });
-
-            modelBuilder.Entity("Garage.Domain.Bookings.Entities.BookingHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("BookingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.ToTable("BookingHistory", (string)null);
                 });
 
             modelBuilder.Entity("Garage.Domain.Branches.Entities.Branch", b =>
@@ -3272,15 +3230,6 @@ namespace Garage.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Garage.Domain.Bookings.Entities.BookingHistory", b =>
-                {
-                    b.HasOne("Garage.Domain.Bookings.Entities.Booking", null)
-                        .WithMany("History")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Garage.Domain.CarMarkes.Entity.CarMark", b =>
                 {
                     b.HasOne("Garage.Domain.Manufacturers.Entity.Manufacturer", "Manufacturer")
@@ -3998,11 +3947,6 @@ namespace Garage.Infrastructure.Migrations
                     b.Navigation("SensorStageResult");
 
                     b.Navigation("TireStageResult");
-                });
-
-            modelBuilder.Entity("Garage.Domain.Bookings.Entities.Booking", b =>
-                {
-                    b.Navigation("History");
                 });
 
             modelBuilder.Entity("Garage.Domain.Employees.Entities.Employee", b =>
