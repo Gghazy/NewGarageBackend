@@ -10,6 +10,7 @@ using Garage.Application.Examinations.Queries.GetHistory;
 using Garage.Application.Examinations.Queries.GetReport;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
+using Garage.Application.Examinations.Queries.GetEmployeeReport;
 using Garage.Application.Examinations.Queries.GetSensorStage;
 using Garage.Application.Examinations.Queries.GetDashboardIndicatorsStage;
 using Garage.Application.Examinations.Queries.GetWorkflow;
@@ -348,6 +349,14 @@ public class ExaminationsController : ApiControllerBase
     public async Task<IActionResult> GetServiceUsage([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
     {
         var result = await _mediator.Send(new GetServiceUsageQuery(from, to, branchId));
+        return Success(result);
+    }
+
+    [HttpGet("employee-report")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetEmployeeReport([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetEmployeeExaminationReportQuery(from, to, branchId));
         return Success(result);
     }
 }

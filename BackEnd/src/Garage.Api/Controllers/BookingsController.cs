@@ -1,3 +1,4 @@
+using Domain.ExaminationManagement.Examinations;
 using Garage.Api.Controllers.Common;
 using Garage.Application.Bookings.Commands.ChangeStatus;
 using Garage.Application.Bookings.Commands.Convert;
@@ -98,7 +99,7 @@ public class BookingsController : ApiControllerBase
     }
 
     [HttpGet("{id:Guid}/history")]
-    [HasPermission(Permission.Booking_Read)]
+    [HasAnyPermission(Permission.Booking_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetHistory(Guid id)
     {
         var result = await _mediator.Send(new GetBookingHistoryQuery(id));
@@ -106,7 +107,7 @@ public class BookingsController : ApiControllerBase
     }
 
     [HttpGet("by-examination/{examinationId:Guid}")]
-    [HasPermission(Permission.Booking_Read)]
+    [HasAnyPermission(Permission.Booking_Read, Permission.Examination_Read)]
     public async Task<IActionResult> GetByExaminationId(Guid examinationId)
     {
         var result = await _mediator.Send(new GetBookingByExaminationIdQuery(examinationId));

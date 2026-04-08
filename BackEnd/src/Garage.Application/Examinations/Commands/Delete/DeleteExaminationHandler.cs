@@ -3,6 +3,8 @@ using Garage.Application.Common;
 using Garage.Application.Common.Handlers;
 using Garage.Application.Invoices;
 using Domain.ExaminationManagement.Examinations;
+using Garage.Domain.ExaminationManagement.Shared;
+using PaymentType = Domain.ExaminationManagement.Examinations.PaymentType;
 using Garage.Domain.InvoiceManagement.Invoices;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,41 +26,45 @@ public class DeleteExaminationHandler(
         entity.MarkDeleted();
         await repository.SoftDeleteAsync(entity, ct: ct);
 
-        // Handle related invoices
-        var invoices = await invoiceRepo.QueryTracking()
+        // Load all invoices for this examination (with payments)
+        var allInvoices = await invoiceRepo.QueryTracking()
             .Include(i => i.Items)
-            .Where(i => i.ExaminationId == request.Id
-                     && i.Type == InvoiceType.Invoice)
-            .ToListAsync(ct);
-
-        foreach (var invoice in invoices)
-        {
-            if (invoice.Status == InvoiceStatus.Paid)
-            {
-                // Create refund invoice, keep original as-is
-                var refund = Invoice.CreateEmptyRefundInvoice(invoice);
-                foreach (var item in invoice.Items)
-                    refund.AddItem(item.Description, item.TotalPrice, item.ServiceId, item.ServiceNameAr, item.ServiceNameEn, item.TotalPrice.Amount);
-
-                refund.MarkAsRefunded();
-
-                var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
-                refund.SetInvoiceNumber(refNumber);
-                await invoiceRepo.AddAsync(refund, ct);
-            }
-            else
-            {
-                await invoiceRepo.SoftDeleteAsync(invoice, ct: ct);
-            }
-        }
-
-        // Soft-delete any remaining invoices (Refund, Adjustment, etc.)
-        var otherInvoices = await invoiceRepo.QueryTracking()
+            .Include(i => i.Payments)
             .Where(i => i.ExaminationId == request.Id)
             .ToListAsync(ct);
 
-        foreach (var invoice in otherInvoices)
-            await invoiceRepo.SoftDeleteAsync(invoice, ct: ct);
+        // Calculate net subtotal (before tax) to avoid double-taxation
+        var invoiceSubTotal = allInvoices
+            .Where(i => i.Type == InvoiceType.Invoice)
+            .Sum(i => i.TotalPrice.Amount - i.DiscountAmount.Amount);
+
+        var refundSubTotal = allInvoices
+            .Where(i => i.Type == InvoiceType.Refund)
+            .Sum(i => i.TotalPrice.Amount - i.DiscountAmount.Amount);
+
+        var netSubTotal = invoiceSubTotal - refundSubTotal;
+
+        // If customer is owed money, create a single refund invoice
+        if (netSubTotal > 0)
+        {
+            var sourceInvoice = allInvoices.First(i => i.Type == InvoiceType.Invoice);
+            var currency = sourceInvoice.TotalPrice.Currency;
+
+            var refund = Invoice.CreateRefundInvoice(sourceInvoice, Money.Create(netSubTotal, currency));
+
+            var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
+            refund.SetInvoiceNumber(refNumber);
+            await invoiceRepo.AddAsync(refund, ct);
+        }
+
+        // Cancel/delete all existing invoices
+        foreach (var invoice in allInvoices)
+        {
+            if (invoice.Status == InvoiceStatus.Paid)
+                invoice.ForceCancel("Examination deleted");
+            else
+                await invoiceRepo.SoftDeleteAsync(invoice, ct: ct);
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
 
