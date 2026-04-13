@@ -11,6 +11,7 @@ using Garage.Application.Examinations.Queries.GetReport;
 using Garage.Application.Examinations.Queries.GetCount;
 using Garage.Application.Examinations.Queries.GetServiceUsage;
 using Garage.Application.Examinations.Queries.GetEmployeeReport;
+using Garage.Application.Examinations.Queries.GetEmployeeComparison;
 using Garage.Application.Examinations.Queries.GetSensorStage;
 using Garage.Application.Examinations.Queries.GetDashboardIndicatorsStage;
 using Garage.Application.Examinations.Queries.GetWorkflow;
@@ -357,6 +358,19 @@ public class ExaminationsController : ApiControllerBase
     public async Task<IActionResult> GetEmployeeReport([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
     {
         var result = await _mediator.Send(new GetEmployeeExaminationReportQuery(from, to, branchId));
+        return Success(result);
+    }
+
+    [HttpGet("employee-comparison")]
+    [HasPermission(Permission.Examination_Read)]
+    public async Task<IActionResult> GetEmployeeComparison(
+        [FromQuery] DateTime from1,
+        [FromQuery] DateTime to1,
+        [FromQuery] DateTime from2,
+        [FromQuery] DateTime to2,
+        [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetEmployeeComparisonQuery(from1, to1, from2, to2, branchId));
         return Success(result);
     }
 }

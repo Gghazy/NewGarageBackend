@@ -48,9 +48,32 @@ public sealed class GetAllInvoicesQueryHandler(
                 i => i.Branch.BranchId == search.BranchId!.Value)
             .Select(InvoiceProjection.ToDto);
 
-        return await query.ToQueryResult(
+        var result = await query.ToQueryResult(
             search.CurrentPage,
             search.ItemsPerPage,
             ct: ct);
+
+        // Calculate net totals by subtracting refund invoice amounts
+        var invoiceIds = result.Items.Select(i => i.Id).ToList();
+        if (invoiceIds.Count > 0)
+        {
+            var refundTotals = await repo.Query()
+                .Where(i => i.OriginalInvoiceId.HasValue
+                         && invoiceIds.Contains(i.OriginalInvoiceId!.Value)
+                         && i.Type == InvoiceType.Refund)
+                .GroupBy(i => i.OriginalInvoiceId!.Value)
+                .Select(g => new { OriginalId = g.Key, Total = g.Sum(x => x.TotalWithTax.Amount) })
+                .ToDictionaryAsync(x => x.OriginalId, x => x.Total, ct);
+
+            if (refundTotals.Count > 0)
+            {
+                result.AddItems(result.Items.Select(inv =>
+                    refundTotals.TryGetValue(inv.Id, out var refunded)
+                        ? inv with { NetTotal = inv.TotalWithTax - refunded }
+                        : inv));
+            }
+        }
+
+        return result;
     }
 }

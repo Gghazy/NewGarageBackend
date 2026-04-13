@@ -34,6 +34,7 @@ public static class InvoiceProjection
             i.TaxRate,
             i.TaxAmount.Amount,
             i.TotalWithTax.Amount,
+            i.TotalWithTax.Amount, // NetTotal – overridden in handler
             i.TotalPrice.Currency,
             // Items
             i.Items.Select(item => new InvoiceItemDto(

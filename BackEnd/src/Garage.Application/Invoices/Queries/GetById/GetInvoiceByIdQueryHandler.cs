@@ -11,9 +11,20 @@ public sealed class GetInvoiceByIdQueryHandler(IReadRepository<Invoice> repo)
 {
     public override async Task<InvoiceDto?> Handle(GetInvoiceByIdQuery request, CancellationToken ct)
     {
-        return await repo.Query()
+        var invoice = await repo.Query()
             .Where(i => i.Id == request.Id)
             .Select(InvoiceProjection.ToDto)
             .FirstOrDefaultAsync(ct);
+
+        if (invoice is null) return null;
+
+        var refundTotal = await repo.Query()
+            .Where(i => i.OriginalInvoiceId == request.Id
+                     && i.Type == InvoiceType.Refund)
+            .SumAsync(i => i.TotalWithTax.Amount, ct);
+
+        return refundTotal > 0
+            ? invoice with { NetTotal = invoice.TotalWithTax - refundTotal }
+            : invoice;
     }
 }

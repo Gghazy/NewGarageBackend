@@ -44,27 +44,9 @@ public class DeleteExaminationHandler(
 
         var netSubTotal = invoiceSubTotal - refundSubTotal;
 
-        // If customer is owed money, create a single refund invoice
-        if (netSubTotal > 0)
-        {
-            var sourceInvoice = allInvoices.First(i => i.Type == InvoiceType.Invoice);
-            var currency = sourceInvoice.TotalPrice.Currency;
-
-            var refund = Invoice.CreateRefundInvoice(sourceInvoice, Money.Create(netSubTotal, currency));
-
-            var refNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Refund, ct);
-            refund.SetInvoiceNumber(refNumber);
-            await invoiceRepo.AddAsync(refund, ct);
-        }
-
-        // Cancel/delete all existing invoices
+        // Soft-delete ALL existing invoices (won't appear in reports or revenue)
         foreach (var invoice in allInvoices)
-        {
-            if (invoice.Status == InvoiceStatus.Paid)
-                invoice.ForceCancel("Examination deleted");
-            else
-                await invoiceRepo.SoftDeleteAsync(invoice, ct: ct);
-        }
+            await invoiceRepo.SoftDeleteAsync(invoice, ct: ct);
 
         await unitOfWork.SaveChangesAsync(ct);
 

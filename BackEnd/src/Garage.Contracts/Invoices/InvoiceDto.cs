@@ -31,6 +31,7 @@ public sealed record InvoiceDto(
     decimal TaxRate,
     decimal TaxAmount,
     decimal TotalWithTax,
+    decimal NetTotal,
     string  Currency,
 
     // -- Items ----------------------------------------------------------------

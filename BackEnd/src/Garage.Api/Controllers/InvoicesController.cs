@@ -12,6 +12,7 @@ using Garage.Application.Invoices.Queries.GetById;
 using Garage.Application.Invoices.Queries.GetConsolidated;
 using Garage.Application.Invoices.Queries.GetHistory;
 using Garage.Application.Invoices.Queries.GetRevenue;
+using Garage.Application.Invoices.Queries.GetRevenueComparison;
 using Garage.Application.Abstractions;
 using Garage.Contracts.Common;
 using Garage.Contracts.Invoices;
@@ -132,6 +133,19 @@ public class InvoicesController : ApiControllerBase
     public async Task<IActionResult> GetRevenue([FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] Guid? branchId)
     {
         var result = await _mediator.Send(new GetRevenueQuery(from, to, branchId));
+        return Success(result);
+    }
+
+    [HttpGet("revenue/comparison")]
+    [HasPermission(Permission.Dashboard_Revenue)]
+    public async Task<IActionResult> GetRevenueComparison(
+        [FromQuery] DateTime from1,
+        [FromQuery] DateTime to1,
+        [FromQuery] DateTime from2,
+        [FromQuery] DateTime to2,
+        [FromQuery] Guid? branchId)
+    {
+        var result = await _mediator.Send(new GetRevenueComparisonQuery(from1, to1, from2, to2, branchId));
         return Success(result);
     }
 
