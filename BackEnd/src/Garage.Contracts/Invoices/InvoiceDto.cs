@@ -64,5 +64,7 @@ public sealed record InvoiceItemDto(
     Guid?   ServiceId,
     string? ServiceNameAr,
     string? ServiceNameEn,
-    decimal AdjustmentAmount
+    decimal AdjustmentAmount,
+    decimal DiscountPercent,
+    decimal DiscountAmount
 );

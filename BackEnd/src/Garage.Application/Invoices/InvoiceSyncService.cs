@@ -7,6 +7,7 @@ using Garage.Domain.ExaminationManagement.Examinations;
 using Garage.Domain.ExaminationManagement.Shared;
 using Garage.Domain.InvoiceManagement.Invoices;
 using Garage.Domain.PaymentMethods.Entity;
+using Garage.Domain.ServiceDiscounts.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Garage.Application.Invoices;
@@ -16,7 +17,8 @@ public sealed class InvoiceSyncService(
     IUnitOfWork            unitOfWork,
     ExaminationService     examinationService,
     InvoiceNumberGenerator invoiceNumberGenerator,
-    ILookupRepository<PaymentMethodLookup> methodRepo)
+    ILookupRepository<PaymentMethodLookup> methodRepo,
+    IReadRepository<ServiceDiscount> serviceDiscountRepo)
 {
     /// <summary>Build override prices dict from request items.</summary>
     public static Dictionary<Guid, decimal> BuildOverridePrices(List<ExaminationItemRequest>? items)
@@ -43,19 +45,25 @@ public sealed class InvoiceSyncService(
         Invoice invoice,
         IReadOnlyCollection<ExaminationItem> examItems,
         Dictionary<Guid, decimal>? overridePrices,
-        Dictionary<Guid, decimal> priceMap)
+        Dictionary<Guid, decimal> priceMap,
+        Dictionary<Guid, decimal>? discountMap = null)
     {
         foreach (var examItem in examItems)
         {
             var unitPrice = ResolveUnitPrice(examItem.Service.ServiceId, overridePrices, priceMap);
             var lineTotal = Money.Create(unitPrice.Amount * examItem.Quantity, unitPrice.Currency);
 
+            var discountPercent = 0m;
+            if (discountMap is not null && discountMap.TryGetValue(examItem.Service.ServiceId, out var dp))
+                discountPercent = dp;
+
             invoice.AddItem(
-                description:   examItem.Service.NameEn,
-                unitPrice:     lineTotal,
-                serviceId:     examItem.Service.ServiceId,
-                serviceNameAr: examItem.Service.NameAr,
-                serviceNameEn: examItem.Service.NameEn);
+                description:     examItem.Service.NameEn,
+                unitPrice:       lineTotal,
+                serviceId:       examItem.Service.ServiceId,
+                serviceNameAr:   examItem.Service.NameAr,
+                serviceNameEn:   examItem.Service.NameEn,
+                discountPercent: discountPercent);
         }
     }
 
@@ -85,7 +93,10 @@ public sealed class InvoiceSyncService(
             exam.Vehicle.Year,
             ct);
 
-        PopulateInvoiceItems(invoice, exam.Items, overridePrices, priceMap);
+        var discountMap = await LookupActiveDiscountsAsync(
+            exam.Items.Select(i => i.Service.ServiceId), ct);
+
+        PopulateInvoiceItems(invoice, exam.Items, overridePrices, priceMap, discountMap);
 
         var invNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Invoice, ct);
         invoice.SetInvoiceNumber(invNumber);
@@ -136,19 +147,46 @@ public sealed class InvoiceSyncService(
             exam.Vehicle.Year,
             ct);
 
+        var discountMap = await LookupActiveDiscountsAsync(
+            exam.Items.Select(i => i.Service.ServiceId), ct);
+
         if (invoice.Status == InvoiceStatus.Issued)
         {
             await SyncIssuedInvoice(invoice, exam, client, overridePrices, priceMap, ct);
         }
         else if (invoice.Status == InvoiceStatus.Paid)
         {
-            await SyncPaidInvoice(invoice, exam, overridePrices, priceMap, ct);
+            await SyncPaidInvoice(invoice, exam, overridePrices, priceMap, discountMap, ct);
         }
 
         await unitOfWork.SaveChangesAsync(ct);
     }
 
     // ── Private helpers ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Looks up active service discounts for the given services.
+    /// Returns a map of ServiceId → DiscountPercent.
+    /// </summary>
+    private async Task<Dictionary<Guid, decimal>?> LookupActiveDiscountsAsync(
+        IEnumerable<Guid> serviceIds, CancellationToken ct)
+    {
+        var ids = serviceIds.Distinct().ToList();
+        if (ids.Count == 0) return null;
+
+        var now = DateTime.UtcNow;
+
+        var activeDiscounts = await serviceDiscountRepo.Query()
+            .Where(d => ids.Contains(d.ServiceId)
+                     && d.IsActive
+                     && d.StartDate <= now
+                     && d.EndDate >= now)
+            .ToListAsync(ct);
+
+        if (activeDiscounts.Count == 0) return null;
+
+        return activeDiscounts.ToDictionary(d => d.ServiceId, d => d.DiscountPercent);
+    }
 
     private async Task SyncIssuedInvoice(
         Invoice invoice,
@@ -163,7 +201,11 @@ public sealed class InvoiceSyncService(
         foreach (var invoiceItem in invoice.Items.ToList())
             invoice.RemoveItem(invoiceItem.Id);
 
-        PopulateInvoiceItems(invoice, exam.Items, overridePrices, priceMap);
+        var discountMap = await LookupActiveDiscountsAsync(
+            exam.Items.Select(i => i.Service.ServiceId), ct);
+
+        PopulateInvoiceItems(invoice, exam.Items, overridePrices, priceMap, discountMap);
+
         await unitOfWork.SaveChangesAsync(ct);
     }
 
@@ -172,6 +214,7 @@ public sealed class InvoiceSyncService(
         Examination exam,
         Dictionary<Guid, decimal>? overridePrices,
         Dictionary<Guid, decimal> priceMap,
+        Dictionary<Guid, decimal>? discountMap,
         CancellationToken ct)
     {
         var oldItemsByService = invoice.Items
@@ -182,38 +225,43 @@ public sealed class InvoiceSyncService(
             .Select(i => i.Service.ServiceId)
             .ToHashSet();
 
-        var adjustmentItems = new List<(string desc, Money price, Guid serviceId, string nameAr, string nameEn, decimal adjustmentAmount)>();
-        var refundItems = new List<(string desc, Money price, Guid? serviceId, string? nameAr, string? nameEn, decimal adjustmentAmount)>();
+        var adjustmentItems = new List<(string desc, Money price, Guid serviceId, string nameAr, string nameEn, decimal adjustmentAmount, decimal discountPercent)>();
+        var refundItems = new List<(string desc, Money price, Guid? serviceId, string? nameAr, string? nameEn, decimal adjustmentAmount, decimal discountPercent)>();
 
         // 1. Added or changed services
         foreach (var examItem in exam.Items)
         {
             var svcId = examItem.Service.ServiceId;
             var newUnitPrice = ResolveUnitPrice(svcId, overridePrices, priceMap);
-            var newTotal = newUnitPrice.Amount * examItem.Quantity;
+            var newGross = newUnitPrice.Amount * examItem.Quantity;
+
+            // Apply discount to get the net total for comparison
+            var discPct = discountMap is not null && discountMap.TryGetValue(svcId, out var dp) ? dp : 0m;
+            var discAmt = discPct > 0 ? Math.Round(newGross * discPct / 100m, 2) : 0m;
+            var newNet = newGross - discAmt;
 
             if (!oldItemsByService.ContainsKey(svcId))
             {
-                // New service → full amount is increase
-                var lineTotal = Money.Create(newTotal, newUnitPrice.Currency);
-                adjustmentItems.Add((examItem.Service.NameEn, lineTotal, svcId, examItem.Service.NameAr, examItem.Service.NameEn, lineTotal.Amount));
+                // New service → full net amount is increase
+                var lineTotal = Money.Create(newGross, newUnitPrice.Currency);
+                adjustmentItems.Add((examItem.Service.NameEn, lineTotal, svcId, examItem.Service.NameAr, examItem.Service.NameEn, newNet, discPct));
             }
             else
             {
                 var oldItem = oldItemsByService[svcId];
-                var diff = newTotal - oldItem.TotalPrice.Amount;
+                var diff = newNet - oldItem.TotalPrice.Amount;
 
                 if (diff > 0.001m)
                 {
                     var rounded = Math.Round(diff, 2);
-                    var newPrice = Money.Create(newTotal, newUnitPrice.Currency);
-                    adjustmentItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
+                    var newPrice = Money.Create(newGross, newUnitPrice.Currency);
+                    adjustmentItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded, discPct));
                 }
                 else if (diff < -0.001m)
                 {
                     var rounded = Math.Round(Math.Abs(diff), 2);
-                    var newPrice = Money.Create(newTotal, newUnitPrice.Currency);
-                    refundItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded));
+                    var newPrice = Money.Create(newGross, newUnitPrice.Currency);
+                    refundItems.Add((examItem.Service.NameEn, newPrice, svcId, examItem.Service.NameAr, examItem.Service.NameEn, rounded, discPct));
                 }
             }
         }
@@ -223,7 +271,7 @@ public sealed class InvoiceSyncService(
         {
             if (oldItem.ServiceId.HasValue && !newServiceIds.Contains(oldItem.ServiceId.Value))
             {
-                refundItems.Add((oldItem.Description, oldItem.TotalPrice, oldItem.ServiceId, oldItem.ServiceNameAr, oldItem.ServiceNameEn, oldItem.TotalPrice.Amount));
+                refundItems.Add((oldItem.Description, oldItem.TotalPrice, oldItem.ServiceId, oldItem.ServiceNameAr, oldItem.ServiceNameEn, oldItem.TotalPrice.Amount, oldItem.DiscountPercent));
             }
         }
 
@@ -232,7 +280,7 @@ public sealed class InvoiceSyncService(
         {
             var adjustment = Invoice.CreateAdjustment(invoice);
             foreach (var item in adjustmentItems)
-                adjustment.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn, item.adjustmentAmount);
+                adjustment.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn, item.adjustmentAmount, item.discountPercent);
 
             var adjNumber = await invoiceNumberGenerator.GenerateAsync(InvoiceType.Adjustment, ct);
             adjustment.SetInvoiceNumber(adjNumber);
@@ -245,7 +293,7 @@ public sealed class InvoiceSyncService(
         {
             var refundInvoice = Invoice.CreateEmptyRefundInvoice(invoice);
             foreach (var item in refundItems)
-                refundInvoice.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn, item.adjustmentAmount);
+                refundInvoice.AddItem(item.desc, item.price, item.serviceId, item.nameAr, item.nameEn, item.adjustmentAmount, item.discountPercent);
 
             refundInvoice.MarkAsRefunded();
 

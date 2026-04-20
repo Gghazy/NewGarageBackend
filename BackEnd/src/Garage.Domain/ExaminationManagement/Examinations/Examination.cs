@@ -17,6 +17,8 @@ public sealed class Examination : AggregateRoot
     public bool HasPhotos   { get; private set; }
     public string? Notes { get; private set; }
 
+    public int AwardedPoints { get; private set; }
+
     private readonly List<ExaminationItem> _items = new();
     public IReadOnlyCollection<ExaminationItem> Items => _items.AsReadOnly();
 
@@ -429,6 +431,23 @@ public sealed class Examination : AggregateRoot
 
         Status = ExaminationStatus.Delivered;
         AddHistory(ExaminationHistoryAction.Delivered);
+    }
+
+    public void MarkPointsAwarded(int points)
+    {
+        if (Status != ExaminationStatus.Delivered)
+            throw new DomainException("Points can only be recorded on a delivered examination.");
+        if (points < 0)
+            throw new DomainException("Awarded points cannot be negative.");
+
+        AwardedPoints = points;
+    }
+
+    public int ConsumeAwardedPoints()
+    {
+        var pts = AwardedPoints;
+        AwardedPoints = 0;
+        return pts;
     }
 
     public void Reopen()

@@ -196,14 +196,14 @@ public sealed class Invoice : AggregateRoot
 
     public void AddItem(string description, Money unitPrice,
         Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null,
-        decimal adjustmentAmount = 0)
+        decimal adjustmentAmount = 0, decimal discountPercent = 0)
     {
         EnsureItemsEditable();
 
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("Item description is required.");
 
-        _items.Add(new InvoiceItem(description, unitPrice, serviceId, serviceNameAr, serviceNameEn, adjustmentAmount));
+        _items.Add(new InvoiceItem(description, unitPrice, serviceId, serviceNameAr, serviceNameEn, adjustmentAmount, discountPercent));
         RecalculateTotal();
         AddHistory(InvoiceHistoryAction.ItemAdded, description);
     }

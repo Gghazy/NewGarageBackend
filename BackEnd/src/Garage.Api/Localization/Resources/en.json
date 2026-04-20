@@ -91,6 +91,18 @@
     "Deleted": "Service price deleted successfully.",
     "NotFound": "Service price not found."
   },
+  "ServiceDiscount": {
+    "Created": "Service discount created successfully.",
+    "Updated": "Service discount updated successfully.",
+    "Deleted": "Service discount deleted successfully.",
+    "NotFound": "Service discount not found."
+  },
+  "ServicePointRule": {
+    "Created": "Service point rule created successfully.",
+    "Updated": "Service point rule updated successfully.",
+    "Deleted": "Service point rule deleted successfully.",
+    "NotFound": "Service point rule not found."
+  },
   "Role": {
     "Created": "Role created successfully.",
     "Updated": "Role updated successfully.",

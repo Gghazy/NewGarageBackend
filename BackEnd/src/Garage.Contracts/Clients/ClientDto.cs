@@ -28,6 +28,7 @@ public record ClientDto(
     string? CitySubdivisionName,
     // Stats
     int ExaminationCount,
-    decimal TotalRevenue
+    decimal TotalRevenue,
+    int Points
    );
 

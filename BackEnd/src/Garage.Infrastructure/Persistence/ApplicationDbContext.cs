@@ -24,6 +24,8 @@ using Garage.Domain.MechParts.Entities;
 using Garage.Domain.MechPartTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
 using Garage.Domain.SensorIssues.Entities;
+using Garage.Domain.ServiceDiscounts.Entities;
+using Garage.Domain.ServicePointRules.Entities;
 using Garage.Domain.ServicePrices.Entities;
 using Garage.Domain.Services.Entities;
 using Garage.Domain.Terms.Entity;
@@ -100,6 +102,8 @@ public sealed class ApplicationDbContext
     public DbSet<ServicesStage> ServicesStages => Set<ServicesStage>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<ServicePrice> ServicePrices => Set<ServicePrice>();
+    public DbSet<ServiceDiscount> ServiceDiscounts => Set<ServiceDiscount>();
+    public DbSet<ServicePointRule> ServicePointRules => Set<ServicePointRule>();
     #endregion
 
     #region Employees

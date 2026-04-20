@@ -15,33 +15,48 @@ public sealed class InvoiceItem : Entity
     public string? ServiceNameEn { get; private set; }
     public decimal AdjustmentAmount { get; private set; }
 
+    // Per-item discount
+    public decimal DiscountPercent { get; private set; }
+    public Money DiscountAmount { get; private set; } = Money.Zero();
+
     private InvoiceItem() { } // EF
 
     internal InvoiceItem(string description, Money unitPrice,
         Guid? serviceId = null, string? serviceNameAr = null, string? serviceNameEn = null,
-        decimal adjustmentAmount = 0)
+        decimal adjustmentAmount = 0, decimal discountPercent = 0)
     {
         Description      = description;
         UnitPrice        = unitPrice;
-        TotalPrice       = adjustmentAmount != 0
-            ? Money.CreateAllowNegative(adjustmentAmount, unitPrice.Currency)
-            : Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
         ServiceId        = serviceId;
         ServiceNameAr    = serviceNameAr;
         ServiceNameEn    = serviceNameEn;
         AdjustmentAmount = adjustmentAmount;
+        DiscountPercent  = discountPercent;
+        Recalculate(unitPrice, adjustmentAmount, discountPercent);
     }
 
-    internal void Update(string description, Money unitPrice, decimal adjustmentAmount = 0)
+    internal void Update(string description, Money unitPrice, decimal adjustmentAmount = 0, decimal discountPercent = 0)
     {
         Description      = description;
         UnitPrice        = unitPrice;
-        TotalPrice       = adjustmentAmount != 0
-            ? Money.CreateAllowNegative(adjustmentAmount, unitPrice.Currency)
-            : Money.CreateAllowNegative(unitPrice.Amount, unitPrice.Currency);
         AdjustmentAmount = adjustmentAmount;
+        DiscountPercent  = discountPercent;
+        Recalculate(unitPrice, adjustmentAmount, discountPercent);
     }
 
-    private static string? Normalize(string? v)
-        => string.IsNullOrWhiteSpace(v) ? null : v.Trim();
+    internal void SetDiscount(decimal discountPercent)
+    {
+        DiscountPercent = discountPercent;
+        Recalculate(UnitPrice, AdjustmentAmount, discountPercent);
+    }
+
+    private void Recalculate(Money unitPrice, decimal adjustmentAmount, decimal discountPercent)
+    {
+        var baseAmount = adjustmentAmount != 0 ? adjustmentAmount : unitPrice.Amount;
+        var discountAmt = discountPercent > 0
+            ? Math.Round(baseAmount * discountPercent / 100m, 2)
+            : 0m;
+        DiscountAmount = Money.CreateAllowNegative(discountAmt, unitPrice.Currency);
+        TotalPrice = Money.CreateAllowNegative(baseAmount - discountAmt, unitPrice.Currency);
+    }
 }

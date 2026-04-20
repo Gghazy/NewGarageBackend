@@ -126,6 +126,16 @@ public static class Permission
     public const string ServicePrice_Update = "servicePrice.update";
     public const string ServicePrice_Delete = "servicePrice.delete";
 
+    public const string ServiceDiscount_Read   = "serviceDiscount.read";
+    public const string ServiceDiscount_Create = "serviceDiscount.create";
+    public const string ServiceDiscount_Update = "serviceDiscount.update";
+    public const string ServiceDiscount_Delete = "serviceDiscount.delete";
+
+    public const string ServicePointRule_Read   = "servicePointRule.read";
+    public const string ServicePointRule_Create = "servicePointRule.create";
+    public const string ServicePointRule_Update = "servicePointRule.update";
+    public const string ServicePointRule_Delete = "servicePointRule.delete";
+
 
 
     public const string Client_Read   = "clients.read";
@@ -203,6 +213,8 @@ public static class Permission
         ServiceType_Read, ServiceType_Create,ServiceType_Update, ServiceType_Delete,
         Service_Read, Service_Create,Service_Update, Service_Delete,
         ServicePrice_Create, ServicePrice_Read, ServicePrice_Update, ServicePrice_Delete,
+        ServiceDiscount_Read, ServiceDiscount_Create, ServiceDiscount_Update, ServiceDiscount_Delete,
+        ServicePointRule_Read, ServicePointRule_Create, ServicePointRule_Update, ServicePointRule_Delete,
         Crane_Read, Crane_Create,Crane_Update, Crane_Delete,
         Term_Read, Term_Create,Term_Update, Term_Delete,
         Client_Read, Client_Create,Client_Update, Client_Delete,

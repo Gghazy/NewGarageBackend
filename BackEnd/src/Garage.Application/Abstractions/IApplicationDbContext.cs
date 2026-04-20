@@ -22,6 +22,8 @@ using Garage.Domain.MechParts.Entities;
 using Garage.Domain.MechPartTypes.Entity;
 using Garage.Domain.RoadTestIssues.Entity;
 using Garage.Domain.SensorIssues.Entities;
+using Garage.Domain.ServiceDiscounts.Entities;
+using Garage.Domain.ServicePointRules.Entities;
 using Garage.Domain.ServicePrices.Entities;
 using Garage.Domain.Services.Entities;
 using Garage.Domain.InvoiceManagement.Invoices;
@@ -68,6 +70,8 @@ namespace Garage.Application.Abstractions
         DbSet<ServicesStage> ServicesStages { get; }
         DbSet<Service> Services { get; }
         DbSet<ServicePrice> ServicePrices { get; }
+        DbSet<ServiceDiscount> ServiceDiscounts { get; }
+        DbSet<ServicePointRule> ServicePointRules { get; }
         #endregion
 
         #region Employees

@@ -53,7 +53,7 @@ public sealed class GetConsolidatedByExaminationQueryHandler(
             .SumAsync(i => i.TotalWithTax.Amount, ct);
 
         // -- Consolidation logic (sign-based merging) --
-        var itemMap = new Dictionary<string, (string Desc, string? NameAr, string? NameEn, decimal UnitPrice, decimal TotalPrice, string Currency)>();
+        var itemMap = new Dictionary<string, (string Desc, string? NameAr, string? NameEn, decimal UnitPrice, decimal TotalPrice, string Currency, decimal DiscountPercent, decimal DiscountAmount)>();
         decimal discountAmount = 0, taxAmount = 0, totalWithTax = 0;
 
         foreach (var inv in invoices)
@@ -71,12 +71,14 @@ public sealed class GetConsolidatedByExaminationQueryHandler(
                     itemMap[key] = existing with
                     {
                         TotalPrice = existing.TotalPrice + sign * item.TotalPrice,
+                        DiscountAmount = existing.DiscountAmount + sign * item.DiscountAmount,
                     };
                 }
                 else
                 {
                     itemMap[key] = (item.Description, item.ServiceNameAr, item.ServiceNameEn,
-                        item.UnitPrice, sign * item.TotalPrice, item.Currency);
+                        item.UnitPrice, sign * item.TotalPrice, item.Currency,
+                        item.DiscountPercent, sign * item.DiscountAmount);
                 }
             }
         }
@@ -84,7 +86,8 @@ public sealed class GetConsolidatedByExaminationQueryHandler(
         var items = itemMap.Values
             .Where(it => Math.Abs(it.TotalPrice) > 0.001m)
             .Select(it => new ConsolidatedItemResponse(
-                it.Desc, it.NameAr, it.NameEn, it.UnitPrice, it.TotalPrice, it.Currency))
+                it.Desc, it.NameAr, it.NameEn, it.UnitPrice, it.TotalPrice, it.Currency,
+                it.DiscountPercent, it.DiscountAmount))
             .ToList();
 
         var first = invoices[0];

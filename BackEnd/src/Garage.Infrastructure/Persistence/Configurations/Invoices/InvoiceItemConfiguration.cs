@@ -49,6 +49,24 @@ public sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceI
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0m);
 
+        b.Property(x => x.DiscountPercent)
+            .HasColumnType("decimal(5,2)")
+            .HasDefaultValue(0m);
+
+        b.OwnsOne(x => x.DiscountAmount, m =>
+        {
+            m.Property(p => p.Amount)
+                .HasColumnName("DiscountAmount")
+                .HasColumnType("decimal(18,2)")
+                .HasDefaultValue(0m)
+                .IsRequired();
+
+            m.Property(p => p.Currency)
+                .HasColumnName("DiscountCurrency")
+                .HasMaxLength(3)
+                .IsRequired();
+        });
+
         b.Property(x => x.CreatedAtUtc).HasDefaultValueSql("GETUTCDATE()");
     }
 }

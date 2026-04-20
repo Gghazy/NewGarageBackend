@@ -20,6 +20,22 @@ public abstract class Client : AggregateRoot
 
     public Address Address { get; private set; } = null!;
 
+    public int Points { get; private set; }
+
+    public void AddPoints(int points)
+    {
+        if (points <= 0) return;
+        Points += points;
+    }
+
+    public void DeductPoints(int points)
+    {
+        if (points <= 0) return;
+        if (points > Points)
+            throw new DomainException("Insufficient points");
+        Points -= points;
+    }
+
 
     protected Client() { }
 

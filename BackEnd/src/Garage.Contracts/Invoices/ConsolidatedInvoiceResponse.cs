@@ -43,5 +43,7 @@ public sealed record ConsolidatedItemResponse(
     string? ServiceNameEn,
     decimal UnitPrice,
     decimal TotalPrice,
-    string  Currency
+    string  Currency,
+    decimal DiscountPercent = 0,
+    decimal DiscountAmount = 0
 );

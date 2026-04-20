@@ -27,6 +27,9 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AwardedPoints")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -600,6 +603,9 @@ namespace Garage.Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("ResourceId")
                         .HasColumnType("uniqueidentifier");
@@ -2163,6 +2169,11 @@ namespace Garage.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<decimal>("DiscountPercent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<Guid?>("InvoiceId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2608,6 +2619,120 @@ namespace Garage.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SensorIssues", (string)null);
+                });
+
+            modelBuilder.Entity("Garage.Domain.ServiceDiscounts.Entities.ServiceDiscount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("ServiceId", "StartDate", "EndDate");
+
+                    b.ToTable("ServiceDiscounts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServiceDiscount_DateRange", "[StartDate] <= [EndDate]");
+
+                            t.HasCheckConstraint("CK_ServiceDiscount_Percent", "[DiscountPercent] > 0 AND [DiscountPercent] <= 100");
+                        });
+                });
+
+            modelBuilder.Entity("Garage.Domain.ServicePointRules.Entities.ServicePointRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("FromAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ToAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromAmount", "ToAmount");
+
+                    b.ToTable("ServicePointRules", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServicePointRule_AmountRange", "[FromAmount] < [ToAmount]");
+
+                            t.HasCheckConstraint("CK_ServicePointRule_Points", "[Points] > 0");
+                        });
                 });
 
             modelBuilder.Entity("Garage.Domain.ServicePrices.Entities.ServicePrice", b =>
@@ -3703,6 +3828,31 @@ namespace Garage.Infrastructure.Migrations
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "DiscountAmount", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("decimal(18,2)")
+                                .HasDefaultValue(0m)
+                                .HasColumnName("DiscountAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("DiscountCurrency");
+
+                            b1.HasKey("InvoiceItemId");
+
+                            b1.ToTable("InvoiceItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceItemId");
+                        });
+
                     b.OwnsOne("Garage.Domain.ExaminationManagement.Shared.Money", "TotalPrice", b1 =>
                         {
                             b1.Property<Guid>("InvoiceItemId")
@@ -3748,6 +3898,9 @@ namespace Garage.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("InvoiceItemId");
                         });
+
+                    b.Navigation("DiscountAmount")
+                        .IsRequired();
 
                     b.Navigation("TotalPrice")
                         .IsRequired();

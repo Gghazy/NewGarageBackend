@@ -46,7 +46,9 @@ public static class InvoiceProjection
                 item.ServiceId,
                 item.ServiceNameAr,
                 item.ServiceNameEn,
-                item.AdjustmentAmount
+                item.AdjustmentAmount,
+                item.DiscountPercent,
+                item.DiscountAmount.Amount
             )).ToList(),
             // Payments
             i.Payments.Select(p => new InvoicePaymentDto(

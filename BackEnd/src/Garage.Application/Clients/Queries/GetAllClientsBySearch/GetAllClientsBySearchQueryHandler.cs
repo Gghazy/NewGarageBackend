@@ -62,7 +62,8 @@ public class GetAllClientsBySearchQueryHandler(IApplicationDbContext _dbContext)
                      && i.Type == InvoiceType.Invoice
                      && i.Status != InvoiceStatus.Cancelled
                      && !i.IsDeleted)
-            .Sum(i => (decimal?)i.TotalWithTax.Amount) ?? 0m
+            .Sum(i => (decimal?)i.TotalWithTax.Amount) ?? 0m,
+        c.Points
     );
 
         return await query.ToQueryResult(command.Search.CurrentPage, command.Search.ItemsPerPage, ct: ct);
